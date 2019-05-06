@@ -1,0 +1,6 @@
+*.o
+*.types
+*.types.check
+/build
+/main
+/tags
