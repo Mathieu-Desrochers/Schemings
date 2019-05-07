@@ -35,7 +35,6 @@ Run the following commands.
     $ ./main
 
     cHRLAAgAAAAwpvP//38AAA==
-    #${70744b000800000030a6f3ffff7f0000}
 
 powered by
 ----------
