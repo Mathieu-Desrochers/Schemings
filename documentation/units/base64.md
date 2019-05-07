@@ -31,9 +31,6 @@ Run the following commands.
     (display (base64-encode (make-blob 16)))
     (newline)
 
-    (display (base64-decode "cHRLAAgAAAAwpvP//38AAA=="))
-    (newline)
-
     $ make
     $ ./main
 
