@@ -20,8 +20,8 @@ __release-procedure__
 A procedure invoked with the allocated resource.  
 It is responsible for its release.
 
-example
--------
+try it yourself
+---------------
 Run the following commands.
 
     $ vim sources/main.scm
