@@ -2,6 +2,8 @@
 (import srfi-13)
 (import srfi-14)
 
+(import (chicken blob))
+
 (declare (unit base64))
 
 (declare (uses b64))
