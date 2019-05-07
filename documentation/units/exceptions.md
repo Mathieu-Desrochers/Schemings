@@ -2,17 +2,8 @@ with-exception-hiding
 ---------------------
 Invokes a procedure and hides any exception it raises.
 
-__invocation__
-
-    (with-exception-hiding
-      (lambda ()
-        (/ 1 0)))
-
-    (display "Still running")
-
-__output__
-
-    Still running
+__procedure__  
+A procedure that does shady things.
 
 with-guaranteed-release
 -----------------------
@@ -29,13 +20,29 @@ __release-procedure__
 A procedure invoked with the allocated resource.  
 It is responsible for its release.
 
-__invocation__
+example
+-------
+Run the following commands.
+
+    $ vim sources/main.scm
+
+    (declare (uses exceptions))
 
     (with-guaranteed-release
       (lambda () "expensive resource")
       (lambda (resource) (/ 1 0))
-      (lambda (resource) (display (string-append "releasing " resource))))
+      (lambda (resource)
+        (display (string-append "releasing " resource))
+        (newline)))
 
-__output__
+    $ make
+    $ ./main
 
     releasing expensive resource
+
+    Error: (/) division by zero
+    1
+    0
+
+    Call history:
+    ...
