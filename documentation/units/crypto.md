@@ -22,8 +22,6 @@ Returns a random string.
 __length__  
 A string length.
 
-    16
-
 __result__  
 The random string.
 
