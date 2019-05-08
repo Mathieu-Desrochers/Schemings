@@ -66,14 +66,14 @@ Run the following commands.
     (display (crypto-random-number 100))
     (newline)
 
-    (display (crypto-hash-string "Guess this should rather be signed." "sUp3r-s3cReT"))
+    (display (crypto-hash-string "Guess this should be signed." "sUp3r-s3cReT"))
     (newline)
 
     $ make
     $ ./main
 
-    81
-    kkvXnO3yFZu3eJPvV2bnBIA9o2KGS71i8U34c/+Bjfc=
+    24
+    KC1QR32cw1F1ZsmDqvPfo4josdpe/xXWdZfOmOLCsF8=
 
 powered by
 ----------
