@@ -42,16 +42,7 @@ The hash of the bytes encoded in base64.
 
 crypto-hash-string
 ------------------
-Computes the hash of a string.
-
-__string__  
-A string.
-
-__secret__  
-A string known only to the application.
-
-__result__  
-The hash of the string encoded in base64.
+Same as above but for a string.
 
 try it
 ------
