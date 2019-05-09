@@ -4,8 +4,8 @@ You understand that simplicity is beautiful, and that Scheme
 is the very essence of what it means to write software.  
 
 But somehow committing to an uncommon language appears risky.  
-Hard to you guarantee the ecosystem will provide a library for  
-all your needs down the road. Oh dang, there is no YAML parser...  
+Hard to you guarantee the ecosystem will provide a library for all  
+your needs down the road. Oh dang, there is no YAML parser...
 
 We fought with this dilemma, and this project is our answer to it.
 
@@ -23,3 +23,18 @@ The language we love, every library we could ever need.
 
 Many batteries included
 -----------------------
+We run a commercial web service based on this project.  
+Every library we needed is included here.  
+That covers a broad base.
+
+- base64 encoding
+- configuration
+- crypto
+- emails sending
+- fastcgi integration
+- http handling
+- i18n
+- image processing
+- json parsing and formatting
+- regular expressions
+- sqlite
