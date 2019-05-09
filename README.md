@@ -24,8 +24,7 @@ The language we love, every library we could ever need.
 Many batteries included
 -----------------------
 We run a commercial web service based on this project.  
-Every library we needed is included here.  
-That covers a broad base.
+Every library we needed is included here. That covers a broad base.
 
 - base64 encoding
 - configuration
