@@ -42,14 +42,25 @@ Getting started
 ---------------
 Install the required dependencies.
 
-- [On Ubuntu](./documentation/procedures/installing-dependencies-ubuntu.md)
-- [On FreeBSD](.)
+- [Ubuntu](./documentation/procedures/installing-dependencies-ubuntu.md)
+- [FreeBSD](.)
 
 Run the following commands.
 
     $ git clone https://github.com/Mathieu-Desrochers/Schemings.git Schemings
+
     $ cd Schemings
     $ make
     $ ./main
 
     Hello World
+
+Nifty documentation
+-------------------
+Every unit is fully documented, with minimal stand alone examples.  
+You simply copy one inside source/main.scm and do the make dance.
+
+    $ make
+    $ ./main
+
+    Result from the chosen example.

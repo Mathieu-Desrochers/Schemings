@@ -44,9 +44,7 @@ Same as above but for a string.
 
 try it
 ------
-Run the following commands.
-
-    $ vim sources/main.scm
+Place the following code in sources/main.scm.
 
     (declare (uses crypto))
 
@@ -57,6 +55,8 @@ Run the following commands.
 
     (display (crypto-hash-string "Guess this should be signed." "sUp3r-s3cReT"))
     (newline)
+
+Run the following commands.
 
     $ make
     $ ./main
