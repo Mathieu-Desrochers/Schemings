@@ -20,9 +20,7 @@ The blob of bytes.
 
 try it
 ------
-Run the following commands.
-
-    $ vim sources/main.scm
+Place the following code in sources/main.scm.
 
     (import (chicken blob))
 
@@ -30,6 +28,8 @@ Run the following commands.
 
     (display (base64-encode (make-blob 16)))
     (newline)
+
+Run the following commands.
 
     $ make
     $ ./main
