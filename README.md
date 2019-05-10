@@ -1,7 +1,7 @@
 You love Scheme
 ---------------
-You understand that simplicity is beautiful, and that  
-Scheme is the very essence of what it means to write software.
+You understand that simplicity is beautiful, and that Scheme  
+is the very essence of what it means to write software.
 
 But somehow committing to an uncommon language appears risky.  
 Hard to guarantee the ecosystem will provide a library for all your  
@@ -40,27 +40,14 @@ Every library we needed is included here. That covers a broad base.
 
 Getting started
 ---------------
-On Ubuntu run the following commands.
+Install the required dependencies.
 
-    $ sudo apt-get install gcc
-    $ sudo apt-get install libb64-dev
-    $ sudo apt-get install libsodium-dev
-    $ sudo apt-get install libc6-dev
-    $ sudo apt-get install make
+- [On Ubuntu](./documentation/procedures/installing-dependencies-ubuntu.md)
+- [On FreeBSD](.)
 
-    $ wget https://code.call-cc.org/releases/5.0.0/chicken-5.0.0.tar.gz
-    $ tar -xf chicken-5.0.0.tar.gz
-    $ cd chicken-5.0.0
-    $ make PLATFORM=linux
-    $ sudo make PLATFORM=linux install
-    $ sudo ln /usr/local/bin/csc /usr/local/bin/csc5
-    $ sudo ln /usr/local/bin/chicken-install /usr/local/bin/chicken-install5
-
-    $ sudo chicken-install srfi-13
-    $ sudo chicken-install srfi-14
+Run the following commands.
 
     $ git clone https://github.com/Mathieu-Desrochers/Schemings.git Schemings
-
     $ cd Schemings
     $ make
     $ ./main

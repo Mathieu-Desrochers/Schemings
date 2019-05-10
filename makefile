@@ -33,7 +33,7 @@ main : build/object.o build/types sources/main.scm
 	sources/main.scm -o main
 
 tags : $(OBJECTS)
-	uctags -R --languages=scheme
+	ctags -R --languages=scheme
 
 check-types : $(TYPES_CHECK)
 
