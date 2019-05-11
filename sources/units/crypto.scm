@@ -2,6 +2,8 @@
 (import srfi-13)
 
 (import (chicken blob))
+(import (chicken condition))
+(import (chicken format))
 
 (declare (unit crypto))
 

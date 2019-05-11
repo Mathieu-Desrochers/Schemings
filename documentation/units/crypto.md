@@ -1,7 +1,8 @@
 crypto-init
 -----------
 Initializes the crypto module.  
-Make sure to invoke before any other procedures in this unit.
+Make sure to invoke this procedure before  
+any other ones in this unit.
 
 crypto-random-number
 --------------------

@@ -3,6 +3,8 @@
 (import srfi-14)
 
 (import (chicken blob))
+(import (chicken condition))
+(import (chicken format))
 
 (declare (unit base64))
 
