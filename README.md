@@ -27,7 +27,7 @@ We run a commercial web application based on this project.
 Every library we needed is included here. That covers a broad base.
 
 - base64 encoding
-- configuration
+- configuration files
 - crypto
 - emails sending
 - fastcgi integration
@@ -40,12 +40,14 @@ Every library we needed is included here. That covers a broad base.
 
 Getting started
 ---------------
-Install the required dependencies.
+We provide simple commands to install the required dependencies.  
+Simply click on your OS of choice in the following list.
 
 - [Ubuntu](./documentation/procedures/installing-dependencies-ubuntu.md)
 - [FreeBSD](.)
 
-Run the following commands.
+Once this is done, you can run the following commands.  
+And there you are with a fully operational Scheme environment.
 
     $ git clone https://github.com/Mathieu-Desrochers/Schemings.git Schemings
 
@@ -55,10 +57,12 @@ Run the following commands.
 
     Hello World
 
-Nifty documentation
+Handy documentation
 -------------------
-Every unit is fully documented, with minimal stand alone examples.  
-You simply copy one inside source/main.scm and do the make dance.
+No worries, you are not left alone in the dark. Every interface is  
+fully documented, and it provides minimal and stand-alone examples.
+
+Simply copy one inside source/main.scm and do the make dance.
 
     $ make
     $ ./main
