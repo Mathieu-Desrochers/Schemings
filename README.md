@@ -59,10 +59,12 @@ And there you are with a fully operational Scheme environment.
 
 Handy documentation
 -------------------
-No worries, you are not left alone in the dark. Every interface is  
-fully documented, and it provides minimal and stand-alone examples.
+No worries, you are not left alone in the dark. Every  
+interface is fully documented, and it provides minimal  
+and stand-alone examples.
 
-Simply copy one inside source/main.scm and do the make dance.
+Simply copy one inside source/main.scm  
+and do the make dance.
 
     $ make
     $ ./main
