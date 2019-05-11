@@ -63,10 +63,14 @@ No worries, you are not left alone in the dark. Every
 interface is fully documented, and it provides minimal  
 and stand-alone examples.
 
-Simply copy one inside source/main.scm  
+Simply copy one inside source/main.scm,  
 and do the make dance.
 
     $ make
     $ ./main
 
     Result from the chosen example.
+
+The complete documentation can be accessed here.
+
+- [Documentation](./documentation/units/)
