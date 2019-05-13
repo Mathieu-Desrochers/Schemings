@@ -106,7 +106,7 @@ json-object-get-value
 Returns a value from an object node.
 
 __json-node__  
-A json node.
+An object node.
 
 __property-name__  
 A property name.
@@ -119,7 +119,7 @@ json-object-get-object
 Returns an object node from an object node.
 
 __json-node__  
-A json node.
+An object node.
 
 __property-name__  
 A property name.
@@ -132,7 +132,7 @@ json-object-get-array
 Returns an array node from an object node.
 
 __json-node__  
-A json node.
+An object node.
 
 __property-name__  
 A property name.
@@ -145,7 +145,7 @@ json-array-get-value
 Returns a value from an array node.
 
 __json-node__  
-A json node.
+An array node.
 
 __index__  
 An index.
@@ -158,7 +158,7 @@ json-array-get-object
 Returns an object node from an array node.
 
 __json-node__  
-A json node.
+An array node.
 
 __index__  
 An index.
@@ -171,7 +171,7 @@ json-array-get-array
 Returns an array node from an array node.
 
 __json-node__  
-A json node.
+An array node.
 
 __index__  
 An index.
@@ -184,7 +184,7 @@ json-array-length
 Returns the length of an array node.
 
 __json-node__  
-A json node.
+An array node.
 
 __result__  
 The length of the array node.
