@@ -1,12 +1,12 @@
-with-json-object-node
----------------------
+with-json-object
+----------------
 Invokes a procedure with a new object node.
 
 __procedure__  
 A procedure accepting the object node.
 
-with-json-array-node
---------------------
+with-json-array
+---------------
 Invokes a procedure with a new array node.
 
 __procedure__  
@@ -193,12 +193,52 @@ try it
 ------
 Place the following code in sources/main.scm.
 
+    (declare (uses json))
+
+    (with-json-array
+      (lambda (root-node)
+        (let ((crypto-1 (json-array-add-object root-node))
+              (crypto-2 (json-array-add-object root-node)))
+
+          (json-object-add-value crypto-1 "name" "bitcoin")
+          (json-object-add-value crypto-1 "hype-factor" 10)
+
+          (json-object-add-value crypto-2 "name" "dogecoin")
+          (json-object-add-value crypto-2 "hype-factor" 1000)
+
+          (display (json->string root-node))
+          (newline))))
+
+    (with-string->json
+      "{\"recipe\":{\"name\":\"choco puffs\",\"ingredients\":[\"chocolate\",\"puffs\"]}}"
+      (lambda (root-node)
+
+        (display "Secret Ingredient: ")
+        (display
+          (json-array-get-value
+            (json-object-get-array
+              (json-object-get-object root-node "recipe")
+              "ingredients")
+            1))
+
+        (newline)))
 
 Run the following commands.
 
     $ make
     $ ./main
 
+    [
+      {
+        "name": "bitcoin",
+        "hype-factor": 10
+      },
+      {
+        "name": "dogecoin",
+        "hype-factor": 1000
+      }
+    ]
+    Secret Ingredient: puffs
 
 powered by
 ----------
