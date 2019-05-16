@@ -202,7 +202,6 @@ Place the following code in sources/main.scm.
 
           (json-object-add-value crypto-1 "name" "bitcoin")
           (json-object-add-value crypto-1 "hype-factor" 10)
-
           (json-object-add-value crypto-2 "name" "dogecoin")
           (json-object-add-value crypto-2 "hype-factor" 1000)
 
@@ -212,7 +211,6 @@ Place the following code in sources/main.scm.
     (with-string->json
       "{\"recipe\":{\"name\":\"choco puffs\",\"ingredients\":[\"chocolate\",\"puffs\"]}}"
       (lambda (root-node)
-
         (display "Secret Ingredient: ")
         (display
           (json-array-get-value
@@ -220,7 +218,6 @@ Place the following code in sources/main.scm.
               (json-object-get-object root-node "recipe")
               "ingredients")
             1))
-
         (newline)))
 
 Run the following commands.
