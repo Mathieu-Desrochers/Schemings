@@ -8,6 +8,7 @@ Run the following commands.
     $ sudo apt install libconfig-dev
     $ sudo apt install libicu-dev
     $ sudo apt install libjansson-dev
+    $ sudo apt install libpcre3-dev
     $ sudo apt install libsodium-dev
     $ sudo apt install libc6-dev
     $ sudo apt install make

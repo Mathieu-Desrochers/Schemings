@@ -37,7 +37,7 @@ build/types : $(OBJECTS)
 	cat $(TYPES) > $@
 
 main : build/object.o build/types sources/main.scm
-	csc5 -L -lb64 -L -lconfig -L -licuuc -L -licui18n -L -ljansson -L -lsodium \
+	csc5 -L '-lb64 -lconfig -licuuc -licui18n -ljansson -lpcre -lsodium' \
 	-types build/types build/object.o sources/main.scm -o main
 
 tags : $(OBJECTS)
