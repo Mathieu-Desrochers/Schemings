@@ -6,6 +6,7 @@ Run the following commands.
     $ sudo apt install gcc
     $ sudo apt install libb64-dev
     $ sudo apt install libconfig-dev
+    $ sudo apt install libicu-dev
     $ sudo apt install libjansson-dev
     $ sudo apt install libsodium-dev
     $ sudo apt install libc6-dev

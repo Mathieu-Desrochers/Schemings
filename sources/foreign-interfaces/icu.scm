@@ -73,9 +73,9 @@ int32_t ucasemap_utf8ToLower_wrapped(
 // wraps the utrans_transUChars function
 void utrans_transUChars_wrapped(
   const UTransliterator* trans, UChar* text, unsigned int* textLength,
-  int32_t textCapacity, int32_t start, int32_t limit, UErrorCode* status)
+  int32_t textCapacity, int32_t start, unsigned int* limit, UErrorCode* status)
 {
-  utrans_transUChars(trans, text, (int*)textLength, textCapacity, start, &limit, status);
+  utrans_transUChars(trans, text, (int*)textLength, textCapacity, start, (int*)limit, status);
 }
 
 ")
@@ -139,7 +139,7 @@ void utrans_transUChars_wrapped(
 ;; transliterates a segment of a string
 (define u-trans-trans-u-char
   (foreign-lambda void "utrans_transUChars_wrapped"
-    u-transliterator* u-char* u32vector int int int u-error-code*))
+    u-transliterator* u-char* u32vector int int u32vector u-error-code*))
 
 ;; closes a u-transliterator
 (define u-trans-close (foreign-lambda void "utrans_close" u-transliterator*))
