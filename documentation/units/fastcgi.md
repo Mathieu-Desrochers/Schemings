@@ -105,8 +105,7 @@ Place the following configuration in lighttpd.conf.
       )
     )
 
-Start the lighttpd server and  
-run the following command.
+Start the lighttpd server and run the following command.
 
     $ curl -i 'http://localhost/main/pizza'
 
