@@ -6,7 +6,7 @@ __vectors__
 A list of vectors.
 
 __length__  
-The number of elements to keep from the concatenated vector.
+A number of elements to keep from the concatenated vector.
 
 __result__  
 The concatenated vector.
