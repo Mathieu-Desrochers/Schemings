@@ -6,6 +6,7 @@ Run the following commands.
     $ sudo apt install gcc
     $ sudo apt install libb64-dev
     $ sudo apt install libconfig-dev
+    $ sudo apt install libcurl4-openssl-dev
     $ sudo apt install libfcgi-dev
     $ sudo apt install libicu-dev
     $ sudo apt install libjansson-dev
@@ -21,6 +22,8 @@ Run the following commands.
     $ sudo make PLATFORM=linux install
     $ sudo ln /usr/local/bin/csc /usr/local/bin/csc5
 
+    $ sudo chicken-install srfi-1
     $ sudo chicken-install srfi-4
     $ sudo chicken-install srfi-13
     $ sudo chicken-install srfi-14
+    $ sudo chicken-install srfi-69
