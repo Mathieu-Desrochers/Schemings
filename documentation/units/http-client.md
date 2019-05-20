@@ -1,7 +1,6 @@
 http-client-request
 -------------------
-Record encapsulating an http client request.  
-Has the following fields.
+A record with the following fields.
 
 - method
 - url
@@ -11,8 +10,7 @@ Has the following fields.
 
 http-client-response
 --------------------
-Record encapsulating an http client response.  
-Has the following fields.
+A record with the following fields.
 
 - status-code
 - body
