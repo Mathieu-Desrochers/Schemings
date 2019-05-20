@@ -34,7 +34,7 @@ size_t curl_easy_perform_write_callback(char* ptr, size_t size, size_t nmemb, vo
 char* curl_easy_perform_wrapped(CURL* curl, long* result_code)
 {
   struct curl_write_data* curl_write_data = malloc(sizeof(struct curl_write_data));
-  curl_write_data->memory = malloc(1);
+  curl_write_data->memory = calloc(1, 1);
   curl_write_data->size = 0;
 
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_easy_perform_write_callback);
