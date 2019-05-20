@@ -7,6 +7,7 @@ Run the following commands.
     $ sudo apt install libb64-dev
     $ sudo apt install libconfig-dev
     $ sudo apt install libcurl4-openssl-dev
+    $ sudo apt install libetpan-dev
     $ sudo apt install libfcgi-dev
     $ sudo apt install libicu-dev
     $ sudo apt install libjansson-dev
