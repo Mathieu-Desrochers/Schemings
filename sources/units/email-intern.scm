@@ -52,8 +52,8 @@
           (if (and content-type-parameter-name content-type-parameter-value)
             (let ((mailmime-parameter*
                     (mailmime-param-new-with-data
-                      (mailmime-strdup content-type-parameter-name)
-                      (mailmime-strdup content-type-parameter-value))))
+                      content-type-parameter-name
+                      content-type-parameter-value)))
               (unless mailmime-parameter*
                 (abort"failed to create mailmime-parameter"))
               (unless (eq? (mailmime-content-add-parameter mailmime-content* mailmime-parameter*) 0)
@@ -115,7 +115,7 @@
       (unless mailmime-content*
         (abort "failed to create mailmime-content"))
       (let ((mailmime-parameter*
-              (mailmime-param-new-with-data (mailmime-strdup "boundary") (mailmime-strdup boundary))))
+              (mailmime-param-new-with-data "boundary" boundary)))
         (unless mailmime-parameter*
           (abort"failed to create mailmime-parameter"))
         (unless (eq? (mailmime-content-add-parameter mailmime-content* mailmime-parameter*) 0)

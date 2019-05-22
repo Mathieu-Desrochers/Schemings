@@ -112,7 +112,7 @@ char* mailmime_write_file_wrapped(struct mailmime* mailmime)
 
 ;; creates and initializes a mailmime parameter
 (define mailmime-param-new-with-data
-  (foreign-lambda mailmime-parameter* "mailmime_param_new_with_data" c-pointer c-pointer))
+  (foreign-lambda mailmime-parameter* "mailmime_param_new_with_data" c-string c-string))
 
 ;; creates and initializes a mailmime content
 (define mailmime-content-new-with-str
