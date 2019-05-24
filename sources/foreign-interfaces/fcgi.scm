@@ -43,18 +43,6 @@ void free_fcgx_paramarray(FCGX_ParamArray* fcgx_paramarray)
   free(fcgx_paramarray);
 }
 
-// wraps the FCGX_PutStr function
-int FCGX_PutStr_wrapped(const unsigned char* str, int n, FCGX_Stream* stream)
-{
-  return FCGX_PutStr((char*)str, n, stream);
-}
-
-// wraps the FCGX_GetStr function
-int FCGX_GetStr_wrapped(unsigned char* str, int n, FCGX_Stream* stream)
-{
-  return FCGX_GetStr((char*)str, n, stream);
-}
-
 ")
 
 ;; fcgx-stream pointers definitions
@@ -85,13 +73,13 @@ int FCGX_GetStr_wrapped(unsigned char* str, int n, FCGX_Stream* stream)
 (define fcgx-getparam (foreign-lambda c-string "FCGX_GetParam" (const c-string) fcgx-paramarray))
 
 ;; reads up to n consecutive bytes from the input stream
-(define fcgx-getstr (foreign-lambda int "FCGX_GetStr_wrapped" u8vector int fcgx-stream*))
+(define fcgx-getstr (foreign-lambda int "FCGX_GetStr" u8vector int fcgx-stream*))
 
 ;; writes a null-terminated character string to the output stream
 (define fcgx-puts (foreign-lambda int "FCGX_PutS" (const c-string) fcgx-stream*))
 
 ;; writes consecutive bytes to the output stream
-(define fcgx-putstr (foreign-lambda int "FCGX_PutStr_wrapped" (const blob) int fcgx-stream*))
+(define fcgx-putstr (foreign-lambda int "FCGX_PutStr" (const blob) int fcgx-stream*))
 
 ;; finishes the current request from the http server
 (define fcgx-finish (foreign-lambda void "FCGX_Finish"))

@@ -50,15 +50,6 @@ char* base64_encode_block_wrapped(
   return encoded;
 }
 
-// wraps the base64_decode_block function
-int base64_decode_block_wrapped(
-  unsigned char* code_in, int length_in,
-  unsigned char* plaintext_out,
-  base64_decodestate* state_in)
-{
-  return base64_decode_block((char*)code_in, length_in, (char*)plaintext_out, state_in);
-}
-
 ")
 
 ;; base64-encodestate pointers definitions
@@ -88,5 +79,5 @@ int base64_decode_block_wrapped(
 
 ;; decodes a block
 (define base64-decode-block
-  (foreign-lambda int "base64_decode_block_wrapped"
+  (foreign-lambda int "base64_decode_block"
     u8vector int u8vector base64-decodestate*))

@@ -38,46 +38,6 @@ void free_u_error_code(UErrorCode* errorCode)
   free(errorCode);
 }
 
-// wraps the u_strFromUTF8 function
-UChar* u_strFromUTF8_wrapped(
-  UChar *dest, int32_t destCapacity, unsigned int* pDestLength,
-  const char *src, int32_t srcLength, UErrorCode *pErrorCode)
-{
-  return u_strFromUTF8(dest, destCapacity, (int*)pDestLength, src, srcLength, pErrorCode);
-}
-
-// wraps the u_strToUTF8 function
-char* u_strToUTF8_wrapped(
-  unsigned char *dest, int32_t destCapacity, unsigned int* pDestLength,
-  const UChar *src, int32_t srcLength, UErrorCode *pErrorCode)
-{
-  return u_strToUTF8((char*)dest, destCapacity, (int*)pDestLength, src, srcLength, pErrorCode);
-}
-
-// wraps the ucasemap_utf8ToUpper function
-int32_t ucasemap_utf8ToUpper_wrapped(
-  const UCaseMap *csm, unsigned char *dest, int32_t destCapacity,
-  const char *src, int32_t srcLength, UErrorCode *pErrorCode)
-{
-  return ucasemap_utf8ToUpper(csm, (char*)dest, destCapacity, src, srcLength, pErrorCode);
-}
-
-// wraps the ucasemap_utf8ToLower function
-int32_t ucasemap_utf8ToLower_wrapped(
-  const UCaseMap *csm, unsigned char *dest, int32_t destCapacity,
-  const char *src, int32_t srcLength, UErrorCode *pErrorCode)
-{
-  return ucasemap_utf8ToLower(csm, (char*)dest, destCapacity, src, srcLength, pErrorCode);
-}
-
-// wraps the utrans_transUChars function
-void utrans_transUChars_wrapped(
-  const UTransliterator* trans, UChar* text, unsigned int* textLength,
-  int32_t textCapacity, int32_t start, unsigned int* limit, UErrorCode* status)
-{
-  utrans_transUChars(trans, text, (int*)textLength, textCapacity, start, (int*)limit, status);
-}
-
 ")
 
 ;; u-char pointers definitions
@@ -109,12 +69,12 @@ void utrans_transUChars_wrapped(
 
 ;; converts a UTF-8 string to UTF-16
 (define u-str-from-utf8
-  (foreign-lambda u-char* "u_strFromUTF8_wrapped"
+  (foreign-lambda u-char* "u_strFromUTF8"
     u-char* int u32vector c-string int u-error-code*))
 
 ;; converts a UTF-16 string to UTF-8
 (define u-str-to-utf8
-  (foreign-lambda u-char* "u_strToUTF8_wrapped"
+  (foreign-lambda u-char* "u_strToUTF8"
     u8vector int u32vector u-char* int u-error-code*))
 
 ;; opens and closes a u-case-map
@@ -123,12 +83,12 @@ void utrans_transUChars_wrapped(
 
 ;; upper cases the characters in a UTF-8 string
 (define u-case-map-utf8-to-upper
-  (foreign-lambda int "ucasemap_utf8ToUpper_wrapped"
+  (foreign-lambda int "ucasemap_utf8ToUpper"
     u-case-map* u8vector int c-string int u-error-code*))
 
 ;; lower cases the characters in a UTF-8 string
 (define u-case-map-utf8-to-lower
-  (foreign-lambda int "ucasemap_utf8ToLower_wrapped"
+  (foreign-lambda int "ucasemap_utf8ToLower"
     u-case-map* u8vector int c-string int u-error-code*))
 
 ;; opens a u-transliterator
@@ -138,7 +98,7 @@ void utrans_transUChars_wrapped(
 
 ;; transliterates a segment of a string
 (define u-trans-trans-u-char
-  (foreign-lambda void "utrans_transUChars_wrapped"
+  (foreign-lambda void "utrans_transUChars"
     u-transliterator* u-char* u32vector int int u32vector u-error-code*))
 
 ;; closes a u-transliterator

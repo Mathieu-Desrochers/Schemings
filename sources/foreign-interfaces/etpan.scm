@@ -17,12 +17,6 @@ int mailmime_content_add_parameter(
     mailmime_parameter);
 }
 
-// wraps the mailmime_set_body_text function
-int mailmime_set_body_text_wrapped(struct mailmime* build_info, unsigned char* data_str, size_t length)
-{
-  return mailmime_set_body_text(build_info, (char*)data_str, length);
-}
-
 // wraps the mailmime_write_file function
 char* mailmime_write_file_wrapped(struct mailmime* mailmime)
 {
@@ -130,7 +124,7 @@ char* mailmime_write_file_wrapped(struct mailmime* mailmime)
 
 ;; builds a mailmime
 (define mailmime-set-body-text
-  (foreign-lambda int "mailmime_set_body_text_wrapped" mailmime* u8vector int))
+  (foreign-lambda int "mailmime_set_body_text" mailmime* u8vector int))
 (define mailmime-add-part
   (foreign-lambda int "mailmime_add_part" mailmime* mailmime*))
 

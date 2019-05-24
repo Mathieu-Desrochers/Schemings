@@ -4,6 +4,7 @@ Run the following commands.
 
     $ sudo apt install exuberant-ctags
     $ sudo apt install gcc
+    $ sudo apt install imagemagick
     $ sudo apt install libb64-dev
     $ sudo apt install libconfig-dev
     $ sudo apt install libcurl4-openssl-dev
