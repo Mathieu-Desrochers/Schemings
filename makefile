@@ -16,13 +16,13 @@ BUILD = build/macros.scm \
 all : $(BUILD) main tags
 
 %.o : %.scm build/macros.scm
-	csc5 -I/usr/local/include -I/usr/local/include/ImageMagick-6 \
-	-C -Wno-pointer-sign -C -DMAGICKCORE_QUANTUM_DEPTH=16 -C -DMAGICKCORE_HDRI_ENABLE=0 \
+	csc5 -I/usr/include -I/usr/local/include \
+	-C -Wno-pointer-sign -C '`pkg-config --cflags MagickWand`' \
 	-extend build/macros.scm -emit-types-file $(subst .scm,.types,$<) -c $< -o $@
 
 %.types.check : %.scm build/types
-	csc5 -I/usr/local/include -I/usr/local/include/ImageMagick-6 \
-	-C -Wno-pointer-sign -C -DMAGICKCORE_QUANTUM_DEPTH=16 -C -DMAGICKCORE_HDRI_ENABLE=0 \
+	csc5 -I/usr/include -I/usr/local/include \
+	-C -Wno-pointer-sign -C '`pkg-config --cflags MagickWand`' \
 	-types build/types -c $< -o $@
 
 $(BUILD) : | build-directory
@@ -41,7 +41,8 @@ build/types : $(OBJECTS)
 
 main : build/object.o build/types sources/main.scm
 	csc5 -L '-lb64 -lconfig -lcurl -letpan -lfcgi' \
-	-L '-licuuc -licui18n -ljansson -lMagickWand-6 -lpcre -lsodium' \
+	-L '-licuuc -licui18n -ljansson -lpcre -lsodium' \
+	-L '`pkg-config --libs MagickWand`' \
 	-types build/types build/object.o sources/main.scm -o main
 
 tags : $(OBJECTS)
