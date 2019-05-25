@@ -40,8 +40,8 @@
           (unless
             (magick-resize-image
               magick-wand*
-              (* original-width resize-ratio)
-              (* original-height resize-ratio)
+              (inexact->exact (round (* original-width resize-ratio)))
+              (inexact->exact (round (* original-height resize-ratio)))
               magick-wand-lanczos-filter
               1.0)
             (abort
