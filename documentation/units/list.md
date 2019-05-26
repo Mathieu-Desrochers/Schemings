@@ -146,7 +146,7 @@ Place the following code in sources/main.scm.
         employee-id))
     (newline)
 
-    (display "unique employee names: ")
+    (display "employees unique names: ")
     (display
       (list-distinct-values
         (list
@@ -177,5 +177,5 @@ Run the following commands.
 
     employees having duplicated ids: (0 1 4 5)
     employees missing from the second list: (2)
-    unique employee names: (Alice Bob Carl)
+    employees unique names: (Alice Bob Carl)
     employees being rich: (2 3)
