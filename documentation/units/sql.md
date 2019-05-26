@@ -17,7 +17,7 @@ Otherwise it is automatically rollbacked.
 __sql-connection__  
 A sql connection.
 
-__procedure__
+__procedure__  
 A procedure invoked within the transaction.
 
 sql-execute
@@ -72,16 +72,49 @@ The searchable string.
 
 try it
 ------
+Run the following commands.
+
+    $ sqlite3 example.db
+
+    sqlite> CREATE TABLE employees
+       ...> (
+       ...>   id INTEGER PRIMARY KEY AUTOINCREMENT,
+       ...>   name TEXT,
+       ...>   salary INTEGER
+       ...> );
+    sqlite> .exit
+
 Place the following code in sources/main.scm.
 
     (declare (uses sql))
 
+    (with-sql-connection "example.db"
+      (lambda (sql-connection)
+
+        (sql-execute
+          sql-connection
+          "INSERT INTO employees (name, salary) VALUES (?1, ?2);"
+          (list "Alice" 24000))
+
+        (sql-execute
+          sql-connection
+          "INSERT INTO employees (name, salary) VALUES (?1, ?2);"
+          (list "Bob" 27000))
+
+        (display
+          (sql-read
+            sql-connection
+            "SELECT * FROM employees WHERE salary > ?1;"
+            (list 20000)))
+
+        (newline)))
 
 Run the following commands.
 
     $ make
     $ ./main
 
+    ((1 Alice 24000) (2 Bob 27000))
 
 powered by
 ----------
