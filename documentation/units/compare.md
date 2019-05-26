@@ -103,13 +103,10 @@ Place the following code in sources/main.scm.
 
       (display (compare-results-added-elements compare-results))
       (newline)
-
       (display (compare-results-changed-elements compare-results))
       (newline)
-
       (display (compare-results-unchanged-elements compare-results))
       (newline)
-
       (display (compare-results-deleted-elements compare-results))
       (newline))
 
