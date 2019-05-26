@@ -128,9 +128,7 @@ Place the following code in sources/main.scm.
           (make-employee 1001 "Carl" 22000)
           (make-employee 1002 "Dave" 23000)
           (make-employee 1003 "Eve" 24000)
-          (make-employee 1003 "Frank" 25000)
-          (make-employee 1004 "George" 26000)
-          (make-employee 1005 "Hank" 27000))
+          (make-employee 1003 "Frank" 25000))
         employee-id))
     (newline)
 
