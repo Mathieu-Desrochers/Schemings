@@ -6,6 +6,7 @@ Run the following commands.
     $ sudo apt install gcc
     $ sudo apt install imagemagick
     $ sudo apt install libb64-dev
+    $ sudo apt install libc6-dev
     $ sudo apt install libconfig-dev
     $ sudo apt install libcurl4-openssl-dev
     $ sudo apt install libetpan-dev
@@ -14,8 +15,9 @@ Run the following commands.
     $ sudo apt install libjansson-dev
     $ sudo apt install libpcre3-dev
     $ sudo apt install libsodium-dev
-    $ sudo apt install libc6-dev
+    $ sudo apt install libsqlite3-dev
     $ sudo apt install make
+    $ sudo apt install sqlite3
 
     $ wget https://code.call-cc.org/releases/5.0.0/chicken-5.0.0.tar.gz
     $ tar -xf chicken-5.0.0.tar.gz

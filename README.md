@@ -29,7 +29,7 @@ Every library we needed is included here. That covers a broad base.
 - base64 encoding
 - configuration files
 - crypto
-- emails sending
+- emails
 - fastcgi integration
 - http handling
 - image processing
@@ -74,3 +74,12 @@ and do the make dance.
 The complete documentation can be accessed here.
 
 - [Documentation](./documentation/units/)
+
+Is this code any good
+---------------------
+We think it is. The Scheme code has type annotations all over.  
+The C code compiles without warnings, and valgrind appears  
+to be happy with our memory management.
+
+Plus our commercial web application is close to one year  
+without runtime errors.

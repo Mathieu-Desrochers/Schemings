@@ -62,7 +62,7 @@ The generated id.
 sql-searchable-string
 ---------------------
 Returns a string to be used for accent and case  
-insensitive searches using the like value% construct.
+insensitive searches using the LIKE value% construct.
 
 __string__  
 A string.
