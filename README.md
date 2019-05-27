@@ -26,7 +26,7 @@ Many batteries included
 We run a commercial web application based on this project.  
 Every library we needed is included here. That covers a broad base.
 
-- base64 encoding
+- base64
 - configuration files
 - crypto
 - emails
@@ -34,6 +34,7 @@ Every library we needed is included here. That covers a broad base.
 - http handling
 - image processing
 - json parsing and formatting
+- pdf reports
 - regular expressions
 - sqlite
 - unicode

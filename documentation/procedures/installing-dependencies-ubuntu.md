@@ -18,6 +18,9 @@ Run the following commands.
     $ sudo apt install libsqlite3-dev
     $ sudo apt install make
     $ sudo apt install sqlite3
+    $ sudo apt install texlive-full
+
+    $ sudo ln -s /usr/bin/pdflatex /usr/local/bin/pdflatex
 
     $ wget https://code.call-cc.org/releases/5.0.0/chicken-5.0.0.tar.gz
     $ tar -xf chicken-5.0.0.tar.gz
