@@ -85,3 +85,7 @@ Run the following commands.
     210
     250
     18.31
+
+powered by
+----------
+The power of mathematics.
