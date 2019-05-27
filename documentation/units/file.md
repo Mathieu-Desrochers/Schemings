@@ -58,3 +58,6 @@ Run the following commands.
 
     $ make
     $ ./main
+
+    /tmp/report-378545-418744-645449-268866
+    image/jpeg; charset=binary
