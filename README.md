@@ -81,5 +81,5 @@ We think it is. The Scheme code has type annotations all over.
 The C code compiles without warnings, and valgrind appears  
 to be happy with our memory management.
 
-Plus our commercial web application is close to one year  
-without runtime errors.
+Plus our commercial web application is now close to  
+one year without runtime errors.
