@@ -4,7 +4,6 @@ Run the following commands.
 
     $ sudo apt install exuberant-ctags
     $ sudo apt install gcc
-    $ sudo apt install imagemagick
     $ sudo apt install libb64-dev
     $ sudo apt install libc6-dev
     $ sudo apt install libconfig-dev
@@ -13,6 +12,7 @@ Run the following commands.
     $ sudo apt install libfcgi-dev
     $ sudo apt install libicu-dev
     $ sudo apt install libjansson-dev
+    $ sudo apt install libmagickwand-dev
     $ sudo apt install libpcre3-dev
     $ sudo apt install libsodium-dev
     $ sudo apt install libsqlite3-dev
@@ -27,7 +27,7 @@ Run the following commands.
     $ cd chicken-5.0.0
     $ make PLATFORM=linux
     $ sudo make PLATFORM=linux install
-    $ sudo ln /usr/local/bin/csc /usr/local/bin/csc5
+    $ sudo ln -s /usr/local/bin/csc /usr/local/bin/csc5
 
     $ sudo chicken-install srfi-1
     $ sudo chicken-install srfi-4
