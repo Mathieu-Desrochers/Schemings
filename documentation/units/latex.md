@@ -3,7 +3,7 @@ latex-escape
 Escapes the latex characters in a string.
 
 __string__  
-The string to escape.
+A string to escape.
 
 __result__  
 The escaped string.
