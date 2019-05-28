@@ -206,6 +206,7 @@ Place the following code in sources/main.scm.
           (json-object-add-value crypto-2 "hype-factor" 1000)
 
           (display (json->string root-node))
+          (newline)
           (newline))))
 
     (with-string->json
@@ -235,6 +236,7 @@ Run the following commands.
         "hype-factor": 1000
       }
     ]
+
     Secret Ingredient: puffs
 
 powered by

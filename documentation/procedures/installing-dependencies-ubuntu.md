@@ -20,17 +20,24 @@ Run the following commands.
     $ sudo apt install sqlite3
     $ sudo apt install texlive-full
 
-    $ sudo ln -s /usr/bin/pdflatex /usr/local/bin/pdflatex
-
     $ wget https://code.call-cc.org/releases/5.0.0/chicken-5.0.0.tar.gz
     $ tar -xf chicken-5.0.0.tar.gz
     $ cd chicken-5.0.0
     $ make PLATFORM=linux
     $ sudo make PLATFORM=linux install
-    $ sudo ln -s /usr/local/bin/csc /usr/local/bin/csc5
+
+    $ wget http://www2.informatik.uni-freiburg.de/~stachnis/misc/libhungarian-v0.1.3.tgz
+    $ tar -xf libhungarian-v0.1.3.tgz
+    $ cd libhungarian
+    $ make
+    $ sudo cp hungarian.h /usr/local/include
+    $ sudo cp libhungarian.a /usr/local/lib
 
     $ sudo chicken-install srfi-1
     $ sudo chicken-install srfi-4
     $ sudo chicken-install srfi-13
     $ sudo chicken-install srfi-14
     $ sudo chicken-install srfi-69
+
+    $ sudo ln -s /usr/bin/pdflatex /usr/local/bin/pdflatex
+    $ sudo ln -s /usr/local/bin/csc /usr/local/bin/csc5
