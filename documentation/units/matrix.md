@@ -8,6 +8,9 @@ A number of rows.
 __columns-count__  
 A number of columns.
 
+__result__  
+The new matrix.
+
 matrix-ref
 ----------
 Gets a matrix value.

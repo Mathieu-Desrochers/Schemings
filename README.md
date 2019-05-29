@@ -84,3 +84,12 @@ to be happy with our memory management.
 
 Plus our commercial web application is now close to  
 one year without runtime errors.
+
+But wait there is more
+----------------------
+So we have all the pieces of the puzzle. But how will they  
+be assembled? We chose to do it around these simple abstractions.
+
+- tables
+- services (with their request and response)
+- configuration
