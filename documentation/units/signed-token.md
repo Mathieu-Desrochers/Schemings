@@ -3,7 +3,7 @@ sign-token
 Signs a token.
 
 __token__  
-A token.
+A string token.
 
 __secret__  
 A secret.
@@ -25,7 +25,7 @@ __validity-in-seconds__
 A number of seconds during which the signed token is valid.
 
 __result__  
-The token, or #f if the signed token in invalid.
+The string token, or #f if the signed token in invalid.
 
 try it
 ------
