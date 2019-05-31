@@ -93,4 +93,3 @@ be assembled? We chose to do it around these simple abstractions.
 - tables
 - services (with their request and response)
 - http-bindings
-- configuration
