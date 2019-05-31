@@ -91,5 +91,7 @@ So we have all the pieces of the puzzle. But how will they
 be assembled? We chose to do it around these simple abstractions.
 
 - tables
-- services (with their request and response)
+- requests
+- services
+- responses
 - http-bindings

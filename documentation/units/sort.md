@@ -51,8 +51,8 @@ Place the following code in sources/main.scm.
       (sort-by-string-descending
         (list
           (cons 1000 "yes")
-          (cons 1001 "maybe")
-          (cons 1002 "heck no"))
+          (cons 1001 "heck no")
+          (cons 1002 "maybe"))
         cdr))
     (newline)
 
@@ -62,4 +62,4 @@ Run the following commands.
     $ ./main
 
     ((1000 . a thousand) (1001 . a thousand and one) (1002 . a thousand and two))
-    ((1000 . yes) (1001 . maybe) (1002 . heck no))
+    ((1000 . yes) (1002 . maybe) (1001 . heck no))
