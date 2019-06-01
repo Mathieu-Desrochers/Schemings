@@ -25,8 +25,8 @@ Can be #f if the response does not contain a body.
 - "application/octet-stream"
 - "application/pdf"
 
-__service__  
-A service procedure.  
+__service-procedure__  
+A procedure used to handle requests.  
 Must accept the following parameters.
 
 - request
@@ -34,13 +34,13 @@ Must accept the following parameters.
 - authentication
 - configuration
 
-__parse-request__  
-A parse request procedure.  
+__parse-request-procedure__  
+A procedure used to parse requests.  
 Receives a list of captures from the route regex and the request body.  
 Must return false if the request cannot be parsed.
 
-__format-response__  
-A format response procedure.  
+__format-response-procedure__  
+A procedure used to format responses.  
 Must return the response body as a string or a blob.
 
 __requires-authentication__  
@@ -65,8 +65,18 @@ Will be passed as a parameter to the service procedure.
 The service calls are automatically isolated by sql-transactions.
 
 __configuration__  
-Any configuration to be passed to the services procedure.  
-Will be passed as a parameter to the service procedure.
+Any configuration to be passed to the services procedure.
+
+http response codes
+-------------------
+The following response codes are automatically returned.
+
+- no matching http-binding-route: 404 Not Found
+- parse-request-procedure returned false: 400 Bad Request
+- get-authentication-procedure returned false: 401 Unauthorized
+- service-procedure raised a validation-errors-exception: 422 Unprocessable Entity
+- response-content-type is false: 204 No Content
+- otherwise: 200 OK
 
 try it
 ------
@@ -91,11 +101,7 @@ Place the following code in sources/main.scm.
                 (make-get-dog-request
                   (string->number (car route-captures))))
               (lambda (get-dog-response)
-                (with-json-object
-                  (lambda (json-node)
-                    (json-object-add-value json-node "greeting"
-                      (get-dog-response-greeting get-dog-response))
-                    (json->string json-node))))
+                (get-dog-response-greeting get-dog-response))
               #f)))
 
       ;; start serving http requests
@@ -131,13 +137,11 @@ Start the lighttpd server and run the following command.
 
     HTTP/1.1 200 OK
     Content-Type: application/json; charset=utf-8
-    Content-Length: 26
-    Date: Sat, 01 Jun 2019 21:46:39 GMT
+    Content-Length: 6
+    Date: Sat, 01 Jun 2019 22:02:02 GMT
     Server: lighttpd/1.4.53
 
-    {
-      "greeting": "woof"
-    }
+    woof
 
     $ curl -i 'http://localhost/main/cats'
 

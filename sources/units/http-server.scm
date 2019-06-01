@@ -16,9 +16,9 @@
   (route string)
   (request-content-type (or string false))
   (response-content-type (or string false))
-  (service (* (or (struct sql-connection) false) * * -> *))
-  (parse-request ((list-of string) string -> *))
-  (format-response (* -> (or string blob false)))
+  (service-procedure (* (or (struct sql-connection) false) * * -> *))
+  (parse-request-procedure ((list-of string) string -> *))
+  (format-response-procedure (* -> (or string blob false)))
   (requires-authentication boolean))
 
 ;; starts serving http requests
@@ -52,9 +52,9 @@
               (let* ((http-binding (car http-binding-match))
                      (request-content-type (http-binding-request-content-type http-binding))
                      (response-content-type (http-binding-response-content-type http-binding))
-                     (service (http-binding-service http-binding))
-                     (parse-request (http-binding-parse-request http-binding))
-                     (format-response (http-binding-format-response http-binding))
+                     (service-procedure (http-binding-service-procedure http-binding))
+                     (parse-request-procedure (http-binding-parse-request-procedure http-binding))
+                     (format-response-procedure (http-binding-format-response-procedure http-binding))
                      (requires-authentication (http-binding-requires-authentication http-binding))
                      (route-captures (cddr http-binding-match)))
 
@@ -80,7 +80,7 @@
                                     (format "unsupported request-content-type ~A"
                                       request-content-type)))))
                            (request
-                             (parse-request route-captures fastcgi-request-body)))
+                             (parse-request-procedure route-captures fastcgi-request-body)))
                       (if request
 
                         ;; invoke the service within a database transaction
@@ -90,12 +90,14 @@
                                     (if sql-connection
                                       (within-sql-transaction sql-connection
                                         (lambda ()
-                                          (service request sql-connection authentication configuration)))
-                                      (service request sql-connection authentication configuration))))
+                                          (service-procedure
+                                            request sql-connection authentication configuration)))
+                                      (service-procedure
+                                        request sql-connection authentication configuration))))
 
                               ;; format and write the response
                               (if response-content-type
-                                (let ((fastcgi-response-body (format-response response)))
+                                (let ((fastcgi-response-body (format-response-procedure response)))
                                   (begin
                                     (fastcgi-write-response-line fastcgi-request "Status: 200 OK")
                                     (fastcgi-write-response-line fastcgi-request
