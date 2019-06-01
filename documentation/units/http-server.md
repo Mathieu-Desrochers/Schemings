@@ -11,7 +11,7 @@ A route expressed as a regex.
 __request-content-type__  
 A content type for the request.  
 Must be one of the following values.  
-Can be #f if the request does not expect a body.
+Can be false if the request does not expect a body.
 
 - "application/json; charset=utf-8"
 - "application/octet-stream"
@@ -19,14 +19,14 @@ Can be #f if the request does not expect a body.
 __response-content-type__  
 A content type for the response.  
 Must be one of the following values.  
-Can be #f if the response does not contain a body.
+Can be false if the response does not contain a body.
 
 - "application/json; charset=utf-8"
 - "application/octet-stream"
 - "application/pdf"
 
 __service-procedure__  
-A procedure used to handle requests.  
+A procedure that will handle requests.  
 Must accept the following parameters.
 
 - request
