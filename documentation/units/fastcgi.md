@@ -107,14 +107,14 @@ Place the following configuration in lighttpd.conf.
 
 Start the lighttpd server and run the following command.
 
-    $ curl -i 'http://localhost/main/pizza'
+    $ curl -i 'http://localhost/main/pastas'
 
     HTTP/1.1 200 OK
     Content-Length: 54
     Date: Sat, 18 May 2019 19:01:20 GMT
     Server: lighttpd/1.4.53
 
-    Your request was GET /main/pizza.
+    Your request was GET /main/pastas.
     Bee seeing you...
 
 powered by
