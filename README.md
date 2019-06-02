@@ -87,8 +87,8 @@ one year without runtime errors.
 
 But wait there is more
 ----------------------
-As you can see, we took great care not impose any design  
-decisions on anyone who would like to build upon this project.  
+As you will see, we took great care not impose any  
+design decisions on anyone who would use this project.  
 But for reference or inspiration, here is how we did it.
 
 We used the following abstractions, and we defined some  
@@ -101,7 +101,7 @@ macros to simplify their usage.
 
 Their documentation can be accessed here.
 
-- [Macros Documentation](./documentation/macros/)
+- [Macros](./documentation/macros/)
 
 Spread the scheme love
 ----------------------
