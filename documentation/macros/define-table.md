@@ -71,7 +71,7 @@ The select procedure returns a list containing the matching row.
 
 select-procedures
 -----------------
-Each select procedure expands to a procedure such as below,  
+Each select-procedure expands to a procedure such as below,  
 which returns a list containing the matching rows.
 
     (define (employees-table-select-by-name
@@ -80,7 +80,7 @@ which returns a list containing the matching rows.
 
 execute-procedures
 ------------------
-Each execute procedure expands to a procedure such as:
+Each execute-procedure expands to a procedure such as:
 
     (define (employees-table-delete-by-name
       sql-connection
@@ -130,7 +130,7 @@ Place the following code in sources/main.scm.
         (employees-table-update
           sql-connection
           (make-employee-row
-            1000
+            1
             "Alice"
             (make-date 2008 9 25)))))
 
