@@ -68,13 +68,8 @@ Expands to the following procedures:
       employee-row))
 
 __results__  
-The insert procedure returns the generated id.
-
-    1000
-
+The insert procedure returns the generated id.  
 The select procedure returns a list containing the matching row.
-
-    (list #<employee-row>)
 
 select procedures
 -----------------
@@ -86,11 +81,6 @@ Each select procedure expands to a procedure such as:
 
 __result__  
 A list containing the matching rows.
-
-    (list
-      #<employee-row>
-      #<employee-row>
-      ...)
 
 execute procedures
 ------------------
@@ -146,3 +136,10 @@ Place the following code in sources/main.scm.
             (employees-table-update
               sql-connection
               alice-row)))))
+
+Run the following commands.
+
+    $ make
+    $ ./main
+
+    1
