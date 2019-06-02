@@ -87,11 +87,26 @@ one year without runtime errors.
 
 But wait there is more
 ----------------------
-So we have all the pieces of the puzzle. But how will they  
-be assembled? We chose to do it around these simple abstractions.
+As you can see, we took great care not impose any design  
+decisions on anyone who would like to build upon this project.  
+But for reference or inspiration, here is how we did it.
+
+We used the following abstractions, and we defined some  
+macros to simplify their usage.
 
 - tables
 - requests
 - services
 - responses
-- http-bindings
+
+Their documentation can be accessed here.
+
+- [Macros Documentation](./documentation/macros/)
+
+Spread the scheme love
+----------------------
+Simply knowing you used our interfaces will make us smile.  
+You used some macros? We are happy like it's our birthday.
+
+Please fork this project and build the next  
+big thing in Scheme.
