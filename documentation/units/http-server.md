@@ -57,10 +57,15 @@ A procedure invoked with each fastcgi-request.
 Must return any attached authentication.
 
 __sql-connection__  
-An sql-connection of false.
+A sql-connection of false.
 
 __configuration__  
 Any configuration to be passed to the services procedure.
+
+sql-connection
+--------------
+The same sql-connection is used across all service calls.  
+Each call is automatically isolated inside a sql-transaction.
 
 http response codes
 -------------------
@@ -72,11 +77,6 @@ The following response codes are automatically returned.
 - service-procedure invoked raise-validation-errors-exception: 422 Unprocessable Entity
 - response-content-type is false: 204 No Content
 - otherwise: 200 OK
-
-sql-connection
---------------
-The same sql-connection is used across all service calls.  
-Each call is automatically isolated inside a sql-transaction.
 
 try it
 ------

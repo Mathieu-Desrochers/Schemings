@@ -39,11 +39,12 @@ build/object.o : $(OBJECTS)
 build/types : $(OBJECTS)
 	cat $(TYPES) > $@
 
-main : build/object.o build/types sources/main.scm
+main : build/macros.scm build/object.o build/types sources/main.scm
 	csc5 -L '-lb64 -lconfig -lcurl -letpan -lfcgi -lhungarian' \
 	-L '-licuuc -licui18n -ljansson -lpcre -lsodium -lsqlite3' \
 	-L '`pkg-config --libs MagickWand`' \
-	-types build/types build/object.o sources/main.scm -o main
+	-extend build/macros.scm build/object.o -types build/types \
+	sources/main.scm -o main
 
 tags : $(OBJECTS)
 	ctags -R --languages=scheme
