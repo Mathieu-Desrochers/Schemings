@@ -49,7 +49,9 @@ Expands to a record definition.
 
 basic procedures
 ----------------
-Expands to the following procedures:
+Expands to the following procedures.  
+The insert procedure returns the generated id.  
+The select procedure returns a list containing the matching row.
 
     (define (employees-table-insert
       sql-connection
@@ -67,20 +69,14 @@ Expands to the following procedures:
       sql-connection
       employee-row))
 
-__results__  
-The insert procedure returns the generated id.  
-The select procedure returns a list containing the matching row.
-
 select procedures
 -----------------
-Each select procedure expands to a procedure such as:
+Each select procedure expands to a procedure such as below,  
+which returns a list containing the matching rows.
 
     (define (employees-table-select-by-name
       sql-connection
       name))
-
-__result__  
-A list containing the matching rows.
 
 execute procedures
 ------------------
