@@ -2,31 +2,29 @@ http-server-binding
 -------------------
 A record with the following fields.
 
-__method__  
-An http method.
-
-__route__  
-A route expressed as a regex.
+- method
+- route-regex
+- request-content-type
+- response-content-type
+- service-procedure
+- parse-request-procedure
+- format-response-procedure
+- requires-authentication
 
 __request-content-type__  
-A content type for the request.  
-Must be one of the following values.  
-Can be false if the request does not expect a body.
+Must be one of the following values or false.
 
 - "application/json; charset=utf-8"
 - "application/octet-stream"
 
 __response-content-type__  
-A content type for the response.  
-Must be one of the following values.  
-Can be false if the response does not contain a body.
+Must be one of the following values or false.
 
 - "application/json; charset=utf-8"
 - "application/octet-stream"
 - "application/pdf"
 
 __service-procedure__  
-A procedure that will handle requests.  
 Must accept the following parameters.
 
 - request
@@ -35,16 +33,16 @@ Must accept the following parameters.
 - configuration
 
 __parse-request-procedure__  
-A procedure used to parse requests.  
-Receives a list of captures from the route regex and the request body.  
-Must return false if the request cannot be parsed.
+Must accept the following parameters.
+
+- route-captures
+- request-body
 
 __format-response-procedure__  
-A procedure used to format responses.  
-Must return the response body as a string or a blob.
+Must return the response body in one of these formats.
 
-__requires-authentication__  
-Whether authentication is required.
+- string
+- blob
 
 http-server-start
 -----------------
@@ -55,14 +53,11 @@ __http-bindings__
 A list of http-bindings.
 
 __get-authentication-procedure__  
-A procedure invoked for the http-bindings requiring authentication.  
-Must return the authentication attached to a fast-cgi request,  
-or false if the authentication is missing or invalid.
+A procedure invoked with each fastcgi-request.  
+Must return any attached authentication.
 
 __sql-connection__  
-An opened sql-connection of false.  
-Will be passed as a parameter to the service procedure.  
-The service calls are automatically isolated by sql-transactions.
+An sql-connection of false.
 
 __configuration__  
 Any configuration to be passed to the services procedure.
@@ -74,9 +69,14 @@ The following response codes are automatically returned.
 - no matching http-binding-route: 404 Not Found
 - parse-request-procedure returned false: 400 Bad Request
 - get-authentication-procedure returned false: 401 Unauthorized
-- service-procedure raised a validation-errors-exception: 422 Unprocessable Entity
+- service-procedure invoked raise-validation-errors-exception: 422 Unprocessable Entity
 - response-content-type is false: 204 No Content
 - otherwise: 200 OK
+
+sql-connection
+--------------
+The same sql-connection is used across all service calls.  
+Each call is automatically isolated inside a sql-transaction.
 
 try it
 ------
@@ -86,7 +86,7 @@ Place the following code in sources/main.scm.
     (declare (uses json))
 
     ;; define a simple service
-    ;; this would be part of your application code
+    ;; would be part of your application code
     (define-record get-dog-request id)
     (define-record get-dog-response greeting)
     (define (get-dog-service get-dog-request sql-connection authentication configuration)
@@ -95,18 +95,23 @@ Place the following code in sources/main.scm.
     ;; make an http-binding for the service
     (let ((get-dog-http-binding
             (make-http-binding
-              "GET" "^/main/dogs/(\\d{1,6})$" #f "application/json; charset=utf-8"
+              "GET"
+              "^/main/dogs/(\\d{1,6})$"
+              #f
+              "application/json; charset=utf-8"
               get-dog-service
               (lambda (route-captures request-body)
                 (make-get-dog-request
                   (string->number (car route-captures))))
               (lambda (get-dog-response)
-                (get-dog-response-greeting get-dog-response))
+                (get-dog-response-greeting
+                  get-dog-response))
               #f)))
 
       ;; start serving http requests
       (http-server-start
-        (list get-dog-http-binding)
+        (list
+          get-dog-http-binding)
         #f
         #f
         #f))

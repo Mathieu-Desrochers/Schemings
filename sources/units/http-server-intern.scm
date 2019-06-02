@@ -17,7 +17,7 @@
     (lambda ()
       (map
         (lambda (http-binding)
-          (regex-compile (http-binding-route http-binding)))
+          (regex-compile (http-binding-route-regex http-binding)))
         http-bindings))
     (lambda (http-binding-regexes)
       (procedure http-binding-regexes))
