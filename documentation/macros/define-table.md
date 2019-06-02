@@ -69,7 +69,7 @@ The select procedure returns a list containing the matching row.
       sql-connection
       employee-row))
 
-select procedures
+select-procedures
 -----------------
 Each select procedure expands to a procedure such as below,  
 which returns a list containing the matching rows.
@@ -78,7 +78,7 @@ which returns a list containing the matching rows.
       sql-connection
       name))
 
-execute procedures
+execute-procedures
 ------------------
 Each execute procedure expands to a procedure such as:
 
