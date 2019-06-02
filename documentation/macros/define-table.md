@@ -111,31 +111,32 @@ Place the following code in sources/main.scm.
     (declare (uses sql))
 
     ;; as above
-    (define-table
-      ...)
+    (define-table ...)
 
     (with-sql-connection "example.db"
       (lambda (sql-connection)
 
-        (let ((alice-id
-                (employees-table-insert
-                  sql-connection
-                  (make-employee-row
-                    #f
-                    "Alice"
-                    (make-date 2008 4 23)))))
-          (display alice-id)
-          (newline)
+        (display
+          (employees-table-insert
+            sql-connection
+            (make-employee-row
+              #f
+              "Alice"
+              (make-date 2008 4 23))))
+        (newline)
 
-          (let ((alice-row
-                  (car
-                    (employees-table-select-by-employee-id
-                      sql-connection
-                      alice-id))))
-            (employee-row-hiring-date-set! alice-row (make-date 2008 4 25))
-            (employees-table-update
-              sql-connection
-              alice-row)))))
+        (display
+          (employees-table-select-by-employee-id
+            sql-connection
+            1))
+        (newline)
+
+        (employees-table-update
+          sql-connection
+          (make-employee-row
+            1000
+            "Alice"
+            (make-date 2008 9 25)))))
 
 Run the following commands.
 
@@ -143,3 +144,4 @@ Run the following commands.
     $ ./main
 
     1
+    (#<employee-row>)
