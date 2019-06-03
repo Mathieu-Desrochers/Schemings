@@ -59,18 +59,10 @@ Place the following code in sources/main.scm.
 
     (declare (uses json))
 
-    (define-response get-secret-base-response
-      (name string)
-      (secret-numbers list integer)
-      (location get-secret-base-location-subresponse))
-
-    (define-response get-secret-base-location-subresponse
-      (address string)
-      (capacity integer)
-      (vehicules list get-secret-base-vehicule-subresponse))
-
-    (define-response get-secret-base-vehicule-subresponse
-      (color string))
+    ;; as above
+    (define-response ...)
+    (define-response ...)
+    (define-response ...)
 
     (with-json-object
       (lambda (json-node)

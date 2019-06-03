@@ -76,18 +76,10 @@ Place the following code in sources/main.scm.
 
     (declare (uses json))
 
-    (define-request new-secret-base-request
-      (name string #t 1 50)
-      (secret-numbers list #t 3 5 integer #t 1 20)
-      (location new-secret-base-location-subrequest #t))
-
-    (define-request new-secret-base-location-subrequest
-      (address string #t 1 50)
-      (capacity integer #t 1 1000)
-      (vehicules list #t 1 10 new-secret-base-vehicule-subrequest #t))
-
-    (define-request new-secret-base-vehicule-subrequest
-      (color string #t 1 50))
+    ;; as above
+    (define-request ...)
+    (define-request ...)
+    (define-request ...)
 
     (display
       (validate-new-secret-base-request
