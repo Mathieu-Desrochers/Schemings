@@ -3,12 +3,12 @@ define-configuration
 Defines a configuration.
 
     (define-configuration starship-configuration
-      (fire-power integer #t 1 100 default 80)
+      (fire-power integer #t 1 100)
       (torpedo-sizes list #t 3 5 integer #t 1 20)
       (mission starship-mission-subconfiguration #t))
 
     (define-configuration starship-mission-subconfiguration
-      (objective string #t 1 500)
+      (objective string #t 1 500 default "Look around")
       (target-locations list #t 1 5 starship-target-location-subconfiguration #t))
 
     (define-configuration starship-target-location-subconfiguration
