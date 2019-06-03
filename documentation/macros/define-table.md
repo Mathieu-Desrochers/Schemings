@@ -40,7 +40,7 @@ Assumes the first column is declared like so.
 
 record definition
 -----------------
-Expands to a record definition.
+Expands to this record definition.
 
     (define-record employee-row
       employee-id

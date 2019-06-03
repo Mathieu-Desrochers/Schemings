@@ -105,6 +105,5 @@ The documentation can be accessed here.
 Spread the love
 ---------------
 Simply knowing you used our interfaces will make us smile.  
-You used a macro? We are happy like it's our birthday.
-
-Fork this project and build the next big thing in Scheme.
+You used a macro? We are happy like it's our birthday.  
+Build the next big thing in Scheme.

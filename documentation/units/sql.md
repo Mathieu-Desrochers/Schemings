@@ -76,11 +76,11 @@ Run the following commands.
 
     $ sqlite3 example.db
 
-    sqlite> CREATE TABLE employees
+    sqlite> CREATE TABLE "employees"
        ...> (
-       ...>   id INTEGER PRIMARY KEY AUTOINCREMENT,
-       ...>   name TEXT,
-       ...>   salary INTEGER
+       ...>   "employee-id" INTEGER PRIMARY KEY AUTOINCREMENT,
+       ...>   "name" TEXT,
+       ...>   "salary" INTEGER
        ...> );
     sqlite> .exit
 
