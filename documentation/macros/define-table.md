@@ -53,38 +53,32 @@ Expands to the following procedures.
 The insert procedure returns the generated id.  
 The select procedure returns a list containing the matching row.
 
-    (define (employees-table-insert
-      sql-connection
-      employee-row))
+    (define (employees-table-insert sql-connection employee-row)
+      ...)
 
-    (define (employees-table-select-by-employee-id
-      sql-connection
-      employee-id))
+    (define (employees-table-select-by-employee-id sql-connection employee-id)
+      ...)
 
-    (define (employees-table-update
-      sql-connection
-      employee-row))
+    (define (employees-table-update sql-connection employee-row)
+      ...)
 
-    (define (employees-table-delete
-      sql-connection
-      employee-row))
+    (define (employees-table-delete sql-connection employee-row)
+      ...)
 
 select-procedures
 -----------------
 Each select-procedure expands to a procedure such as below,  
 which returns a list containing the matching rows.
 
-    (define (employees-table-select-by-name
-      sql-connection
-      name))
+    (define (employees-table-select-by-name sql-connection name)
+      ...)
 
 execute-procedures
 ------------------
-Each execute-procedure expands to a procedure such as:
+Each execute-procedure expands to a procedure such as below.
 
-    (define (employees-table-delete-by-name
-      sql-connection
-      name))
+    (define (employees-table-delete-by-name sql-connection name)
+      ...)
 
 try it
 ------
