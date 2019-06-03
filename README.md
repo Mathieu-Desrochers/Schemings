@@ -106,4 +106,4 @@ Spread the love
 ---------------
 Simply knowing you used our interfaces will make us smile.  
 You used a macro? We are happy like it's our birthday.  
-Build the next big thing in Scheme.
+Build the next big thing in Scheme!

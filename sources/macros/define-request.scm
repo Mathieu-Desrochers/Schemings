@@ -220,7 +220,7 @@
 
           ;; once validation has passed
           ;; fields are known to be of the right type
-          ;; and can be accessed by these getters
+          ;; and should be accessed by these getters
           ,@(concatenate
             (map
               (lambda (field)
