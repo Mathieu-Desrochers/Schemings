@@ -2,6 +2,7 @@ validate-request
 ----------------
 Validates a request.
 
+    (validate-request [request] [validation-procedure])
 
 Invokes a validation procedure on a request.  
 Raises a validation errors exception if it fails.
@@ -10,6 +11,14 @@ select-one
 ----------
 Selects one row.
 
+    (select-one
+      ([row-symbol]
+        [select-procedure]
+        [select-parameter-1]
+        [select-parameter-2]
+        ...)
+
+      [body])
 
 Invokes a select procedure and defines a symbol for the matching row.  
 Sets it to false if no rows were returned.
@@ -18,6 +27,15 @@ select-one-and-validate
 -----------------------
 Selects one row and validates it exists.
 
+    (select-one-and-validate
+      ([row-symbol]
+        [select-procedure]
+        [select-parameter-1]
+        [select-parameter-2]
+        ...)
+      ([validation-error-symbol])
+
+      [body])
 
 Invokes a select procedure and defines a symbol for the matching row.  
 Raises a validation errors exception if no rows were returned.
@@ -26,6 +44,14 @@ select-many
 -----------
 Selects many rows.
 
+    (select-many
+      ([rows-symbol]
+        [select-procedure]
+        [select-parameter-1]
+        [select-parameter-2]
+        ...)
+
+      [body])
 
 Invokes a select procedure and defines a symbol for the matching rows.
 
@@ -33,6 +59,16 @@ select-many-and-hash-by-unique-key
 ----------------------------------
 Selects many rows and hashes them by a unique key.
 
+    (select-many-and-hash-by-unique-key
+      ([rows-symbol]
+        [select-procedure]
+        [select-parameter-1]
+        [select-parameter-2]
+        ...)
+      ([rows-ref-symbol]
+        [row-value-get-procedure])
+
+      [body])
 
 Invokes a select procedure and defines a symbol for the matching rows.  
 Hashes the rows and defines a reference procedure to access them by key.  
@@ -42,6 +78,16 @@ select-many-and-hash-by-shared-key
 ----------------------------------
 Selects many rows and hashes them by a shared key.
 
+    (select-many-and-hash-by-shared-key
+      ([rows-symbol]
+        [select-procedure]
+        [select-parameter-1]
+        [select-parameter-2]
+        ...)
+      ([rows-ref-symbol]
+        [row-value-get-procedure])
+
+      [body])
 
 Invokes a select procedure and defines a symbol for the matching rows.  
 Hashes the rows and defines a reference procedure to access them by key.  
@@ -49,88 +95,133 @@ This procedure returns a list of elements.
 
 validate-duplicates
 -------------------
-Validates the values from a list contain no duplicates.
+Validates the subrequest values are not duplicated.
 
+    (validate-duplicates
+      ([request-subrequests-get-procedure]
+        [request-symbol]
+        [subrequest-value-get-procedure])
+      ([validation-error-symbol-prefix]
+        [validation-error-symbol-suffix]))
 
-Raises a validation errors exception if any value is duplicated.  
-The errors are built from the values index and the  
-specified prefix and suffix.
+Raised validation-errors are built from the  
+values index and the specified prefix and suffix.
 
 validate-references
 -------------------
-Validates the values from a first list are present in a reference list.  
-This is done by joining both lists on the specified property.
+Validates the subrequest values are present in the row values.  
+This is done by joining them on the specified values.
 
+    (validate-references
+      ([request-subrequests-get-procedure]
+        [request-symbol]
+        [subrequest-value-get-procedure])
+      ([rows-symbol]
+        [row-value-get-procedure])
+      ([validation-error-symbol-prefix]
+        [validation-error-symbol-suffix]))
 
-Raises a validation errors exception if any value is missing.  
-The errors are built from the values index and the  
-specified prefix and suffix.
-
+Raised validation-errors are built from the  
+values index and the specified prefix and suffix.
 
 validate-inserted-rows
 ----------------------
-Selects the subrequests for which the specified property is false.
+Validates the subrequests for which the specified property is false.  
+The predicate must return whether the insertion is allowed.
 
+    (validate-inserted-rows
+      ([request-subrequests-get-procedure]
+        [request-symbol]
+        [subrequest-value-get-procedure])
+      ([validation-error-symbol-prefix]
+        [validation-error-symbol-suffix])
 
-These subrequests are passed to the validation procedure,  
-which must return whether the insertion is allowed.
+      (lambda ([subrequest-symbol])
+        [predicate]))
 
-
-Raises a validation errors exception if any subrequest is invalid.  
-The errors are built from the subrequests index and the  
-specified prefix and suffix.
+Raised validation-errors are built from the  
+values index and the specified prefix and suffix.
 
 validate-updated-rows
 ---------------------
-Matches a list of subrequests and a list of rows  
-using the speficied properties.
+Validates the subrequests and rows that match on the specified values.  
+The predicate must return whether the update is allowed.
 
+    (validate-updated-rows
+      ([request-subrequests-get-procedure]
+        [request-symbol]
+        [subrequest-value-get-procedure])
+      ([rows-symbol]
+        [row-value-get-procedure])
+      ([validation-error-symbol-prefix]
+        [validation-error-symbol-suffix])
 
-Matching pairs are passed to the validation procedure,  
-which must return whether the update is allowed.
+      (lambda ([subrequest-symbol] [row-symbol])
+        [predicate]))
 
-
-Raises a validation errors exception if any pair is invalid.  
-The errors are built from the subrequests index and the  
-specified prefix and suffix.
+Raised validation-errors are built from the  
+values index and the specified prefix and suffix.
 
 validate-deleted-rows
 ---------------------
-Matches a list of subrequests and a list of rows  
-using the speficied properties.
+Validates the rows that cannot be matched to a subrequest.  
+The predicate must return whether the deletion is allowed.
 
+    (validate-deleted-rows
+      ([request-subrequests-get-procedure]
+        [request-symbol]
+        [subrequest-value-get-procedure])
+      ([rows-symbol]
+        [row-value-get-procedure])
+      ([validation-error-symbol])
 
-Unmatched rows are passed to the validation procedure,  
-which must return whether the deletion is allowed.
+      (lambda ([row-symbol])
+        [predicate]))
 
-
-Raises a validation errors exception if any row is invalid.
+Raised validation-errors are built from the  
+values index and the specified prefix and suffix.
 
 update-modified-rows
 --------------------
-Matches a list of subrequests and a list of rows  
-using the first speficied properties.
+Matches the subrequests and rows on the first specified values.
 
+Subrequests that have not match are passed to the first procedure.  
+Matching pairs are compared on the other specified values.  
+If anything has changed they are passed to the second procedure.  
+Rows that have not match are deleted.
 
-Subrequests that cannot be paired are passed to the first procedure.  
-This procedure must return a row that will be inserted.
+The first procedure must return a row that will be inserted.  
+The second one must return a row that will be updated.
 
+    (update-modified-rows
+      ([request-subrequests-get-procedure]
+        [request-symbol]
+        [subrequest-value-get-procedure-1]
+        [subrequest-value-get-procedure-2]
+        ...)
+      ([rows-symbol]
+        [row-value-get-procedure-1]
+        [row-value-get-procedure-2]
+        ...)
+      ([table-symbol])
 
-The other properties are then compared on the paired subrequests and rows.  
-Pairs with differing values are passed to the second procedure.  
-This procedure must return a row that will be updated.
+      (lambda ([subrequest-symbol])
+        [make-inserted-row-body])
 
-
-The returned rows are then passed to the insert or update procedures of the table.  
-Rows that cannot be paired are passed to its delete procedure.
+      (lambda ([row-symbol] [subrequest-symbol])
+        [make-updated-row-body]))
 
 make-subresponses
 -----------------
-Makes a list of subresponses.
+Sorts a list of rows and maps them to a procedure  
+which returns their matching subresponses.
 
-
-Sorts a list of rows and maps them to a procedure.  
-This procedure should return a subresponse.
+    (make-subresponses
+      ([rows-symbol]
+        sort-by-number
+        [row-value-get-procedure])
+      (lambda ([row-symbol])
+        [make-subresponse-body]))
 
 try it
 ------
