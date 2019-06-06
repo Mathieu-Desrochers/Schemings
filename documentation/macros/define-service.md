@@ -104,8 +104,8 @@ Validates the subrequest values are not duplicated.
       ([validation-error-symbol-prefix]
         [validation-error-symbol-suffix]))
 
-Raised validation-errors are built from the  
-values index and the specified prefix and suffix.
+Raised validation-errors are built from the values index  
+between the specified prefix and suffix.
 
 validate-references
 -------------------
@@ -121,8 +121,8 @@ This is done by joining them on the specified values.
       ([validation-error-symbol-prefix]
         [validation-error-symbol-suffix]))
 
-Raised validation-errors are built from the  
-values index and the specified prefix and suffix.
+Raised validation-errors are built from the values index  
+between the specified prefix and suffix.
 
 validate-inserted-rows
 ----------------------
@@ -139,8 +139,8 @@ The predicate must return whether the insertion is allowed.
       (lambda ([subrequest-symbol])
         [predicate]))
 
-Raised validation-errors are built from the  
-values index and the specified prefix and suffix.
+Raised validation-errors are built from the values index  
+between the specified prefix and suffix.
 
 validate-updated-rows
 ---------------------
@@ -159,8 +159,8 @@ The predicate must return whether the update is allowed.
       (lambda ([subrequest-symbol] [row-symbol])
         [predicate]))
 
-Raised validation-errors are built from the  
-values index and the specified prefix and suffix.
+Raised validation-errors are built from the values index  
+between the specified prefix and suffix.
 
 validate-deleted-rows
 ---------------------
@@ -178,8 +178,8 @@ The predicate must return whether the deletion is allowed.
       (lambda ([row-symbol])
         [predicate]))
 
-Raised validation-errors are built from the  
-values index and the specified prefix and suffix.
+Raised validation-errors are built from the values index  
+between the specified prefix and suffix.
 
 update-modified-rows
 --------------------
@@ -188,7 +188,7 @@ Matches the subrequests and rows on the first specified values.
 Subrequests that have not match are passed to the first procedure.  
 Matching pairs are compared on the other specified values.  
 If anything has changed they are passed to the second procedure.  
-Rows that have not match are deleted.
+Rows that have no match are deleted.
 
 The first procedure must return a row that will be inserted.  
 The second one must return a row that will be updated.
