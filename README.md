@@ -45,7 +45,8 @@ We provide simple commands to install the required dependencies.
 Simply click on your OS of choice in the following list.
 
 - [Ubuntu](./documentation/procedures/installing-dependencies-ubuntu.md)
-- [FreeBSD](.)
+- [Debian](./documentation/procedures/installing-dependencies-debian.md)
+- [FreeBSD](./documentation/procedures/installing-dependencies-freebsd.md)
 
 Once this is done, you can run the following commands.  
 And there you are with a fully operational Scheme environment.
