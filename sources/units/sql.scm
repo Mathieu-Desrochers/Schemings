@@ -33,9 +33,6 @@
               database-name
               sqlite3-open-result)))
         (let ((sql-connection (make-sql-connection (resolve-sqlite3* sqlite3**))))
-          (sql-execute sql-connection "PRAGMA case_sensitive_like = ON;" (list))
-          (sql-execute sql-connection "PRAGMA foreign_keys = ON;" (list))
-          (sql-execute sql-connection "PRAGMA synchronous = OFF;" (list))
           (procedure sql-connection))))
     (lambda (sqlite3**)
       (sqlite3-close-v2 (resolve-sqlite3* sqlite3**))
