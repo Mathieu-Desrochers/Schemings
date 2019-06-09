@@ -1,5 +1,6 @@
 (import srfi-1)
 
+(import (chicken blob))
 (import (chicken condition))
 (import (chicken format))
 
