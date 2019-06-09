@@ -6,7 +6,7 @@
 (declare (unit image))
 
 (declare (uses exceptions))
-(declare (uses file))
+(declare (uses file*))
 (declare (uses imagemagick))
 
 ;; initializes the image module
@@ -17,9 +17,9 @@
 ;; returns whether a file contains an image
 (: image-file? (string -> boolean))
 (define (image-file? file-name)
-  (let ((file-mime-type (file-mime-type file-name)))
-    (or (string-contains file-mime-type "image/jpeg")
-        (string-contains file-mime-type "image/png"))))
+  (let ((mime-type (file*-mime-type file-name)))
+    (or (string-contains mime-type "image/jpeg")
+        (string-contains mime-type "image/png"))))
 
 ;; resizes an image
 (: image-resize (string string fixnum fixnum -> noreturn))

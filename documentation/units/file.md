@@ -1,5 +1,9 @@
-file-unique-name
-----------------
+file*
+-----
+Named to avoid clashes with the (chicken file) module.
+
+file*-unique-name
+-----------------
 Generates a unique file name.
 
 __prefix__  
@@ -8,8 +12,8 @@ A prefix.
 __result__  
 The unique file name.
 
-file-mime-type
---------------
+file*-mime-type
+---------------
 Returns the mime type of a file.
 
 __file-name__  
@@ -18,8 +22,8 @@ A file name.
 __result__  
 The mime type of the file.
 
-file-load
----------
+file*-load
+----------
 Loads a file.
 
 __file-name__  
@@ -28,8 +32,8 @@ A file name.
 __result__  
 A blob containing the file content.
 
-file-save
----------
+file*-save
+----------
 Saves a file.
 
 __file-name__  
@@ -44,15 +48,15 @@ Save your favorite dog picture to dog.jpg.
 
 Place the following code in sources/main.scm.
 
-    (declare (uses file))
+    (declare (uses file*))
 
-    (display (file-unique-name "/tmp/report-"))
+    (display (file*-unique-name "/tmp/report-"))
     (newline)
 
-    (display (file-mime-type "dog.jpg"))
+    (display (file*-mime-type "dog.jpg"))
     (newline)
 
-    (file-save "backup-dog.jpg" (file-load "dog.jpg"))
+    (file*-save "backup-dog.jpg" (file*-load "dog.jpg"))
 
 Run the following commands.
 

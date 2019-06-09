@@ -1,5 +1,7 @@
 (import srfi-1)
 
+(import (chicken condition))
+
 (declare (unit http-server-intern))
 
 (declare (uses exceptions))

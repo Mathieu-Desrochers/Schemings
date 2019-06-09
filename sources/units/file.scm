@@ -5,14 +5,14 @@
 (import (chicken io))
 (import (chicken process))
 
-(declare (unit file))
+(declare (unit file*))
 
 (declare (uses crypto))
 (declare (uses exceptions))
 
 ;; generates a unique file name
-(: file-unique-name (string -> string))
-(define (file-unique-name prefix)
+(: file*-unique-name (string -> string))
+(define (file*-unique-name prefix)
   (string-append
     prefix
     (number->string (crypto-random-number 999999)) "-"
@@ -21,16 +21,16 @@
     (number->string (crypto-random-number 999999))))
 
 ;; returns the mime type of a file
-(: file-mime-type (string -> string))
-(define (file-mime-type file-name)
+(: file*-mime-type (string -> string))
+(define (file*-mime-type file-name)
   (let-values (((input-port output-port process-id) (process "file" (list "-i" file-name))))
     (let* ((line (read-line input-port))
            (column-index (string-index line #\:)))
       (string-drop line (+ column-index 2)))))
 
 ;; loads a file
-(: file-load (string -> blob))
-(define (file-load file-name)
+(: file*-load (string -> blob))
+(define (file*-load file-name)
   (with-guaranteed-release
     (lambda ()
       (file-open file-name open/rdonly))
@@ -41,8 +41,8 @@
     file-close))
 
 ;; saves a file
-(: file-save (string blob -> noreturn))
-(define (file-save file-name content)
+(: file*-save (string blob -> noreturn))
+(define (file*-save file-name content)
   (with-guaranteed-release
     (lambda ()
       (file-open file-name (+ open/wronly open/creat)))

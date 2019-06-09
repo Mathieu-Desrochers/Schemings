@@ -96,8 +96,6 @@ Run the following commands.
 
 Place the following code in sources/main.scm.
 
-    (import srfi-1)
-
     (declare (uses sql))
 
     ;; as above

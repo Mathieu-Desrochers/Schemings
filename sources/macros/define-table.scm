@@ -93,6 +93,8 @@
              (execute-procedures (cdr (list-ref exp 4))))
         `(begin
 
+          (import srfi-1)
+
           (declare (uses sql))
 
           ;; encapsulates a row

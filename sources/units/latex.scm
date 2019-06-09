@@ -8,7 +8,7 @@
 (declare (unit latex))
 
 (declare (uses exceptions))
-(declare (uses file))
+(declare (uses file*))
 
 ;; escapes the latex characters in a string
 (: latex-escape (string -> string))
@@ -124,7 +124,7 @@
 ;; generates a pdf file from a latex source
 (: latex-generate-pdf (string string -> noreturn))
 (define (latex-generate-pdf latex-source output-file-name)
-  (let ((input-file (file-unique-name "/tmp/latex-"))
+  (let ((input-file (file*-unique-name "/tmp/latex-"))
         (current-working-directory (current-directory)))
     (with-guaranteed-release
       (lambda ()
