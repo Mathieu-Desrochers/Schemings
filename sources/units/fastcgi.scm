@@ -1,3 +1,4 @@
+(import srfi-4)
 (import srfi-13)
 
 (import (chicken blob))
