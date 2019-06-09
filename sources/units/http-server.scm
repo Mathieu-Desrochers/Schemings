@@ -14,8 +14,8 @@
 (define-typed-record http-binding
   (method string)
   (route-regex string)
-  (request-content-type string)
-  (response-content-type string)
+  (request-content-type (or string false))
+  (response-content-type (or string false))
   (service-procedure *)
   (parse-request-procedure ((list-of string) string -> *))
   (format-response-procedure (* -> (or string blob false)))
