@@ -132,6 +132,7 @@
         (file-open input-file (+ open/wronly open/creat)))
       (lambda (input-file-descriptor)
         (file-write input-file-descriptor latex-source)
+        (change-directory "/usr/local/bin/")
         (let-values ((
             (pid success code)
             (process-wait
@@ -141,6 +142,7 @@
                   "-output-format=pdf"
                   (string-append "-output-directory=" (pathname-directory input-file))
                   input-file)))))
+          (change-directory current-working-directory)
           (move-file (string-append input-file ".pdf") output-file-name #t)))
       (lambda (input-file-descriptor)
         (file-close input-file-descriptor)))))
