@@ -53,12 +53,12 @@ Returns a list of errors.
     (define (validate-new-secret-base-request new-secret-base-request)
       ...)
 
-json parsing procedure
-----------------------
-Expands to a json parsing procedure.  
+json string parsing procedure
+-----------------------------
+Expands to a json string parsing procedure.  
 Returns the parsed request.
 
-    (define (json-parse-new-secret-base-request json-node)
+    (define (json-string->new-secret-base-request json-string)
       ...)
 
 typed getters
@@ -95,27 +95,26 @@ Place the following code in sources/main.scm.
     (newline)
     (newline)
 
-    (with-string->json
-      (string-append
-        "{"
-        "  \"name\": \"Fort Donuts\", "
-        "  \"secret-numbers\": [1, 35, 4, 8], "
-        "  \"location\": {"
-        "    \"address\": \"David's backyard\""
-        "  }"
-        "}")
-      (lambda (json-node)
-        (let ((request (json-parse-new-secret-base-request json-node)))
-          (display
-            (new-secret-base-request-name request))
-          (newline)
-          (display
-            (new-secret-base-request-secret-numbers request))
-          (newline)
-          (display
-            (new-secret-base-location-subrequest-address
-              (new-secret-base-request-location request)))
-          (newline))))
+    (let ((new-secret-base-request
+            (json-string->new-secret-base-request
+              (string-append
+                "{"
+                "  \"name\": \"Fort Donuts\", "
+                "  \"secret-numbers\": [1, 35, 4, 8], "
+                "  \"location\": {"
+                "    \"address\": \"David's backyard\""
+                "  }"
+                "}"))))
+      (display
+        (new-secret-base-request-name new-secret-base-request))
+      (newline)
+      (display
+        (new-secret-base-request-secret-numbers new-secret-base-request))
+      (newline)
+      (display
+        (new-secret-base-location-subrequest-address
+          (new-secret-base-request-location new-secret-base-request)))
+      (newline))
 
 Run the following commands.
 

@@ -267,4 +267,14 @@
                             (json-parse-subrequest-field request-symbol field))
                           (else
                             (json-parse-value-field request-symbol field)))))
-                fields))))))))
+                fields)))
+
+          ;; parses a request from a json string
+          (: ,(symbol-append 'json-string-> request-symbol) (
+            string -> (struct ,request-symbol)))
+          (define (,(symbol-append 'json-string-> request-symbol) json-string)
+            (with-string->json json-string
+              (lambda (json-node)
+                (if json-node
+                  (,(symbol-append 'json-parse- request-symbol) json-node)
+                  #f)))))))))
