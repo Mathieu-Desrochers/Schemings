@@ -45,12 +45,12 @@ Expands to these record definitions.
     (define-record get-secret-base-vehicule-subresponse
       color)
 
-json formatting procedure
--------------------------
-Expands to a json formatting procedure.  
-Populates a json-node with the response values.
+json string formatting procedure
+--------------------------------
+Expands to a json string formatting procedure.  
+Returns the formatted response.
 
-    (define (json-format-get-secret-base-response get-secret-base-response json-node)
+    (define (get-secret-base-response->json-string get-secret-base-response)
       ...)
 
 try it
@@ -64,21 +64,18 @@ Place the following code in sources/main.scm.
     (define-response ...)
     (define-response ...)
 
-    (with-json-object
-      (lambda (json-node)
-        (json-format-get-secret-base-response
-          (make-get-secret-base-response
-            "Fort Donuts"
-            (list 1 4 8)
-            (make-get-secret-base-location-subresponse
-              "David's backyard"
-              3
-              (list
-                (make-get-secret-base-vehicule-subresponse "red")
-                (make-get-secret-base-vehicule-subresponse "blue"))))
-          json-node)
-        (display (json->string json-node))
-        (newline)))
+    (display
+      (get-secret-base-response->json-string
+        (make-get-secret-base-response
+          "Fort Donuts"
+          (list 1 4 8)
+          (make-get-secret-base-location-subresponse
+            "David's backyard"
+            3
+            (list
+              (make-get-secret-base-vehicule-subresponse "red")
+              (make-get-secret-base-vehicule-subresponse "blue"))))))
+    (newline)))
 
 Run the following commands.
 

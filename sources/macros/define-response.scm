@@ -141,4 +141,13 @@
                             (json-format-value-list-field response-symbol field))
                           (else
                             (json-format-value-field response-symbol field)))))
-                fields))))))))
+                fields)))
+
+          ;; formats a response to a json string
+          (: ,(symbol-append response-symbol '->json-string) (
+            (struct ,response-symbol) -> string))
+          (define (,(symbol-append response-symbol '->json-string) ,response-symbol)
+            (with-json-object
+              (lambda (json-node)
+                (,(symbol-append 'json-format- response-symbol) ,response-symbol json-node)
+                (json->string json-node)))))))))
