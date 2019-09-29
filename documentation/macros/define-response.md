@@ -45,9 +45,9 @@ Expands to these record definitions.
     (define-record get-secret-base-vehicule-subresponse
       color)
 
-json string formatting procedure
---------------------------------
-Expands to a json string formatting procedure.  
+json formatting procedure
+-------------------------
+Expands to a json formatting procedure.  
 Returns the formatted response.
 
     (define (get-secret-base-response->json-string get-secret-base-response)

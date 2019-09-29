@@ -270,9 +270,9 @@
                 fields)))
 
           ;; parses a request from a json string
-          (: ,(symbol-append 'json-string-> request-symbol) (
+          (: ,(symbol-append 'try-json-string-> request-symbol) (
             string -> (struct ,request-symbol)))
-          (define (,(symbol-append 'json-string-> request-symbol) json-string)
+          (define (,(symbol-append 'try-json-string-> request-symbol) json-string)
             (with-string->json json-string
               (lambda (json-node)
                 (if json-node

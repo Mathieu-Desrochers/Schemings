@@ -53,12 +53,12 @@ Returns a list of errors.
     (define (validate-new-secret-base-request new-secret-base-request)
       ...)
 
-json string parsing procedure
------------------------------
-Expands to a json string parsing procedure.  
+json parsing procedure
+----------------------
+Expands to a json parsing procedure.  
 Returns the parsed request.
 
-    (define (json-string->new-secret-base-request json-string)
+    (define (try-json-string->new-secret-base-request json-string)
       ...)
 
 typed getters
@@ -96,7 +96,7 @@ Place the following code in sources/main.scm.
     (newline)
 
     (let ((new-secret-base-request
-            (json-string->new-secret-base-request
+            (try-json-string->new-secret-base-request
               (string-append
                 "{"
                 "  \"name\": \"Fort Donuts\", "
