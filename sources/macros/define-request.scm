@@ -44,7 +44,7 @@
                     ,@field-validation-parameters)))
             (if validation-error
               (list (symbol-append ',field-symbol '- validation-error))
-              (list #f)))))
+              (list)))))
 
       ;; validates a value list field
       (define (validate-value-list-field request-symbol field)
@@ -58,21 +58,23 @@
                     ,@field-list-validation-parameters)))
             (if validation-error
               (list (symbol-append ',field-list-symbol '- validation-error))
-              (map
-                (lambda (element-index)
-                  (let* ((validation-error
-                          (,(symbol-append 'validate- field-element-type)
-                            (list-ref
-                              (,(symbol-append request-symbol '- field-list-symbol) ,request-symbol)
-                              element-index)
-                            ,@field-element-validation-parameters)))
-                    (if validation-error
-                      (symbol-append
-                        ',field-list-symbol '-
-                        (string->symbol (number->string element-index)) '-
-                        validation-error)
-                      #f)))
-                (iota (length (,(symbol-append request-symbol '- field-list-symbol) ,request-symbol))))))))
+              (if (,(symbol-append request-symbol '- field-list-symbol) ,request-symbol)
+                (map
+                  (lambda (element-index)
+                    (let* ((validation-error
+                            (,(symbol-append 'validate- field-element-type)
+                              (list-ref
+                                (,(symbol-append request-symbol '- field-list-symbol) ,request-symbol)
+                                element-index)
+                              ,@field-element-validation-parameters)))
+                      (if validation-error
+                        (symbol-append
+                          ',field-list-symbol '-
+                          (string->symbol (number->string element-index)) '-
+                          validation-error)
+                        #f)))
+                  (iota (length (,(symbol-append request-symbol '- field-list-symbol) ,request-symbol))))
+                (list))))))
 
       ;; validates a subrequest field
       (define (validate-subrequest-field request-symbol field)
@@ -85,13 +87,15 @@
                     ,@field-validation-parameters)))
             (if validation-error
               (list (symbol-append ',field-symbol '- validation-error))
-              (let ((validation-errors
-                      (,(symbol-append 'validate- field-type)
-                        (,(symbol-append request-symbol '- field-symbol) ,request-symbol))))
-                (map
-                  (lambda (validation-error)
-                    (symbol-append ',field-symbol '- validation-error))
-                  validation-errors))))))
+              (if (,(symbol-append request-symbol '- field-symbol) ,request-symbol)
+                (let ((validation-errors
+                        (,(symbol-append 'validate- field-type)
+                          (,(symbol-append request-symbol '- field-symbol) ,request-symbol))))
+                  (map
+                    (lambda (validation-error)
+                      (symbol-append ',field-symbol '- validation-error))
+                    validation-errors))
+                (list))))))
 
       ;; validates a subrequest list field
       (define (validate-subrequest-list-field request-symbol field)
@@ -105,33 +109,35 @@
                     ,@field-list-validation-parameters)))
             (if validation-error
               (list (symbol-append ',field-list-symbol '- validation-error))
-              (append-map
-                (lambda (element-index)
-                  (let ((validation-error
-                          (validate-record
-                            (list-ref
-                              (,(symbol-append request-symbol '- field-list-symbol) ,request-symbol)
-                              element-index)
-                            ,@field-element-validation-parameters)))
-                    (if validation-error
-                      (list
-                        (symbol-append
-                          ',field-list-symbol '-
-                          (string->symbol (number->string element-index)) '-
-                          validation-error))
-                      (let ((validation-errors
-                              (,(symbol-append 'validate- field-element-type)
-                                (list-ref
-                                  (,(symbol-append request-symbol '- field-list-symbol) ,request-symbol)
-                                  element-index))))
-                        (map
-                          (lambda (validation-error)
-                            (symbol-append
-                              ',field-list-symbol '-
-                              (string->symbol (number->string element-index)) '-
-                              validation-error))
-                          validation-errors)))))
-                (iota (length (,(symbol-append request-symbol '- field-list-symbol) ,request-symbol))))))))
+              (if (,(symbol-append request-symbol '- field-list-symbol) ,request-symbol)
+                (append-map
+                  (lambda (element-index)
+                    (let ((validation-error
+                            (validate-record
+                              (list-ref
+                                (,(symbol-append request-symbol '- field-list-symbol) ,request-symbol)
+                                element-index)
+                              ,@field-element-validation-parameters)))
+                      (if validation-error
+                        (list
+                          (symbol-append
+                            ',field-list-symbol '-
+                            (string->symbol (number->string element-index)) '-
+                            validation-error))
+                        (let ((validation-errors
+                                (,(symbol-append 'validate- field-element-type)
+                                  (list-ref
+                                    (,(symbol-append request-symbol '- field-list-symbol) ,request-symbol)
+                                    element-index))))
+                          (map
+                            (lambda (validation-error)
+                              (symbol-append
+                                ',field-list-symbol '-
+                                (string->symbol (number->string element-index)) '-
+                                validation-error))
+                            validation-errors)))))
+                  (iota (length (,(symbol-append request-symbol '- field-list-symbol) ,request-symbol))))
+                (list))))))
 
       ;; parses a value field from a json node
       (define (json-parse-value-field request-symbol field)

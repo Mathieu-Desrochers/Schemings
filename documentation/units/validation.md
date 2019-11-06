@@ -75,8 +75,8 @@ Returns #f if no errors were found, or one of the following symbols.
 - 'too-high
 - 'invalid-value
 
-validate-string value
----------------------
+validate-string
+---------------
 Validates a string value.
 
 __value__  
