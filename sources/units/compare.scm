@@ -21,7 +21,7 @@
     (list-of e1) (e1 -> k)
     (list-of e2) (e2 -> k)
     (e1 e2 -> boolean)
-    (e1 -> *) (e1 e2 -> *) (e1 e2 -> *) (e2 -> *) ->
+    (e2 -> *) (e1 e2 -> *) (e1 e2 -> *) (e1 -> *) ->
     (struct compare-results))))
 (define
   (compare-elements
