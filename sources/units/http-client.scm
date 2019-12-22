@@ -16,7 +16,7 @@
   (url string)
   (username (or string false))
   (password (or string false))
-  (headers (or (list string) false))
+  (headers (or (list-of string) false))
   (body (or string false)))
 
 ;; encapsulates an http client response
