@@ -55,6 +55,36 @@ char* curl_easy_perform_wrapped(CURL* curl, long* result_code)
   return result;
 }
 
+// allocates a curl_slist*
+struct curl_slist** malloc_curl_slist_pointer()
+{
+  struct curl_slist** curl_slist_pointer = calloc(1, sizeof(struct curl_slist*));
+  return curl_slist_pointer;
+}
+
+// adds a string to a curl_slist*
+void curl_slist_append_wrapped(struct curl_slist** curl_slist_pointer, const char* string)
+{
+  *curl_slist_pointer = curl_slist_append(*curl_slist_pointer, string);
+}
+
+// frees a curl_slist*
+void free_curl_slist_pointer(struct curl_slist** curl_slist_pointer)
+{
+  if (*curl_slist_pointer != NULL)
+  {
+    curl_slist_free_all(*curl_slist_pointer);
+  }
+
+  free(curl_slist_pointer);
+}
+
+// sets string options for a curl easy handle
+long curl_easy_setopt_strings(CURL* curl, long option, struct curl_slist** curl_slist_pointer)
+{
+  return curl_easy_setopt(curl, option, *curl_slist_pointer);
+}
+
 ")
 
 ;; constants
@@ -66,14 +96,27 @@ char* curl_easy_perform_wrapped(CURL* curl, long* result_code)
 (define curlopt-upload (foreign-value "CURLOPT_UPLOAD" long))
 (define curlopt-url (foreign-value "CURLOPT_URL" long))
 (define curlopt-userpwd (foreign-value "CURLOPT_USERPWD" long))
+(define curlopt-httpheader (foreign-value "CURLOPT_HTTPHEADER" long))
 
-;; libcurl pointers definitions
+;; curl pointers definitions
 (define-foreign-type curl "CURL")
 (define-foreign-type curl* (c-pointer curl))
 
-;; global libcurl initialisation and cleanup
+;; global curl initialisation and cleanup
 (define curl-global-init (foreign-lambda void "curl_global_init" long))
 (define curl-global-cleanup (foreign-lambda void "curl_global_cleanup"))
+
+;; curl-slist pointers definitions
+(define-foreign-type curl-slist "struct curl_slist")
+(define-foreign-type curl-slist* (c-pointer curl-slist))
+(define-foreign-type curl-slist** (c-pointer curl-slist*))
+
+;; curl-slist pointers memory management
+(define malloc-curl-slist* (foreign-lambda curl-slist** "malloc_curl_slist_pointer"))
+(define free-curl-slist* (foreign-lambda void "free_curl_slist_pointer" curl-slist**))
+
+;; adds a string to an slist
+(define curl-slist-append (foreign-lambda void "curl_slist_append_wrapped" curl-slist** (const c-string)))
 
 ;; starts and ends a libcurl easy session
 (define curl-easy-init (foreign-lambda curl* "curl_easy_init"))
@@ -84,6 +127,7 @@ char* curl_easy_perform_wrapped(CURL* curl, long* result_code)
 
 ;; sets options for a curl easy handle
 (define curl-easy-setopt-string (foreign-lambda long "curl_easy_setopt" curl* long (const c-string)))
+(define curl-easy-setopt-strings (foreign-lambda long "curl_easy_setopt_strings" curl* long curl-slist**))
 
 ;; url encodes the given string
 (define curl-easy-escape (foreign-lambda c-string* "curl_easy_escape" curl* (const c-string) int))

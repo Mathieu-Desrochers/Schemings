@@ -6,6 +6,7 @@ A record with the following fields.
 - url
 - username
 - password
+- headers
 - body
 
 http-client-response
@@ -58,7 +59,7 @@ Place the following code in sources/main.scm.
               (make-http-client-request
                 "GET"
                 "https://reqres.in/api/users/1"
-                #f #f #f))))
+                #f #f #f #f))))
 
       (display (http-client-response-status-code http-client-response))
       (newline)
