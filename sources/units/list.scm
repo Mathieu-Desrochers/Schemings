@@ -164,13 +164,28 @@
     (sort (map element-value-procedure elements) <)
     (iota (length elements) 1)))
 
+;; invokes a procedure with each element of a list
+;; along with its index
+(: list-for-each-with-index (forall (e) ((list-of e) (e fixnum -> noreturn) -> noreturn)))
+(define (list-for-each-with-index
+          elements
+          procedure)
+  (letrec
+      ((list-for-each-with-index-inner
+        (lambda (elements index)
+          (if (not (null? elements))
+            (begin
+              (procedure (car elements) index)
+              (list-for-each-with-index-inner (cdr elements) (+ index 1)))))))
+    (list-for-each-with-index-inner elements 0)))
+
 ;; splits a list in sublists
 (: list-split (forall (e) ((list-of e) fixnum -> (list-of (list-of e)))))
 (define (list-split
           elements
           sublist-size)
   (letrec
-    ((list-break-inner
+      ((list-break-inner
         (lambda (elements accumulated)
           (cond
             ((null? elements) accumulated)

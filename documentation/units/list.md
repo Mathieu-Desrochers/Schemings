@@ -98,6 +98,17 @@ A procedure that returns the value of a list element.
 __result__  
 Whether the elements form a sequence.
 
+list-for-each-with-index
+------------------------
+Invokes a procedure with each element of a list  
+along with its index.
+
+__elements__  
+The list of elements.
+
+__procedure__  
+A procedure to invoke.
+
 list-split
 ----------
 Splits a list in sublists.
@@ -170,6 +181,16 @@ Place the following code in sources/main.scm.
           (> salary 21500))))
     (newline)
 
+    (display "employees with index: ")
+    (list-for-each-with-index
+      (list
+        (make-employee 1000 "Alice" 20000)
+        (make-employee 1001 "Bob" 21000)
+        (make-employee 1002 "Carl" 22000))
+      (lambda (employee index)
+        (display (cons (employee-name employee) index))))
+    (newline)
+
 Run the following commands.
 
     $ make
@@ -179,3 +200,4 @@ Run the following commands.
     employees missing from the second list: (2)
     employees unique names: (Alice Bob Carl)
     employees being rich: (2 3)
+    employees with index: (Alice . 0)(Bob . 1)(Carl . 2)
