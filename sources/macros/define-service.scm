@@ -541,7 +541,10 @@
                       (,subsubrequests-getter subrequest)))
 
                   ;; makes a changed row
-                  ,make-updated-row-procedure
+                  (lambda (row subrequest)
+                    (cons
+                      (,make-updated-row-procedure row subrequest)
+                      (,subsubrequests-getter subrequest)))
 
                   ;; makes an unchanged row
                   (lambda (row subrequest) row)
@@ -576,7 +579,24 @@
             (lambda (row)
               (,(symbol-append table-symbol '-update)
                 sql-connection
-                row))
+                (car row))
+
+              ;; update the modified subrows
+              (update-modified-rows
+                (identity
+                  (cdr row)
+                  ,subsubrequest-id-symbol
+                  ,@subsubrequest-value-symbols)
+                ((subrows-ref (,row-id-symbol (car row)))
+                  ,subrow-id-symbol
+                  ,@subrow-value-symbols)
+                (,subtable-symbol)
+                (lambda (subsubrequest)
+                  (,make-inserted-subrow-procedure
+                    subsubrequest
+                    (,row-id-symbol (car row))))
+                ,make-updated-subrow-procedure))
+
             (compare-results-changed-elements
               compare-results))
 
