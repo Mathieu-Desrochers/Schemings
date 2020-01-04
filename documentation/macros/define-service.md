@@ -381,115 +381,115 @@ Place the following code in sources/main.scm.
             (cookie-cookie-ingredients
               cookie-ingredient-id-unknown))
 
-            ;; select the ingredient-rows
-            (select-many
+          ;; select the ingredient-rows
+          (select-many
+            (ingredient-rows
+              ingredients-table-select-all)
+
+            ;; validate the referred ingredient-ids
+            (validate-references
+              (update-cookie-request-cookie-ingredients*
+                update-cookie-request
+                update-cookie-cookie-ingredient-subrequest-ingredient-id*)
               (ingredient-rows
-                ingredients-table-select-all)
+                ingredient-row-ingredient-id)
+              (cookie-ingredients
+                ingredient-id-unknown))
 
-              ;; validate the referred ingredient-ids
-              (validate-references
-                (update-cookie-request-cookie-ingredients*
-                  update-cookie-request
-                  update-cookie-cookie-ingredient-subrequest-ingredient-id*)
-                (ingredient-rows
-                  ingredient-row-ingredient-id)
-                (cookie-ingredients
-                  ingredient-id-unknown))
+            ;; validate the inserted cookie-ingredient-rows
+            (validate-inserted-rows
+              (update-cookie-request-cookie-ingredients*
+                update-cookie-request
+                update-cookie-cookie-ingredient-subrequest-cookie-ingredient-id*)
+              (cookie-ingredients
+                quantity-too-low)
 
-              ;; validate the inserted cookie-ingredient-rows
-              (validate-inserted-rows
-                (update-cookie-request-cookie-ingredients*
-                  update-cookie-request
-                  update-cookie-cookie-ingredient-subrequest-cookie-ingredient-id*)
-                (cookie-ingredients
-                  quantity-too-low)
+              ;; make sure to use plenty of stuff
+              (lambda (update-cookie-cookie-ingredient-subrequest)
+                (>=
+                  (update-cookie-cookie-ingredient-subrequest-quantity
+                    update-cookie-cookie-ingredient-subrequest)
+                  10)))
 
-                ;; make sure to use plenty of stuff
-                (lambda (update-cookie-cookie-ingredient-subrequest)
-                  (>=
-                    (update-cookie-cookie-ingredient-subrequest-quantity
-                      update-cookie-cookie-ingredient-subrequest)
-                    10)))
+            ;; validate the updated cookie-ingredients-rows
+            (validate-updated-rows
+              (update-cookie-request-cookie-ingredients*
+                update-cookie-request
+                update-cookie-cookie-ingredient-subrequest-cookie-ingredient-id*)
+              (cookie-ingredient-rows
+                cookie-ingredient-row-cookie-ingredient-id)
+              (cookie-ingredients
+                cannot-reduce-quantity)
 
-              ;; validate the updated cookie-ingredients-rows
-              (validate-updated-rows
-                (update-cookie-request-cookie-ingredients*
-                  update-cookie-request
-                  update-cookie-cookie-ingredient-subrequest-cookie-ingredient-id*)
-                (cookie-ingredient-rows
-                  cookie-ingredient-row-cookie-ingredient-id)
-                (cookie-ingredients
-                  cannot-reduce-quantity)
+              ;; make sure to keep all the stuff
+              (lambda (update-cookie-cookie-ingredient-subrequest cookie-ingredient-row)
+                (>=
+                  (update-cookie-cookie-ingredient-subrequest-quantity
+                    update-cookie-cookie-ingredient-subrequest)
+                  (cookie-ingredient-row-quantity
+                    cookie-ingredient-row))))
 
-                ;; make sure to keep all the stuff
-                (lambda (update-cookie-cookie-ingredient-subrequest cookie-ingredient-row)
-                  (>=
-                    (update-cookie-cookie-ingredient-subrequest-quantity
-                      update-cookie-cookie-ingredient-subrequest)
-                    (cookie-ingredient-row-quantity
-                      cookie-ingredient-row))))
+            ;; validate the deleted cookie-ingredient-rows
+            (validate-deleted-rows
+              (update-cookie-request-cookie-ingredients*
+                update-cookie-request
+                update-cookie-cookie-ingredient-subrequest-cookie-ingredient-id*)
+              (cookie-ingredient-rows
+                cookie-ingredient-row-cookie-ingredient-id)
+              (cookie-ingredients-cannot-be-removed)
 
-              ;; validate the deleted cookie-ingredient-rows
-              (validate-deleted-rows
-                (update-cookie-request-cookie-ingredients*
-                  update-cookie-request
-                  update-cookie-cookie-ingredient-subrequest-cookie-ingredient-id*)
-                (cookie-ingredient-rows
-                  cookie-ingredient-row-cookie-ingredient-id)
-                (cookie-ingredients-cannot-be-removed)
+              ;; make sure not to remove anything
+              (lambda (cookie-ingredient-row)
+                #f))
 
-                ;; make sure not to remove anything
-                (lambda (cookie-ingredient-row)
-                  #f))
+            ;; update the cookie-row
+            (cookies-table-update
+              sql-connection
+              (make-cookie-row
+                (update-cookie-request-cookie-id* update-cookie-request)
+                (update-cookie-request-name* update-cookie-request)))
 
-              ;; update the cookie-row
-              (cookies-table-update
-                sql-connection
-                (make-cookie-row
-                  (update-cookie-request-cookie-id* update-cookie-request)
-                  (update-cookie-request-name* update-cookie-request)))
+            ;; update the modified cookie-ingredient-rows
+            (update-modified-rows
+              (update-cookie-request-cookie-ingredients*
+                update-cookie-request
+                update-cookie-cookie-ingredient-subrequest-cookie-ingredient-id*
+                update-cookie-cookie-ingredient-subrequest-ingredient-id*
+                update-cookie-cookie-ingredient-subrequest-quantity*)
+              (cookie-ingredient-rows
+                cookie-ingredient-row-cookie-ingredient-id
+                cookie-ingredient-row-ingredient-id
+                cookie-ingredient-row-quantity)
+              (cookie-ingredients-table)
 
-              ;; update the modified cookie-ingredient-rows
-              (update-modified-rows
-                (update-cookie-request-cookie-ingredients*
-                  update-cookie-request
-                  update-cookie-cookie-ingredient-subrequest-cookie-ingredient-id*
-                  update-cookie-cookie-ingredient-subrequest-ingredient-id*
-                  update-cookie-cookie-ingredient-subrequest-quantity*)
-                (cookie-ingredient-rows
-                  cookie-ingredient-row-cookie-ingredient-id
-                  cookie-ingredient-row-ingredient-id
-                  cookie-ingredient-row-quantity)
-                (cookie-ingredients-table)
+              ;; makes a new cookie-ingredient-row
+              (lambda (cookie-ingredient-subrequest)
+                (make-cookie-ingredient-row
+                  #f
+                  (update-cookie-request-cookie-id*
+                    update-cookie-request)
+                  (update-cookie-cookie-ingredient-subrequest-ingredient-id*
+                    cookie-ingredient-subrequest)
+                  (update-cookie-cookie-ingredient-subrequest-quantity*
+                    cookie-ingredient-subrequest)))
 
-                ;; makes a new cookie-ingredient-row
-                (lambda (cookie-ingredient-subrequest)
-                  (make-cookie-ingredient-row
-                    #f
-                    (update-cookie-request-cookie-id*
-                      update-cookie-request)
-                    (update-cookie-cookie-ingredient-subrequest-ingredient-id*
-                      cookie-ingredient-subrequest)
-                    (update-cookie-cookie-ingredient-subrequest-quantity*
-                      cookie-ingredient-subrequest)))
-
-                ;; makes an updated cookie-ingredient-row
-                (lambda (cookie-ingredient-row cookie-ingredient-subrequest)
-                  (make-cookie-ingredient-row
-                    (cookie-ingredient-row-cookie-ingredient-id
-                      cookie-ingredient-row)
-                    (cookie-ingredient-row-cookie-id
-                      cookie-ingredient-row)
-                    (update-cookie-cookie-ingredient-subrequest-ingredient-id*
-                      cookie-ingredient-subrequest)
-                    (update-cookie-cookie-ingredient-subrequest-quantity*
-                      cookie-ingredient-subrequest)))))))
+              ;; makes an updated cookie-ingredient-row
+              (lambda (cookie-ingredient-row cookie-ingredient-subrequest)
+                (make-cookie-ingredient-row
+                  (cookie-ingredient-row-cookie-ingredient-id
+                    cookie-ingredient-row)
+                  (cookie-ingredient-row-cookie-id
+                    cookie-ingredient-row)
+                  (update-cookie-cookie-ingredient-subrequest-ingredient-id*
+                    cookie-ingredient-subrequest)
+                  (update-cookie-cookie-ingredient-subrequest-quantity*
+                    cookie-ingredient-subrequest)))))))
 
       ;; make the update-cookie-response
       (make-update-cookie-response))
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;; sample invokation
+    ;; service invocation
 
     ;; display validation errors
     (handle-exceptions
@@ -524,3 +524,43 @@ Run the following commands.
 
     $ make
     $ ./main
+
+Try updating subrows by running the following commands.
+
+    $ sqlite3 cookies.db
+
+    sqlite> CREATE TABLE "cookies"
+       ...> (
+       ...>   "cookie-id" INTEGER PRIMARY KEY AUTOINCREMENT,
+       ...>   "name" TEXT
+       ...> );
+
+    sqlite> INSERT INTO "cookies" ("name") VALUES ("chocolate");
+
+    sqlite> CREATE TABLE "cookie-ingredients"
+       ...> (
+       ...>   "cookie-ingredient-id" INTEGER PRIMARY KEY AUTOINCREMENT,
+       ...>   "cookie-id" INTEGER,
+       ...>   "name" TEXT,
+       ...>   "quantity" INTEGER,
+       ...>   FOREIGN KEY ("cookie-id") REFERENCES "cookies" ("cookie-id")
+       ...> );
+
+    sqlite> INSERT INTO "cookie-ingredients" ("cookie-id", "name", "quantity") VALUES (1, "chocolate", 5);
+    sqlite> INSERT INTO "cookie-ingredients" ("cookie-id", "name", "quantity") VALUES (1, "butter", 2);
+
+    sqlite> CREATE TABLE "cookie-ingredient-suppliers"
+       ...> (
+       ...>   "cookie-ingredient-supplier-id" INTEGER PRIMARY KEY AUTOINCREMENT,
+       ...>   "cookie-ingredient-id" INTEGER,
+       ...>   "name" TEXT,
+       ...>   "rating" INTEGER,
+       ...>   FOREIGN KEY ("cookie-ingredient-id") REFERENCES "cookie-ingredients" ("cookie-ingredient-id")
+       ...> );
+
+    sqlite> INSERT INTO "cookie-ingredient-suppliers" ("cookie-ingredient-id", "name", "rating")
+       ...> VALUES (1, "choco choco inc", 5);
+    sqlite> INSERT INTO "cookie-ingredient-suppliers" ("cookie-ingredient-id", "name", "rating")
+       ...> VALUES (1, "fatter butter inc", 4);
+
+    sqlite> .exit

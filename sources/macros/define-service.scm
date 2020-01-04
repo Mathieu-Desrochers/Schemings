@@ -184,8 +184,8 @@
 
       ;; parses the expression
       (let* ((subrequests-expression (list-ref exp 1))
-             (request-value-symbol (list-ref subrequests-expression 0))
-             (request-symbol (list-ref subrequests-expression 1))
+             (subrequests-getter (list-ref subrequests-expression 0))
+             (subrequests-from (list-ref subrequests-expression 1))
              (subrequest-value-symbol (list-ref subrequests-expression 2))
              (validation-errors-expression (list-ref exp 2))
              (validation-errors-prefix-symbol (list-ref validation-errors-expression 0))
@@ -194,7 +194,7 @@
         ;; get the duplicates index
         `(let ((,(rename 'duplicates-index)
                 (list-duplicates-index
-                  (,request-value-symbol ,request-symbol)
+                  (,subrequests-getter ,subrequests-from)
                   ,subrequest-value-symbol)))
 
           ;; validate there are no duplicates index
@@ -214,8 +214,8 @@
 
       ;; parses the expression
       (let* ((subrequests-expression (list-ref exp 1))
-             (request-value-symbol (list-ref subrequests-expression 0))
-             (request-symbol (list-ref subrequests-expression 1))
+             (subrequests-getter (list-ref subrequests-expression 0))
+             (subrequests-from (list-ref subrequests-expression 1))
              (subrequest-value-symbol (list-ref subrequests-expression 2))
              (rows-expression (list-ref exp 2))
              (rows-symbol (list-ref rows-expression 0))
@@ -227,7 +227,7 @@
         ;; get the non-matches index
         `(let ((,(rename 'non-matches-index)
                 (list-non-matches-index
-                  (,request-value-symbol ,request-symbol)
+                  (,subrequests-getter ,subrequests-from)
                   ,subrequest-value-symbol
                   ,rows-symbol
                   ,row-value-symbol)))
@@ -249,8 +249,8 @@
 
       ;; parses the expression
       (let* ((subrequests-expression (list-ref exp 1))
-             (request-value-symbol (list-ref subrequests-expression 0))
-             (request-symbol (list-ref subrequests-expression 1))
+             (subrequests-getter (list-ref subrequests-expression 0))
+             (subrequests-from (list-ref subrequests-expression 1))
              (subrequest-value-symbol (list-ref subrequests-expression 2))
              (validation-errors-expression (list-ref exp 2))
              (validation-errors-prefix-symbol (list-ref validation-errors-expression 0))
@@ -260,7 +260,7 @@
         ;; validate the subrequests
         `(let ((,(rename 'invalid-subrequests-index)
                 (list-filtered-index
-                  (,request-value-symbol ,request-symbol)
+                  (,subrequests-getter ,subrequests-from)
                   identity
                   (lambda (,(rename 'subrequest))
 
@@ -287,8 +287,8 @@
 
       ;; parses the expression
       (let* ((subrequests-expression (list-ref exp 1))
-             (request-value-symbol (list-ref subrequests-expression 0))
-             (request-symbol (list-ref subrequests-expression 1))
+             (subrequests-getter (list-ref subrequests-expression 0))
+             (subrequests-from (list-ref subrequests-expression 1))
              (subrequest-value-symbol (list-ref subrequests-expression 2))
              (rows-expression (list-ref exp 2))
              (rows-symbol (list-ref rows-expression 0))
@@ -308,7 +308,7 @@
           ;; validate the subrequests
           (let ((,(rename 'invalid-subrequests-index)
                   (list-filtered-index
-                    (,request-value-symbol ,request-symbol)
+                    (,subrequests-getter ,subrequests-from)
                     identity
                     (lambda (,(rename 'subrequest))
 
@@ -348,8 +348,8 @@
 
       ;; parses the expression
       (let* ((subrequests-expression (list-ref exp 1))
-             (request-value-symbol (list-ref subrequests-expression 0))
-             (request-symbol (list-ref subrequests-expression 1))
+             (subrequests-getter (list-ref subrequests-expression 0))
+             (subrequests-from (list-ref subrequests-expression 1))
              (subrequest-value-symbol (list-ref subrequests-expression 2))
              (rows-expression (list-ref exp 2))
              (rows-symbol (list-ref rows-expression 0))
@@ -361,7 +361,7 @@
         ;; hash the subrequests
         `(let ((,(rename 'subrequests-hash-table)
                  (hash-by-unique-key
-                   (filter ,subrequest-value-symbol (,request-value-symbol ,request-symbol))
+                   (filter ,subrequest-value-symbol (,subrequests-getter ,subrequests-from))
                    ,subrequest-value-symbol
                    identity)))
 
@@ -396,8 +396,8 @@
 
       ;; parses the expression
       (let* ((subrequests-expression (list-ref exp 1))
-             (request-value-symbol (list-ref subrequests-expression 0))
-             (request-symbol (list-ref subrequests-expression 1))
+             (subrequests-getter (list-ref subrequests-expression 0))
+             (subrequests-from (list-ref subrequests-expression 1))
              (subrequest-id-symbol (list-ref subrequests-expression 2))
              (subrequest-value-symbols (drop subrequests-expression 3))
              (rows-expression (list-ref exp 2))
@@ -418,7 +418,7 @@
                   ,row-id-symbol
 
                   ;; the current subrequests
-                  (,request-value-symbol ,request-symbol)
+                  (,subrequests-getter ,subrequests-from)
                   ,subrequest-id-symbol
 
                   ;; returns whether an element has changed
@@ -454,6 +454,120 @@
               (,(symbol-append table-symbol '-insert)
                 sql-connection
                 row))
+            (compare-results-added-elements
+              compare-results))
+
+          ;; update the changed rows
+          (for-each
+            (lambda (row)
+              (,(symbol-append table-symbol '-update)
+                sql-connection
+                row))
+            (compare-results-changed-elements
+              compare-results))
+
+          ;; delete the deleted rows
+          (for-each
+            (lambda (row)
+              (,(symbol-append table-symbol '-delete)
+                sql-connection
+                row))
+            (compare-results-deleted-elements
+              compare-results)))))))
+
+(define-syntax update-modified-rows-and-subrows
+  (er-macro-transformer
+    (lambda (exp rename compare)
+
+      ;; parses the expression
+      (let* ((subrequests-expression (list-ref exp 1))
+             (subrequests-getter (list-ref subrequests-expression 0))
+             (subrequests-from (list-ref subrequests-expression 1))
+             (subrequest-id-symbol (list-ref subrequests-expression 2))
+             (subrequest-value-symbols (drop subrequests-expression 3))
+             (rows-expression (list-ref exp 2))
+             (rows-symbol (list-ref rows-expression 0))
+             (row-id-symbol (list-ref rows-expression 1))
+             (row-value-symbols (drop rows-expression 2))
+             (table-expression (list-ref exp 3))
+             (table-symbol (list-ref table-expression 0))
+             (subsubrequests-expression (list-ref exp 4))
+             (subsubrequests-getter (list-ref subsubrequests-expression 0))
+             (subsubrequest-id-symbol (list-ref subsubrequests-expression 1))
+             (subsubrequest-value-symbols (drop subsubrequests-expression 2))
+             (subrows-expression (list-ref exp 5))
+             (subrows-ref (list-ref subrows-expression 0))
+             (subrow-id-symbol (list-ref subrows-expression 1))
+             (subrow-value-symbols (drop subrows-expression 2))
+             (subtable-expression (list-ref exp 6))
+             (subtable-symbol (list-ref subtable-expression 0))
+             (subtable-delete-all-children (list-ref subtable-expression 1))
+             (make-inserted-row-procedure (list-ref exp 7))
+             (make-updated-row-procedure (list-ref exp 8))
+             (make-inserted-subrow-procedure (list-ref exp 9))
+             (make-updated-subrow-procedure (list-ref exp 10)))
+
+        ;; compare the elements
+        `(let ((compare-results
+                (compare-elements
+
+                  ;; the original rows
+                  ,rows-symbol
+                  ,row-id-symbol
+
+                  ;; the current subrequests
+                  (,subrequests-getter ,subrequests-from)
+                  ,subrequest-id-symbol
+
+                  ;; returns whether an element has changed
+                  (lambda (row subrequest)
+                    (not
+                      (equal?
+                        (list
+                          ,@(map
+                            (lambda (row-value-symbol)
+                              `(,row-value-symbol row))
+                            row-value-symbols))
+                        (list
+                          ,@(map
+                            (lambda (subrequest-value-symbol)
+                              `(,subrequest-value-symbol subrequest))
+                            subrequest-value-symbols)))))
+
+                  ;; makes an added row
+                  (lambda (subrequest)
+                    (cons
+                      (,make-inserted-row-procedure subrequest)
+                      (,subsubrequests-getter subrequest)))
+
+                  ;; makes a changed row
+                  ,make-updated-row-procedure
+
+                  ;; makes an unchanged row
+                  (lambda (row subrequest) row)
+
+                  ;; makes a deleted row
+                  identity)))
+
+          ;; insert the added rows
+          (for-each
+            (lambda (row)
+              (let ((row-id
+                      (,(symbol-append table-symbol '-insert)
+                        sql-connection
+                        (car row))))
+
+                ;; insert the added subrows
+                (for-each
+                  (lambda (subrow)
+                    (,(symbol-append subtable-symbol '-insert)
+                      sql-connection
+                      subrow))
+                  (map
+                    (lambda (subrequest)
+                      (,make-inserted-subrow-procedure subrequest row-id))
+                    (cdr row)))))
+
             (compare-results-added-elements
               compare-results))
 
