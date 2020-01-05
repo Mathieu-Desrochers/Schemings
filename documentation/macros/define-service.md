@@ -211,6 +211,60 @@ The second one must return a row that will be updated.
       (lambda ([row-symbol] [subrequest-symbol])
         [make-updated-row-body]))
 
+update-modified-rows-and-subrows
+--------------------------------
+Same as update-modified-rows but two levels deep.
+
+    (update-modified-rows-and-subrows
+      ([request-subrequests-get-procedure]
+        [request-symbol]
+        [subrequest-value-get-procedure-1]
+        [subrequest-value-get-procedure-2]
+        ...)
+      ([rows-symbol]
+        [row-value-get-procedure-1]
+        [row-value-get-procedure-2]
+        ...)
+      ([table-symbol])
+      ...
+
+The first procedure is invoked to get each subrequest's children.  
+The second one serves the same purpose for rows.
+
+      ([subrequest-subsubrequests-get-procedure]
+        [subsubrequest-value-get-procedure-1]
+        [subsubrequest-value-get-procedure-2]
+        ...)
+      ([sub-rows-ref-procedure]
+        [subrow-value-get-procedure-1]
+        [subrow-value-get-procedure-2]
+        ...)
+      ...
+
+The procedure is invoked to delete all subrows matching a row id.
+
+      ([subtable-symbol]
+        [subtable-delete-all-children-procedure])
+      ...
+
+These procedures are the same as in update-modified-rows.
+
+      (lambda ([subrequest-symbol])
+        [make-inserted-row-body])
+
+      (lambda ([row-symbol] [subrequest-symbol])
+        [make-updated-row-body]))
+      ...
+
+The first procedure must return a subrow that will be inserted.  
+The second one must return a subrow that will be updated.
+
+      (lambda ([subsubrequest-symbol row-id])
+        [make-inserted-subrow-body])
+
+      (lambda ([subrow-symbol] [subsubrequest-symbol])
+        [make-updated-subrow-body]))
+
 make-subresponses
 -----------------
 Sorts a list of rows and maps them to a procedure  
@@ -525,8 +579,9 @@ Run the following commands.
     $ make
     $ ./main
 
-Try updating subrows by running the following commands.
+Run the following commands to try updating subrows.
 
+    $ rm cookies.db
     $ sqlite3 cookies.db
 
     sqlite> CREATE TABLE "cookies"
@@ -546,8 +601,10 @@ Try updating subrows by running the following commands.
        ...>   FOREIGN KEY ("cookie-id") REFERENCES "cookies" ("cookie-id")
        ...> );
 
-    sqlite> INSERT INTO "cookie-ingredients" ("cookie-id", "name", "quantity") VALUES (1, "chocolate", 5);
-    sqlite> INSERT INTO "cookie-ingredients" ("cookie-id", "name", "quantity") VALUES (1, "butter", 2);
+    sqlite> INSERT INTO "cookie-ingredients" ("cookie-id", "name", "quantity")
+       ...> VALUES (1, "chocolate", 5);
+    sqlite> INSERT INTO "cookie-ingredients" ("cookie-id", "name", "quantity")
+       ...> VALUES (1, "butter", 2);
 
     sqlite> CREATE TABLE "cookie-ingredient-suppliers"
        ...> (
@@ -555,7 +612,8 @@ Try updating subrows by running the following commands.
        ...>   "cookie-ingredient-id" INTEGER,
        ...>   "name" TEXT,
        ...>   "rating" INTEGER,
-       ...>   FOREIGN KEY ("cookie-ingredient-id") REFERENCES "cookie-ingredients" ("cookie-ingredient-id")
+       ...>   FOREIGN KEY ("cookie-ingredient-id")
+       ...>   REFERENCES "cookie-ingredients" ("cookie-ingredient-id")
        ...> );
 
     sqlite> INSERT INTO "cookie-ingredient-suppliers" ("cookie-ingredient-id", "name", "rating")
@@ -789,14 +847,19 @@ Place the following code in sources/main.scm.
             (list
               (make-update-cookie-cookie-ingredient-subrequest 1 "chocolate" 10
                 (list
-                  (make-update-cookie-cookie-ingredient-supplier-subrequest 1 "choco choco inc" 4)
-                  (make-update-cookie-cookie-ingredient-supplier-subrequest #f "mega extra choco inc" 5)))
+                  (make-update-cookie-cookie-ingredient-supplier-subrequest
+                    1 "choco choco inc" 4)
+                  (make-update-cookie-cookie-ingredient-supplier-subrequest
+                    #f "mega extra choco inc" 5)))
               (make-update-cookie-cookie-ingredient-subrequest 2 "butter" 2
                 (list
-                  (make-update-cookie-cookie-ingredient-supplier-subrequest 2 "fatter butter inc" 5)))
-              (make-update-cookie-cookie-ingredient-subrequest #f "chocolate chips" 20
+                  (make-update-cookie-cookie-ingredient-supplier-subrequest
+                    2 "fatter butter inc" 5)))
+              (make-update-cookie-cookie-ingredient-subrequest
+                #f "chocolate chips" 20
                 (list
-                  (make-update-cookie-cookie-ingredient-supplier-subrequest #f "awesome choco inc" 3)))))
+                  (make-update-cookie-cookie-ingredient-supplier-subrequest
+                    #f "awesome choco inc" 3)))))
 
           sql-connection
           #f
