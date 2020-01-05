@@ -544,21 +544,23 @@
                   (lambda (row subrequest)
                     (cons
                       (,make-updated-row-procedure row subrequest)
-                      (,subsubrequests-getter subrequest)))
+                      subrequest))
 
                   ;; makes an unchanged row
-                  (lambda (row subrequest) row)
+                  (lambda (row subrequest)
+                    (cons row subrequest))
 
                   ;; makes a deleted row
                   identity)))
 
-          ;; insert the added rows
           (for-each
-            (lambda (row)
+            (lambda (added-element)
+
+              ;; insert the added row
               (let ((row-id
                       (,(symbol-append table-symbol '-insert)
                         sql-connection
-                        (car row))))
+                        (car added-element))))
 
                 ;; insert the added subrows
                 (for-each
@@ -569,43 +571,73 @@
                   (map
                     (lambda (subrequest)
                       (,make-inserted-subrow-procedure subrequest row-id))
-                    (cdr row)))))
+                    (cdr added-element)))))
 
             (compare-results-added-elements
               compare-results))
 
-          ;; update the changed rows
           (for-each
-            (lambda (row)
+            (lambda (changed-element)
+
+              ;; update the changed row
               (,(symbol-append table-symbol '-update)
                 sql-connection
-                (car row))
+                (car changed-element))
 
               ;; update the modified subrows
               (update-modified-rows
-                (identity
-                  (cdr row)
+                (,subsubrequests-getter
+                  (cdr changed-element)
                   ,subsubrequest-id-symbol
                   ,@subsubrequest-value-symbols)
-                ((subrows-ref (,row-id-symbol (car row)))
+                ((,subrows-ref (,row-id-symbol (car changed-element)))
                   ,subrow-id-symbol
                   ,@subrow-value-symbols)
                 (,subtable-symbol)
                 (lambda (subsubrequest)
                   (,make-inserted-subrow-procedure
                     subsubrequest
-                    (,row-id-symbol (car row))))
+                    (,row-id-symbol (car changed-element))))
                 ,make-updated-subrow-procedure))
 
             (compare-results-changed-elements
               compare-results))
 
-          ;; delete the deleted rows
+          (for-each
+            (lambda (unchanged-element)
+
+              ;; update the modified subrows
+              (update-modified-rows
+                (,subsubrequests-getter
+                  (cdr unchanged-element)
+                  ,subsubrequest-id-symbol
+                  ,@subsubrequest-value-symbols)
+                ((,subrows-ref (,row-id-symbol (car unchanged-element)))
+                  ,subrow-id-symbol
+                  ,@subrow-value-symbols)
+                (,subtable-symbol)
+                (lambda (subsubrequest)
+                  (,make-inserted-subrow-procedure
+                    subsubrequest
+                    (,row-id-symbol (car unchanged-element))))
+                ,make-updated-subrow-procedure))
+
+            (compare-results-unchanged-elements
+              compare-results))
+
           (for-each
             (lambda (row)
+
+              ;; delete the subrows
+              (,subtable-delete-all-children
+                sql-connection
+                (,row-id-symbol row))
+
+              ;; delete the row
               (,(symbol-append table-symbol '-delete)
                 sql-connection
                 row))
+
             (compare-results-deleted-elements
               compare-results)))))))
 
