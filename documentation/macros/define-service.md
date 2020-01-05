@@ -847,14 +847,14 @@ Place the following code in sources/main.scm.
             (list
               (make-update-cookie-cookie-ingredient-subrequest 1 "chocolate" 10
                 (list
-                  (make-update-cookie-cookie-ingredient-supplier-subrequest 1 "choco choco inc" 4)
-                  (make-update-cookie-cookie-ingredient-supplier-subrequest #f "mega extra choco inc" 5)))
+                  (make-update-cookie-cookie-ingredient-supplier-subrequest 1 "choco inc" 4)
+                  (make-update-cookie-cookie-ingredient-supplier-subrequest #f "mega choco inc" 5)))
               (make-update-cookie-cookie-ingredient-subrequest 2 "butter" 2
                 (list
-                  (make-update-cookie-cookie-ingredient-supplier-subrequest 2 "fatter butter inc" 5)))
+                  (make-update-cookie-cookie-ingredient-supplier-subrequest 2 "butter inc" 5)))
               (make-update-cookie-cookie-ingredient-subrequest #f "chocolate chips" 20
                 (list
-                  (make-update-cookie-cookie-ingredient-supplier-subrequest #f "awesome choco inc" 3)))))
+                  (make-update-cookie-cookie-ingredient-supplier-subrequest #f "chips inc" 3)))))
 
           sql-connection
           #f
