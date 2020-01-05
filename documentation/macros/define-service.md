@@ -617,9 +617,9 @@ Run the following commands to try updating subrows.
        ...> );
 
     sqlite> INSERT INTO "cookie-ingredient-suppliers" ("cookie-ingredient-id", "name", "rating")
-       ...> VALUES (1, "choco choco inc", 5);
+       ...> VALUES (1, "choco inc", 5);
     sqlite> INSERT INTO "cookie-ingredient-suppliers" ("cookie-ingredient-id", "name", "rating")
-       ...> VALUES (2, "fatter butter inc", 4);
+       ...> VALUES (2, "butter inc", 4);
 
     sqlite> .exit
 
