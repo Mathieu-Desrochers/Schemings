@@ -111,7 +111,7 @@
             (format-thousands
               (lambda (dollars accumulator)
                 (if (> (string-length dollars) 3)
-                  (format-dollars
+                  (format-thousands
                     (string-drop-right dollars 3)
                     (string-append thousand-separator (string-take-right dollars 3) accumulator))
                   (string-append dollars accumulator)))))
