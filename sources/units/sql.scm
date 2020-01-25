@@ -7,6 +7,7 @@
 (declare (unit sql))
 
 (declare (uses date-time))
+(declare (uses debug))
 (declare (uses exceptions))
 (declare (uses sql-intern))
 (declare (uses sqlite3))
@@ -33,6 +34,9 @@
               database-name
               sqlite3-open-result)))
         (let ((sql-connection (make-sql-connection (resolve-sqlite3* sqlite3**))))
+          (sql-read sql-connection "PRAGMA journal_mode = WAL;" (list))
+          (sql-execute sql-connection "PRAGMA synchronous = NORMAL;" (list))
+          (sql-read sql-connection "PRAGMA busy_timeout = 500;" (list))
           (procedure sql-connection))))
     (lambda (sqlite3**)
       (sqlite3-close-v2 (resolve-sqlite3* sqlite3**))
@@ -42,7 +46,7 @@
 ;; the transaction is automatically rollbacked if an exception occurs
 (: within-sql-transaction (forall (r) ((struct sql-connection) (-> r) -> r)))
 (define (within-sql-transaction sql-connection procedure)
-  (sql-execute sql-connection "BEGIN TRANSACTION;" (list))
+  (sql-execute sql-connection "BEGIN IMMEDIATE TRANSACTION;" (list))
   (handle-exceptions
     exception
     (begin
@@ -61,7 +65,9 @@
     (with-sqlite3-stmt* sqlite3* statement parameter-values
       (lambda (sqlite3-stmt*)
         (let ((sqlite3-step-result (sqlite3-step sqlite3-stmt*)))
-          (unless (= sqlite3-step-result sqlite3-result-done)
+          (if (= sqlite3-step-result sqlite3-result-busy)
+            (sql-raise-deadlock-exception))
+          (if (not (= sqlite3-step-result sqlite3-result-done))
             (abort
               (format "failed to execute statement ~A with error code ~A"
                 statement
@@ -89,3 +95,36 @@
       (string-delete
         (string->char-set "%_")
         string))))
+
+;; executes a procedure until no deadlock occurs
+;; or a maximum number of retries is reached
+(define (with-sql-deadlock-retries count procedure)
+  (letrec (
+      (with-sql-retry-on-deadlock-inner
+        (lambda (inner-count)
+          (handle-exceptions
+            exception
+            (begin
+              (if (sql-deadlock-exception? exception)
+                (if (> inner-count count)
+                  (begin
+                    (debug-print (format "DEADLOCK could not be resolved after ~A retries" count))
+                    (abort exception))
+                  (begin
+                    (debug-print (format "DEADLOCK occured on try ~A" inner-count))
+                    (with-sql-retry-on-deadlock-inner (+ inner-count 1))))
+                (abort exception)))
+            (procedure)))))
+    (with-sql-retry-on-deadlock-inner 1)))
+
+;; raises a deadlock exception
+(: sql-raise-deadlock-exception (-> noreturn))
+(define (sql-raise-deadlock-exception)
+  (let ((condition (make-property-condition 'sql-deadlock)))
+    (abort condition)))
+
+;; returns whether an exception was caused by a deadlock
+(: sql-deadlock-exception? (condition -> boolean))
+(define (sql-deadlock-exception? exception)
+  ((condition-predicate 'sql-deadlock)
+    exception))

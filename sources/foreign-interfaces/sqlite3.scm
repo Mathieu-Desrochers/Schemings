@@ -48,6 +48,7 @@ void free_sqlite3_stmt_pointer(sqlite3_stmt** sqlite3_stmt_pointer)
 (define sqlite3-result-ok (foreign-value "SQLITE_OK" int))
 (define sqlite3-result-row (foreign-value "SQLITE_ROW" int))
 (define sqlite3-result-done (foreign-value "SQLITE_DONE" int))
+(define sqlite3-result-busy (foreign-value "SQLITE_BUSY" int))
 
 ;; sqlite3 pointers definitions
 (define-foreign-type sqlite3 "sqlite3")

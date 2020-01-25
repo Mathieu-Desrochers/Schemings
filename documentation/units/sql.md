@@ -70,6 +70,28 @@ A string.
 __result__  
 The searchable string.
 
+with-sql-deadlock-retries
+-------------------------
+Executes a procedure until no deadlock occurs  
+or a maximum number of retries is reached.
+
+__count__  
+A maximum number of retries.
+
+__procedure__  
+A procedure to invoke.
+
+sql-raise-deadlock-exception
+----------------------------
+Raises a deadlock exception.
+
+sql-deadlock-exception?
+-----------------------
+Returns whether an exception was caused by a deadlock.
+
+__exception__  
+An exception.
+
 try it
 ------
 Run the following commands.

@@ -89,10 +89,12 @@
                           (lambda ()
                             (let ((response
                                     (if sql-connection
-                                      (within-sql-transaction sql-connection
+                                      (with-sql-deadlock-retries 3
                                         (lambda ()
-                                          (service-procedure
-                                            request sql-connection authentication configuration)))
+                                          (within-sql-transaction sql-connection
+                                            (lambda ()
+                                              (service-procedure
+                                                request sql-connection authentication configuration)))))
                                       (service-procedure
                                         request sql-connection authentication configuration))))
 
