@@ -4,7 +4,6 @@
 
 (import (chicken blob))
 (import (chicken condition))
-(import (chicken format))
 
 (declare (unit base64))
 
@@ -25,8 +24,7 @@
                   (u8vector-length blob-u8vector)
                   encodestate)))
         (unless string
-          (abort
-            (format "failed to encode bytes to base64")))
+          (abort "failed to encode bytes to base64"))
         (string-delete
           char-set:whitespace
           string)))
