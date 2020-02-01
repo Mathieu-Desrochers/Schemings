@@ -2,6 +2,7 @@ Installing dependencies on Ubuntu
 ---------------------------------
 Run the following commands.
 
+    $ sudo apt install chicken-bin
     $ sudo apt install exuberant-ctags
     $ sudo apt install gcc
     $ sudo apt install libb64-dev
@@ -16,15 +17,10 @@ Run the following commands.
     $ sudo apt install libpcre3-dev
     $ sudo apt install libsodium-dev
     $ sudo apt install libsqlite3-dev
+    $ sudo apt install libczmq-dev
     $ sudo apt install make
     $ sudo apt install sqlite3
     $ sudo apt install texlive-full
-
-    $ wget https://code.call-cc.org/releases/5.0.0/chicken-5.0.0.tar.gz
-    $ tar -xf chicken-5.0.0.tar.gz
-    $ cd chicken-5.0.0
-    $ make PLATFORM=linux
-    $ sudo make PLATFORM=linux install
 
     $ wget http://www2.informatik.uni-freiburg.de/~stachnis/misc/libhungarian-v0.1.3.tgz
     $ tar -xf libhungarian-v0.1.3.tgz
@@ -40,4 +36,4 @@ Run the following commands.
     $ sudo chicken-install srfi-69
 
     $ sudo ln -s /usr/bin/pdflatex /usr/local/bin/pdflatex
-    $ sudo ln -s /usr/local/bin/csc /usr/local/bin/csc5
+    $ sudo ln -s /usr/bin/csc /usr/local/bin/csc5

@@ -1,5 +1,6 @@
 (import srfi-4)
 
+(import (chicken blob))
 (import (chicken condition))
 (import (chicken format))
 
@@ -7,51 +8,66 @@
 
 (declare (uses debug))
 (declare (uses exceptions))
+(declare (uses job-inner))
 (declare (uses zeromq))
 
-;; encapsulates a job queue
-(define-typed-record job-queue
-  (zmq-ctx* pointer)
+;; encapsulates a job queue connection
+(define-typed-record job-queue-connection
   (zmq-socket* pointer))
 
-;; invokes a procedure with a job queue
-(: with-job-queue (forall (r) (string ((struct job-queue) -> r) -> r)))
-(define (with-job-queue endpoint procedure)
-  (with-guaranteed-release
-    (lambda ()
-      (let ((zmq-ctx* (zmq-ctx-new)))
-        (unless zmq-ctx*
-          (abort "failed to create zmq-ctx"))
-        zmq-ctx*))
-    (lambda (zmq-ctx*)
-      (with-guaranteed-release
-        (lambda ()
-          (let ((zmq-socket* (zmq-socket zmq-ctx* zmq-push)))
-            (unless zmq-socket*
-              (abort "failed to create zmq-socket"))
-            zmq-socket*))
-        (lambda (zmq-socket*)
-          (zmq-setsockopt-int zmq-socket* zmq-sndtimeo 0)
-          (zmq-setsockopt-int zmq-socket* zmq-linger 0)
-          (let ((zmq-connect-result (zmq-connect zmq-socket* endpoint)))
-            (unless (eq? zmq-connect-result 0)
-              (abort
-                (format "failed to connect socket to endpoint ~A"
-                  endpoint)))
-            (procedure
-              (make-job-queue
-                zmq-ctx*
-                zmq-socket*))))
-        (lambda (zmq-socket*)
-          (zmq-close zmq-socket*))))
-    zmq-ctx-destroy))
+;; starts a job queue
+(: job-queue-start (string -> noreturn))
+(define (job-queue-start endpoint)
+  (with-zmq-socket*
+    endpoint
+    zmq-pull
+    (lambda (zmq-socket*)
+      (let ((zmq-bind-result (zmq-bind zmq-socket* endpoint)))
+        (unless (eq? zmq-bind-result 0)
+          (abort
+            (format "failed to bind socket to endpoint ~A"
+              endpoint)))
+        (letrec* (
+            (ten-megabytes 10000000)
+            (buffer (make-u8vector ten-megabytes))
+            (loop-inner
+              (lambda ()
+                (let ((zmq-recv-result (zmq-recv zmq-socket* buffer ten-megabytes 0)))
+                  (unless (and (not (eq? zmq-recv-result -1)) (<= zmq-recv-result ten-megabytes))
+                    (abort
+                      (format "failed to receive job of maximum size ~A"
+                        ten-megabytes)))
+                  (debug-print
+                    (blob->string
+                      (u8vector->blob
+                        (subu8vector buffer 0 zmq-recv-result))))
+                  (loop-inner)))))
+          (loop-inner))))))
 
-;; sends a binary job to a queue
-(: job-queue-send ((struct job-queue) u8vector -> noreturn))
-(define (job-queue-send job-queue u8vector)
+;; invokes a procedure with a job queue connection
+(: with-job-queue-connection (forall (r) (string ((struct job-queue-connection) -> r) -> r)))
+(define (with-job-queue-connection endpoint procedure)
+  (with-zmq-socket*
+    endpoint
+    zmq-push
+    (lambda (zmq-socket*)
+      (zmq-setsockopt-int zmq-socket* zmq-sndtimeo 0)
+      (zmq-setsockopt-int zmq-socket* zmq-linger 0)
+      (let ((zmq-connect-result (zmq-connect zmq-socket* endpoint)))
+        (unless (eq? zmq-connect-result 0)
+          (abort
+            (format "failed to connect socket to endpoint ~A"
+              endpoint)))
+        (procedure
+          (make-job-queue-connection
+            zmq-socket*))))))
+
+;; sends a binary to a job queue connection
+(: job-queue-send ((struct job-queue-connection) u8vector -> noreturn))
+(define (job-queue-send job-queue-connection u8vector)
   (let ((zmq-send-result
           (zmq-send
-              (job-queue-zmq-socket* job-queue)
+              (job-queue-connection-zmq-socket* job-queue-connection)
               u8vector
               (u8vector-length u8vector)
               zmq-dontwait)))

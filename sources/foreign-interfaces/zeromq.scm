@@ -20,6 +20,7 @@ int zmq_setsockopt_int(void* socket, int option, int value) {
 ;; constants
 (define zmq-dontwait (foreign-value "ZMQ_DONTWAIT" int))
 (define zmq-linger (foreign-value "ZMQ_LINGER" int))
+(define zmq-pull (foreign-value "ZMQ_PULL" int))
 (define zmq-push (foreign-value "ZMQ_PUSH" int))
 (define zmq-sndtimeo (foreign-value "ZMQ_SNDTIMEO" int))
 
@@ -34,8 +35,14 @@ int zmq_setsockopt_int(void* socket, int option, int value) {
 ;; set socket option
 (define zmq-setsockopt-int (foreign-lambda int "zmq_setsockopt_int" zmq-socket* int int))
 
+;; accept incoming connections on a socket
+(define zmq-bind (foreign-lambda int "zmq_bind" zmq-socket* c-string))
+
 ;; create outgoing connection from socket
 (define zmq-connect (foreign-lambda int "zmq_connect" zmq-socket* c-string))
 
 ;; send a message part on a socket
 (define zmq-send (foreign-lambda int "zmq_send" zmq-socket* u8vector int int))
+
+;; receive a message part from a socket
+(define zmq-recv (foreign-lambda int "zmq_recv" zmq-socket* u8vector int int))
