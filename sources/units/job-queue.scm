@@ -1,55 +1,55 @@
 (import srfi-4)
 
-(import (chicken blob))
 (import (chicken condition))
 (import (chicken format))
 
 (declare (unit job-queue))
 
-(declare (uses debug))
 (declare (uses exceptions))
 (declare (uses job-inner))
 (declare (uses zeromq))
 
 ;; encapsulates a job queue connection
 (define-typed-record job-queue-connection
-  (zmq-socket* pointer))
+  (zmq-socket* (struct zmq-socket*)))
 
 ;; starts a job queue
-(: job-queue-start (string -> noreturn))
-(define (job-queue-start endpoint)
-  (with-zmq-socket*
-    endpoint
-    zmq-pull
-    (lambda (zmq-socket*)
-      (let ((zmq-bind-result (zmq-bind zmq-socket* endpoint)))
+(: job-queue-start (string string -> noreturn))
+(define (job-queue-start submit-endpoint worker-endpoint)
+
+  ;; bind the submit socket
+  (with-zmq-socket* submit-endpoint zmq-pull
+    (lambda (submit-zmq-socket*)
+      (let ((zmq-bind-result (zmq-bind submit-zmq-socket* submit-endpoint)))
         (unless (eq? zmq-bind-result 0)
           (abort
-            (format "failed to bind socket to endpoint ~A"
-              endpoint)))
-        (letrec* (
-            (ten-megabytes 10000000)
-            (buffer (make-u8vector ten-megabytes))
-            (loop-inner
-              (lambda ()
-                (let ((zmq-recv-result (zmq-recv zmq-socket* buffer ten-megabytes 0)))
-                  (unless (and (not (eq? zmq-recv-result -1)) (<= zmq-recv-result ten-megabytes))
-                    (abort
-                      (format "failed to receive job of maximum size ~A"
-                        ten-megabytes)))
-                  (debug-print
-                    (blob->string
-                      (u8vector->blob
-                        (subu8vector buffer 0 zmq-recv-result))))
-                  (loop-inner)))))
-          (loop-inner))))))
+            (format "failed to bind submit socket to endpoint ~A"
+              submit-endpoint)))
+
+        ;; bind the worker socket
+        (with-zmq-socket* worker-endpoint zmq-push
+          (lambda (worker-zmq-socket*)
+            (let ((zmq-bind-result (zmq-bind worker-zmq-socket* worker-endpoint)))
+              (unless (eq? zmq-bind-result 0)
+                (abort
+                  (format "failed to bind worker socket to endpoint ~A"
+                    worker-endpoint)))
+
+              ;; receive jobs and send them to a worker
+              (letrec (
+                  (loop-inner
+                    (lambda ()
+                      (with-job-received submit-zmq-socket*
+                        (lambda (u8vector length)
+                          (zmq-send worker-zmq-socket* u8vector length zmq-dontwait)
+                          (loop-inner))))))
+
+                (loop-inner)))))))))
 
 ;; invokes a procedure with a job queue connection
 (: with-job-queue-connection (forall (r) (string ((struct job-queue-connection) -> r) -> r)))
 (define (with-job-queue-connection endpoint procedure)
-  (with-zmq-socket*
-    endpoint
-    zmq-push
+  (with-zmq-socket* endpoint zmq-push
     (lambda (zmq-socket*)
       (zmq-setsockopt-int zmq-socket* zmq-sndtimeo 0)
       (zmq-setsockopt-int zmq-socket* zmq-linger 0)
@@ -62,16 +62,20 @@
           (make-job-queue-connection
             zmq-socket*))))))
 
-;; sends a binary to a job queue connection
+;; sends a job to a queue
 (: job-queue-send ((struct job-queue-connection) u8vector -> noreturn))
 (define (job-queue-send job-queue-connection u8vector)
-  (let ((zmq-send-result
-          (zmq-send
-              (job-queue-connection-zmq-socket* job-queue-connection)
-              u8vector
-              (u8vector-length u8vector)
-              zmq-dontwait)))
-    (unless (eq? zmq-send-result (u8vector-length u8vector))
-      (abort
-        (format "failed to send job of size ~A"
-          (u8vector-length u8vector))))))
+  (zmq-send
+    (job-queue-connection-zmq-socket* job-queue-connection)
+    u8vector
+    (u8vector-length u8vector)
+    zmq-dontwait))
+
+;; invokes a procedure with jobs received from a queue
+(: job-queue-worker (forall (r) (string (u8vector fixnum -> r) -> r)))
+(define (job-queue-worker worker-endpoint procedure)
+  (with-zmq-socket* worker-endpoint zmq-pull
+    (lambda (zmq-socket*)
+      (with-job-received
+        zmq-socket*
+        procedure))))

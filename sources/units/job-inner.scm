@@ -26,3 +26,17 @@
         procedure
         zmq-close))
     zmq-ctx-destroy))
+
+;; invokes a procedure with a job received from a zmq-socket*
+(: with-job-received (forall (r) ((struct zmq-socket*) (u8vector fixnum -> r) -> r)))
+(define (with-job-received zmq-socket* procedure)
+  (let* ((ten-megabytes 10000000)
+         (buffer (make-u8vector ten-megabytes))
+         (zmq-recv-result (zmq-recv zmq-socket* buffer ten-megabytes 0)))
+    (unless (and (not (eq? zmq-recv-result -1)) (<= zmq-recv-result ten-megabytes))
+      (abort
+        (format "failed to receive job of maximum size ~A"
+          ten-megabytes)))
+    (procedure
+      buffer
+      zmq-recv-result)))
