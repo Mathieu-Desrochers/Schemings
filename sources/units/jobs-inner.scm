@@ -27,9 +27,18 @@
         zmq-close))
     zmq-ctx-destroy))
 
+;; sends a job on a zmq-socket*
+(: send-on-zmq-socket* ((struct zmq-socket*) u8vector fixnum fixnum -> noreturn))
+(define (send-on-zmq-socket* zmq-socket* u8vector length flags)
+  (let ((zmq-send-result (zmq-send zmq-socket* u8vector length flags)))
+    (unless (eq? zmq-send-result 0)
+      (abort
+        (format "failed to send job of size ~A"
+          length)))))
+
 ;; invokes a procedure with a job received from a zmq-socket*
-(: with-job-received (forall (r) ((struct zmq-socket*) (u8vector fixnum -> r) -> r)))
-(define (with-job-received zmq-socket* procedure)
+(: receive-on-zmq-socket* (forall (r) ((struct zmq-socket*) (u8vector fixnum -> r) -> r)))
+(define (receive-on-zmq-socket* zmq-socket* procedure)
   (let* ((ten-megabytes 10000000)
          (buffer (make-u8vector ten-megabytes))
          (zmq-recv-result (zmq-recv zmq-socket* buffer ten-megabytes 0)))

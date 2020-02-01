@@ -33,9 +33,9 @@
               (letrec (
                   (loop-inner
                     (lambda ()
-                      (with-job-received submit-zmq-socket*
+                      (receive-on-zmq-socket* submit-zmq-socket*
                         (lambda (u8vector length)
-                          (zmq-send worker-zmq-socket* u8vector length 0)
+                          (send-on-zmq-socket* worker-zmq-socket* u8vector length 0)
                           (loop-inner))))))
                 (loop-inner)))))))))
 
@@ -58,7 +58,7 @@
 ;; sends a job to a queue
 (: jobs-queue-send ((struct jobs-queue-connection) u8vector -> noreturn))
 (define (jobs-queue-send jobs-queue-connection u8vector)
-  (zmq-send
+  (send-on-zmq-socket*
     (jobs-queue-connection-zmq-socket* jobs-queue-connection)
     u8vector
     (u8vector-length u8vector)
@@ -77,6 +77,6 @@
         (letrec (
             (loop-inner
               (lambda ()
-                (with-job-received zmq-socket* procedure)
+                (receive-on-zmq-socket* zmq-socket* procedure)
                 (loop-inner))))
           (loop-inner))))))
