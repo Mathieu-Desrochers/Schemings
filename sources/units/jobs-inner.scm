@@ -31,7 +31,7 @@
 (: send-on-zmq-socket* ((struct zmq-socket*) u8vector fixnum fixnum -> noreturn))
 (define (send-on-zmq-socket* zmq-socket* u8vector length flags)
   (let ((zmq-send-result (zmq-send zmq-socket* u8vector length flags)))
-    (unless (eq? zmq-send-result 0)
+    (unless (eq? zmq-send-result length)
       (abort
         (format "failed to send job of size ~A"
           length)))))
