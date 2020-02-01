@@ -6,8 +6,8 @@
 (declare (unit job-inner))
 
 ;; invokes a procedure with a zmq-socket*
-(: with-zmq-socket* (forall (r) (string fixnum ((struct zmq-socket*) -> r) -> r)))
-(define (with-zmq-socket* endpoint type procedure)
+(: with-zmq-socket* (forall (r) (fixnum ((struct zmq-socket*) -> r) -> r)))
+(define (with-zmq-socket* type procedure)
   (with-guaranteed-release
     (lambda ()
       (let ((zmq-ctx* (zmq-ctx-new)))

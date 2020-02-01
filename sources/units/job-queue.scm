@@ -16,40 +16,33 @@
 ;; starts a job queue
 (: job-queue-start (string string -> noreturn))
 (define (job-queue-start submit-endpoint worker-endpoint)
-
-  ;; bind the submit socket
-  (with-zmq-socket* submit-endpoint zmq-pull
+  (with-zmq-socket* zmq-pull
     (lambda (submit-zmq-socket*)
       (let ((zmq-bind-result (zmq-bind submit-zmq-socket* submit-endpoint)))
         (unless (eq? zmq-bind-result 0)
           (abort
             (format "failed to bind submit socket to endpoint ~A"
               submit-endpoint)))
-
-        ;; bind the worker socket
-        (with-zmq-socket* worker-endpoint zmq-push
+        (with-zmq-socket* zmq-push
           (lambda (worker-zmq-socket*)
             (let ((zmq-bind-result (zmq-bind worker-zmq-socket* worker-endpoint)))
               (unless (eq? zmq-bind-result 0)
                 (abort
                   (format "failed to bind worker socket to endpoint ~A"
                     worker-endpoint)))
-
-              ;; receive jobs and send them to a worker
               (letrec (
                   (loop-inner
                     (lambda ()
                       (with-job-received submit-zmq-socket*
                         (lambda (u8vector length)
-                          (zmq-send worker-zmq-socket* u8vector length zmq-dontwait)
+                          (zmq-send worker-zmq-socket* u8vector length 0)
                           (loop-inner))))))
-
                 (loop-inner)))))))))
 
 ;; invokes a procedure with a job queue connection
 (: with-job-queue-connection (forall (r) (string ((struct job-queue-connection) -> r) -> r)))
 (define (with-job-queue-connection endpoint procedure)
-  (with-zmq-socket* endpoint zmq-push
+  (with-zmq-socket* zmq-push
     (lambda (zmq-socket*)
       (zmq-setsockopt-int zmq-socket* zmq-sndtimeo 0)
       (zmq-setsockopt-int zmq-socket* zmq-linger 0)
@@ -74,8 +67,16 @@
 ;; invokes a procedure with jobs received from a queue
 (: job-queue-worker (forall (r) (string (u8vector fixnum -> r) -> r)))
 (define (job-queue-worker worker-endpoint procedure)
-  (with-zmq-socket* worker-endpoint zmq-pull
+  (with-zmq-socket* zmq-pull
     (lambda (zmq-socket*)
-      (with-job-received
-        zmq-socket*
-        procedure))))
+      (let ((zmq-connect-result (zmq-connect zmq-socket* worker-endpoint)))
+        (unless (eq? zmq-connect-result 0)
+          (abort
+            (format "failed to connect socket to endpoint ~A"
+              worker-endpoint)))
+        (letrec (
+            (loop-inner
+              (lambda ()
+                (with-job-received zmq-socket* procedure)
+                (loop-inner))))
+          (loop-inner))))))
