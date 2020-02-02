@@ -3,7 +3,7 @@
 (import (chicken condition))
 (import (chicken format))
 
-(declare (unit jobs-inner))
+(declare (unit jobs-intern))
 
 ;; invokes a procedure with a zmq-socket*
 (: with-zmq-socket* (forall (r) (fixnum ((struct zmq-socket*) -> r) -> r)))

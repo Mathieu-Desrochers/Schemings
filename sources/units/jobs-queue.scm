@@ -6,7 +6,7 @@
 (declare (unit jobs-queue))
 
 (declare (uses exceptions))
-(declare (uses jobs-inner))
+(declare (uses jobs-intern))
 (declare (uses zeromq))
 
 ;; encapsulates a jobs queue connection
@@ -41,23 +41,23 @@
 
 ;; invokes a procedure with a jobs queue connection
 (: with-jobs-queue-connection (forall (r) (string ((struct jobs-queue-connection) -> r) -> r)))
-(define (with-jobs-queue-connection endpoint procedure)
+(define (with-jobs-queue-connection submit-endpoint procedure)
   (with-zmq-socket* zmq-push
     (lambda (zmq-socket*)
       (zmq-setsockopt-int zmq-socket* zmq-sndtimeo 0)
       (zmq-setsockopt-int zmq-socket* zmq-linger 0)
-      (let ((zmq-connect-result (zmq-connect zmq-socket* endpoint)))
+      (let ((zmq-connect-result (zmq-connect zmq-socket* submit-endpoint)))
         (unless (eq? zmq-connect-result 0)
           (abort
             (format "failed to connect socket to endpoint ~A"
-              endpoint)))
+              submit-endpoint)))
         (procedure
           (make-jobs-queue-connection
             zmq-socket*))))))
 
-;; sends a job to a queue
-(: jobs-queue-send ((struct jobs-queue-connection) u8vector -> noreturn))
-(define (jobs-queue-send jobs-queue-connection u8vector)
+;; submits a job to a queue
+(: jobs-queue-submit ((struct jobs-queue-connection) u8vector -> noreturn))
+(define (jobs-queue-submit jobs-queue-connection u8vector)
   (send-on-zmq-socket*
     (jobs-queue-connection-zmq-socket* jobs-queue-connection)
     u8vector
@@ -65,8 +65,8 @@
     zmq-dontwait))
 
 ;; invokes a procedure with jobs received from a queue
-(: jobs-queue-worker (forall (r) (string (u8vector fixnum -> r) -> r)))
-(define (jobs-queue-worker worker-endpoint procedure)
+(: jobs-queue-receive (forall (r) (string (u8vector fixnum -> r) -> r)))
+(define (jobs-queue-receive worker-endpoint procedure)
   (with-zmq-socket* zmq-pull
     (lambda (zmq-socket*)
       (let ((zmq-connect-result (zmq-connect zmq-socket* worker-endpoint)))
