@@ -12,6 +12,7 @@ Run the following commands.
     $ sudo pkg install libsodium
     $ sudo pkg install libetpan
     $ sudo pkg install libzmq4
+    $ sudo pkg install msgpack
     $ sudo pkg install sqlite3
     $ sudo pkg install texlive-full
 

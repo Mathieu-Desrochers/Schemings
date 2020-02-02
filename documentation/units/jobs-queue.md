@@ -3,7 +3,7 @@ jobs-queue-start
 Starts a jobs queue.  
 This is a blocking call.
 
-The queue acts as a well known point for jobs management.  
+The queue acts as a well-known point for jobs management.  
 It accepts jobs from connected clients, and it distributes  
 them fairly to the connected workers.
 
