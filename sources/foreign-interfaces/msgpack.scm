@@ -19,7 +19,9 @@ int msgpack_sbuffer_size(msgpack_sbuffer* buffer)
 // returns a sbuffer data
 char* msgpack_sbuffer_data(msgpack_sbuffer* buffer)
 {
-  return buffer->data;
+  char* data = calloc(buffer->size + 1, sizeof(char));
+  memcpy(data, buffer->data, buffer->size);
+  return data;
 }
 
 ")
@@ -39,7 +41,7 @@ char* msgpack_sbuffer_data(msgpack_sbuffer* buffer)
 
 ;; buffer getters
 (define msgpack-sbuffer-size (foreign-lambda int "msgpack_sbuffer_size" msgpack-sbuffer*))
-(define msgpack-sbuffer-data (foreign-lambda c-string "msgpack_sbuffer_data" msgpack-sbuffer*))
+(define msgpack-sbuffer-data (foreign-lambda c-string* "msgpack_sbuffer_data" msgpack-sbuffer*))
 
 ;; create a packer
 (define msgpack-packer-new (foreign-lambda msgpack-packer* "msgpack_packer_new_wrapped" msgpack-sbuffer*))
