@@ -3,6 +3,7 @@
 (import (chicken condition))
 (import (chicken format))
 
+(declare (unit exceptions))
 (declare (unit jobs-intern))
 
 ;; invokes a procedure with a zmq-socket*

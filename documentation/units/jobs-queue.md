@@ -25,8 +25,7 @@ A procedure invoked with the jobs queue connection.
 
 jobs-queue-submit
 -----------------
-Submits a job to a queue.  
-This is a non-blocking call.
+Submits a job to a queue.
 
 __jobs-queue-connection__  
 A jobs queue connection.
