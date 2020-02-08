@@ -6,6 +6,7 @@
 
 (declare (unit binary))
 
+(declare (uses binary-inner))
 (declare (uses exceptions))
 (declare (uses msgpack))
 
@@ -55,12 +56,6 @@
       (format "failed to pack double ~A"
         value))))
 
-;; adds a null value to a binary packer
-(: binary-packer-add-null ((struct binary-packer) -> noreturn))
-(define (binary-packer-add-null binary-packer)
-  (unless (eq? (msgpack-pack-nil (binary-packer-msgpack-msgpack-packer* binary-packer)) 0)
-    (abort "failed to pack null")))
-
 ;; adds a boolean value to a binary packer
 (: binary-packer-add-boolean ((struct binary-packer) boolean -> noreturn))
 (define (binary-packer-add-boolean binary-packer value)
@@ -69,14 +64,6 @@
       (abort "failed to pack true"))
     (unless (eq? (msgpack-pack-false (binary-packer-msgpack-msgpack-packer* binary-packer)) 0)
       (abort "failed to pack false"))))
-
-;; adds an array value to a binary packer
-(: binary-packer-add-array ((struct binary-packer) fixnum -> noreturn))
-(define (binary-packer-add-array binary-packer size)
-  (unless (eq? (msgpack-pack-array (binary-packer-msgpack-msgpack-packer* binary-packer) size) 0)
-    (abort
-      (format "failed to pack array of size ~A"
-        size))))
 
 ;; adds a string value to a binary packer
 (: binary-packer-add-string ((struct binary-packer) string -> noreturn))
@@ -99,16 +86,79 @@
       (format "failed to pack string ~A"
         value))))
 
-;; returns the size of a binary packer
-(: binary-packer-size ((struct binary-packer) -> fixnum))
-(define (binary-packer-size binary-packer)
-  (msgpack-sbuffer-size
-    (binary-packer-msgpack-sbuffer* binary-packer)))
+;; adds an array to a binary packer
+(: binary-packer-add-array ((struct binary-packer) fixnum -> noreturn))
+(define (binary-packer-add-array binary-packer size)
+  (unless (eq? (msgpack-pack-array (binary-packer-msgpack-msgpack-packer* binary-packer) size) 0)
+    (abort
+      (format "failed to pack array of size ~A"
+        size))))
 
-;; returns the data of a binary packer
+;; returns the data from a binary packer
 (: binary-packer-data ((struct binary-packer) -> u8vector))
 (define (binary-packer-data binary-packer)
   (blob->u8vector
     (string->blob
       (msgpack-sbuffer-data
         (binary-packer-msgpack-sbuffer* binary-packer)))))
+
+;; encapsulates a binary unpacker
+(define-typed-record binary-unpacker
+  (msgpack-unpacked* (struct msgpack-unpacked*))
+  (data u8vector)
+  (offset u64vector))
+
+;; invokes a procedure with a binary unpacker
+(: with-binary-unpacker (forall (r) (u8vector ((struct unbinary-packer) -> r) -> r)))
+(define (with-binary-unpacker data procedure)
+  (with-guaranteed-release
+    (lambda ()
+      (let ((msgpack-unpacked* (msgpack-unpacked-new)))
+        (unless msgpack-unpacked*
+          (abort "failed to create msgpack-unpacked"))
+        msgpack-unpacked*))
+    (lambda (msgpack-unpacked*)
+      (msgpack-unpacked-init msgpack-unpacked*)
+      (procedure
+        (make-binary-unpacker
+          msgpack-unpacked*
+          data
+          (make-u64vector 1 0))))
+    msgpack-unpacked-free))
+
+;; returns an unpacked integer
+(: binary-unpacker-int ((struct binary-unpacker) -> fixnum))
+(define (binary-unpacker-int binary-unpacker)
+  (let* ((msgpack-object* (binary-unpacker-next binary-unpacker))
+         (msgpack-object-type (msgpack-object-type msgpack-object*)))
+    (unless (or (eq? msgpack-object-type 2) (eq? msgpack-object-type 3))
+      (abort
+        (format "failed to unpack int got ~A instead"
+          msgpack-object-type)))
+    (msgpack-object-int
+      msgpack-object*)))
+
+;; returns an unpacked double
+(: binary-unpacker-double ((struct binary-unpacker) -> number))
+(define (binary-unpacker-double binary-unpacker)
+  (let* ((msgpack-object* (binary-unpacker-next binary-unpacker))
+         (msgpack-object-type (msgpack-object-type msgpack-object*)))
+    (unless (or (eq? msgpack-object-type 4) (eq? msgpack-object-type 10))
+      (abort
+        (format "failed to unpack double got ~A instead"
+          msgpack-object-type)))
+    (msgpack-object-double
+      msgpack-object*)))
+
+;; returns an unpacked boolean
+(: binary-unpacker-boolean ((struct binary-unpacker) -> boolean))
+(define (binary-unpacker-boolean binary-unpacker)
+  (let* ((msgpack-object* (binary-unpacker-next binary-unpacker))
+         (msgpack-object-type (msgpack-object-type msgpack-object*)))
+    (unless (eq? msgpack-object-type 1)
+      (abort
+        (format "failed to unpack boolean got ~A instead"
+          msgpack-object-type)))
+    (eq? 1
+      (msgpack-object-boolean
+        msgpack-object*))))
