@@ -47,13 +47,6 @@ char* msgpack_object_string(msgpack_object* object)
   return string;
 }
 
-// returns a object array values
-int msgpack_object_array_size(msgpack_object* object) { return object->via.array.size; }
-msgpack_object* msgpack_object_array_element(msgpack_object* object, int index)
-{
-  return &(object->via.array.ptr[index]);
-}
-
 // frees an unpacked
 void msgpack_unpacked_free(msgpack_unpacked* unpacked)
 {
@@ -92,11 +85,10 @@ void msgpack_unpacked_free(msgpack_unpacked* unpacked)
 (define msgpack-packer-free (foreign-lambda void "msgpack_packer_free" msgpack-packer*))
 
 ;; packing
-(define msgpack-pack-int (foreign-lambda int "msgpack_pack_int" msgpack-packer* int))
-(define msgpack-pack-double (foreign-lambda int "msgpack_pack_double" msgpack-packer* double))
 (define msgpack-pack-true (foreign-lambda int "msgpack_pack_true" msgpack-packer*))
 (define msgpack-pack-false (foreign-lambda int "msgpack_pack_false" msgpack-packer*))
-(define msgpack-pack-array (foreign-lambda int "msgpack_pack_array" msgpack-packer* int))
+(define msgpack-pack-int (foreign-lambda int "msgpack_pack_int" msgpack-packer* int))
+(define msgpack-pack-double (foreign-lambda int "msgpack_pack_double" msgpack-packer* double))
 (define msgpack-pack-str (foreign-lambda int "msgpack_pack_str" msgpack-packer* int))
 (define msgpack-pack-str-body (foreign-lambda int "msgpack_pack_str_body" msgpack-packer* c-string int))
 
@@ -117,13 +109,7 @@ void msgpack_unpacked_free(msgpack_unpacked* unpacked)
 (define msgpack-object-type (foreign-lambda int "msgpack_object_type_getter" msgpack-object*))
 
 ;; returns an object value
+(define msgpack-object-boolean (foreign-lambda int "msgpack_object_boolean" msgpack-object*))
 (define msgpack-object-int (foreign-lambda int "msgpack_object_int" msgpack-object*))
 (define msgpack-object-double (foreign-lambda double "msgpack_object_double" msgpack-object*))
-(define msgpack-object-boolean (foreign-lambda int "msgpack_object_boolean" msgpack-object*))
 (define msgpack-object-string (foreign-lambda c-string* "msgpack_object_string" msgpack-object*))
-
-;; returns an object array values
-(define msgpack-object-array-size (foreign-lambda int "msgpack_object_array_size" msgpack-object*))
-(define msgpack-object-array-element
-  (foreign-lambda msgpack-object* "msgpack_object_array_element"
-    msgpack-object* int))
