@@ -50,11 +50,11 @@
       (abort "failed to pack false"))))
 
 ;; adds an integer value to a binary packer
-(: binary-packer-add-int ((struct binary-packer) fixnum -> noreturn))
-(define (binary-packer-add-int binary-packer value)
+(: binary-packer-add-integer ((struct binary-packer) fixnum -> noreturn))
+(define (binary-packer-add-integer binary-packer value)
   (unless (eq? (msgpack-pack-int (binary-packer-msgpack-msgpack-packer* binary-packer) value) 0)
     (abort
-      (format "failed to pack int ~A"
+      (format "failed to pack integer ~A"
         value))))
 
 ;; adds a double value to a binary packer
@@ -96,27 +96,36 @@
 
 ;; encapsulates a binary unpacker
 (define-typed-record binary-unpacker
-  (msgpack-unpacked* (struct msgpack-unpacked*))
-  (data u8vector)
-  (offset u64vector))
+  (msgpack-unpacker* (struct msgpack-unpacker*))
+  (msgpack-unpacked* (struct msgpack-unpacked*)))
 
 ;; invokes a procedure with a binary unpacker
-(: with-binary-unpacker (forall (r) (u8vector ((struct unbinary-packer) -> r) -> r)))
+(: with-binary-unpacker (forall (r) (u8vector ((struct binary-unpacker) -> r) -> r)))
 (define (with-binary-unpacker data procedure)
   (with-guaranteed-release
     (lambda ()
-      (let ((msgpack-unpacked* (msgpack-unpacked-new)))
-        (unless msgpack-unpacked*
-          (abort "failed to create msgpack-unpacked"))
-        msgpack-unpacked*))
-    (lambda (msgpack-unpacked*)
-      (msgpack-unpacked-init msgpack-unpacked*)
-      (procedure
-        (make-binary-unpacker
-          msgpack-unpacked*
-          data
-          (make-u64vector 1 0))))
-    msgpack-unpacked-free))
+      (let ((msgpack-unpacker* (msgpack-unpacker-new (u8vector-length data))))
+        (unless msgpack-unpacker*
+          (abort
+            (format "failed to create msgpack-unpacker with size ~A"
+              (u8vector-length data))))
+        msgpack-unpacker*))
+    (lambda (msgpack-unpacker*)
+      (with-guaranteed-release
+        (lambda ()
+          (msgpack-unpacker-set-data msgpack-unpacker* data (u8vector-length data))
+          (let ((msgpack-unpacked* (msgpack-unpacked-new)))
+            (unless msgpack-unpacked*
+              (abort "failed to create msgpack-unpacked"))
+            msgpack-unpacked*))
+        (lambda (msgpack-unpacked*)
+          (msgpack-unpacked-init msgpack-unpacked*)
+          (procedure
+            (make-binary-unpacker
+              msgpack-unpacker*
+              msgpack-unpacked*)))
+        msgpack-unpacked-free))
+    msgpack-unpacker-free))
 
 ;; returns an unpacked boolean
 (: binary-unpacker-boolean ((struct binary-unpacker) -> boolean))
@@ -132,13 +141,13 @@
         msgpack-object*))))
 
 ;; returns an unpacked integer
-(: binary-unpacker-int ((struct binary-unpacker) -> fixnum))
-(define (binary-unpacker-int binary-unpacker)
+(: binary-unpacker-integer ((struct binary-unpacker) -> fixnum))
+(define (binary-unpacker-integer binary-unpacker)
   (let* ((msgpack-object* (binary-unpacker-next binary-unpacker))
          (msgpack-object-type (msgpack-object-type msgpack-object*)))
     (unless (or (eq? msgpack-object-type 2) (eq? msgpack-object-type 3))
       (abort
-        (format "failed to unpack int got ~A instead"
+        (format "failed to unpack integer got ~A instead"
           msgpack-object-type)))
     (msgpack-object-int
       msgpack-object*)))
@@ -148,7 +157,10 @@
 (define (binary-unpacker-double binary-unpacker)
   (let* ((msgpack-object* (binary-unpacker-next binary-unpacker))
          (msgpack-object-type (msgpack-object-type msgpack-object*)))
-    (unless (or (eq? msgpack-object-type 4) (eq? msgpack-object-type 10))
+    (unless (or (eq? msgpack-object-type 2)
+                (eq? msgpack-object-type 3)
+                (eq? msgpack-object-type 4)
+                (eq? msgpack-object-type 10))
       (abort
         (format "failed to unpack double got ~A instead"
           msgpack-object-type)))

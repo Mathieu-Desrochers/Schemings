@@ -18,13 +18,20 @@ char* msgpack_sbuffer_data(msgpack_sbuffer* buffer)
   return data;
 }
 
+// sets an unpacker data
+void msgpack_unpacker_set_data(msgpack_unpacker* unpacker, char* data, int size)
+{
+  memcpy(msgpack_unpacker_buffer(unpacker), data, size);
+  msgpack_unpacker_buffer_consumed(unpacker, size);
+}
+
 // creates an unpacked
 msgpack_unpacked* msgpack_unpacked_new()
 {
   return malloc(sizeof(msgpack_unpacked));
 }
 
-// returns an unpacked current object
+// returns an unpacked object
 msgpack_object* msgpack_unpacked_object(msgpack_unpacked* unpacked)
 {
   return &(unpacked->data);
@@ -64,6 +71,10 @@ void msgpack_unpacked_free(msgpack_unpacked* unpacked)
 (define-foreign-type msgpack-packer "msgpack_packer")
 (define-foreign-type msgpack-packer* (c-pointer msgpack-packer))
 
+;; msgpack-unpacker pointers definitions
+(define-foreign-type msgpack-unpacker "msgpack_unpacker")
+(define-foreign-type msgpack-unpacker* (c-pointer msgpack-unpacker))
+
 ;; msgpack-unpacked pointers definitions
 (define-foreign-type msgpack-unpacked "msgpack_unpacked")
 (define-foreign-type msgpack-unpacked* (c-pointer msgpack-unpacked))
@@ -92,17 +103,20 @@ void msgpack_unpacked_free(msgpack_unpacked* unpacked)
 (define msgpack-pack-str (foreign-lambda int "msgpack_pack_str" msgpack-packer* int))
 (define msgpack-pack-str-body (foreign-lambda int "msgpack_pack_str_body" msgpack-packer* c-string int))
 
+;; creates an unpacker
+(define msgpack-unpacker-new (foreign-lambda msgpack-unpacker* "msgpack_unpacker_new" int))
+(define msgpack-unpacker-free (foreign-lambda void "msgpack_unpacker_free" msgpack-unpacker*))
+
 ;; creates an unpacked
 (define msgpack-unpacked-new (foreign-lambda msgpack-unpacked* "msgpack_unpacked_new"))
 (define msgpack-unpacked-init (foreign-lambda void "msgpack_unpacked_init" msgpack-unpacked*))
 (define msgpack-unpacked-free (foreign-lambda void "msgpack_unpacked_free" msgpack-unpacked*))
 
-;; unpacks the next object
-(define msgpack-unpack-next
-  (foreign-lambda int "msgpack_unpack_next"
-    msgpack-unpacked* u8vector int u64vector))
+;; unpacking
+(define msgpack-unpacker-set-data (foreign-lambda void "msgpack_unpacker_set_data" msgpack-unpacker* u8vector int))
+(define msgpack-unpacker-next (foreign-lambda int "msgpack_unpacker_next" msgpack-unpacker* msgpack-unpacked*))
 
-;; returns an unpacked current object
+;; returns an unpacked object
 (define msgpack-unpacked-object (foreign-lambda msgpack-object* "msgpack_unpacked_object" msgpack-unpacked*))
 
 ;; returns an object type

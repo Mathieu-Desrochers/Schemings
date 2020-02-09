@@ -15,8 +15,8 @@ A binary packer.
 __value__  
 A boolean value.
 
-binary-packer-add-int
----------------------
+binary-packer-add-integer
+-------------------------
 Adds an integer value to a binary packer.
 
 __binary-packer__  
@@ -75,8 +75,8 @@ A binary unpacker.
 __result__  
 The unpacked boolean.
 
-binary-unpacker-int
--------------------
+binary-unpacker-integer
+-----------------------
 Returns an unpacked integer.
 
 __binary-unpacker__  
@@ -119,8 +119,10 @@ Place the following code in sources/main.scm.
                 (binary-packer-add-double binary-packer 123.45)
                 (binary-packer-add-string binary-packer "You hungry?")
                 (binary-packer-data binary-packer)))))
+
       (display packed-binary-data)
       (newline)
+
       (with-binary-unpacker
         packed-binary-data
         (lambda (binary-unpacker)

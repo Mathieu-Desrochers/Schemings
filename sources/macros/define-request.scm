@@ -197,6 +197,45 @@
                 (iota (json-array-length json-array-node)))
               #f))))
 
+      ;; parses a value field from a binary unpacker
+      (define (binary-parse-value-field request-symbol field)
+        (let ((field-symbol (car field))
+              (field-type (cadr field)))
+          (cond ((eq? field-type 'boolean)
+                  `(binary-unpacker-boolean binary-unpacker))
+                ((eq? field-type 'integer)
+                  `(binary-unpacker-integer binary-unpacker))
+                ((eq? field-type 'number)
+                  `(binary-unpacker-double binary-unpacker))
+                ((eq? field-type 'string)
+                  `(binary-unpacker-string binary-unpacker))
+                ((eq? field-type 'date)
+                  `(binary-unpacker-string (string->date binary-unpacker)))
+                ((eq? field-type 'date-time)
+                  `(binary-unpacker-string (string->date-time binary-unpacker)))
+                ((eq? field-type 'time)
+                  `(binary-unpacker-string (string->time binary-unpacker))))))
+
+      ;; formats a value field to a binary packer
+      (define (binary-format-value-field request-symbol field)
+        (let ((field-symbol (car field))
+              (field-type (cadr field)))
+          `(let ((value (,(symbol-append request-symbol '- field-symbol) ,request-symbol)))
+             ,(cond ((eq? field-type 'boolean)
+                      `(binary-packer-add-boolean binary-packer value))
+                    ((eq? field-type 'integer)
+                      `(binary-packer-add-integer binary-packer value))
+                    ((eq? field-type 'number)
+                      `(binary-packer-add-double binary-packer value))
+                    ((eq? field-type 'string)
+                      `(binary-packer-add-string binary-packer value))
+                    ((eq? field-type 'date)
+                      `(binary-packer-add-string binary-packer (date->string value)))
+                    ((eq? field-type 'date-time)
+                      `(binary-packer-add-string binary-packer (date-time->string value)))
+                    ((eq? field-type 'time)
+                      `(binary-packer-add-string binary-packer (time->string value)))))))
+
       ;; parses the expression
       (let* ((request-symbol (cadr exp))
              (fields (cddr exp))
@@ -205,6 +244,8 @@
 
           (import srfi-1)
 
+          (declare (uses binary))
+          (declare (uses date-time))
           (declare (uses validation))
 
           ;; encapsulates a request
@@ -283,4 +324,51 @@
               (lambda (json-node)
                 (if json-node
                   (,(symbol-append 'json-parse- request-symbol) json-node)
-                  #f)))))))))
+                  #f))))
+
+          ;; parses a request from a binary unpacker
+          (: ,(symbol-append 'binary-parse- request-symbol) (
+            (struct binary-unpacker) -> (struct ,request-symbol)))
+          (define (,(symbol-append 'binary-parse- request-symbol) binary-unpacker)
+            (,(symbol-append 'make- request-symbol)
+              ,@(map
+                (lambda (field)
+                  (let ((field-type (cadr field)))
+                    (cond
+                          (else
+                            (binary-parse-value-field request-symbol field)))))
+                fields)))
+
+          ;; parses a request from a binary
+          (: ,(symbol-append 'binary-> request-symbol) (
+            u8vector -> (struct ,request-symbol)))
+          (define (,(symbol-append 'binary-> request-symbol) data)
+            (with-binary-unpacker data
+              (lambda (binary-unpacker)
+                (,(symbol-append 'binary-parse- request-symbol) binary-unpacker))))
+
+          ;; formats a request to a binary packer
+          (: ,(symbol-append 'binary-format- request-symbol) (
+            (struct ,request-symbol) (struct binary-packer) -> noreturn))
+          (define (,(symbol-append 'binary-format- request-symbol) ,request-symbol binary-packer)
+            (begin
+              ,@(map
+                (lambda (field)
+                  (let ((field-type (cadr field)))
+                    (cond
+                          (else
+                            (binary-format-value-field request-symbol field)))))
+                fields)))
+
+          ;; formats a request to a binary
+          (: ,(symbol-append request-symbol '->binary) (
+            (struct ,request-symbol) -> u8vector))
+          (define (,(symbol-append request-symbol '->binary) ,request-symbol)
+            (with-binary-packer
+              (lambda (binary-packer)
+                (,(symbol-append 'binary-format- request-symbol) ,request-symbol binary-packer)
+                (binary-packer-data binary-packer))))
+
+
+
+          )))))
