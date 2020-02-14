@@ -7,6 +7,7 @@ Run the following commands.
     $ sudo apt install gcc
     $ sudo apt install libb64-dev
     $ sudo apt install libc6-dev
+    $ sudo apt install libcbor
     $ sudo apt install libconfig-dev
     $ sudo apt install libcurl4-openssl-dev
     $ sudo apt install libczmq-dev
@@ -15,7 +16,6 @@ Run the following commands.
     $ sudo apt install libicu-dev
     $ sudo apt install libjansson-dev
     $ sudo apt install libmagickwand-dev
-    $ sudo apt install libmsgpack-dev
     $ sudo apt install libpcre3-dev
     $ sudo apt install libsodium-dev
     $ sudo apt install libsqlite3-dev

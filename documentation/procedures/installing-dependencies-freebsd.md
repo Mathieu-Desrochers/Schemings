@@ -8,11 +8,11 @@ Run the following commands.
     $ sudo pkg install ImageMagick6
     $ sudo pkg install jansson
     $ sudo pkg install libb64
+    $ sudo pkg install libcbor
     $ sudo pkg install libconfig
     $ sudo pkg install libsodium
     $ sudo pkg install libetpan
     $ sudo pkg install libzmq4
-    $ sudo pkg install msgpack
     $ sudo pkg install sqlite3
     $ sudo pkg install texlive-full
 

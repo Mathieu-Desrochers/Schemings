@@ -5,20 +5,32 @@
 
 (declare (unit binary-inner))
 
+(declare (uses cbor))
 (declare (uses exceptions))
-(declare (uses msgpack))
 
-;; unpacks the next value
-(: binary-unpacker-next ((struct binary-packer) -> pointer))
-(define (binary-unpacker-next binary-unpacker)
-  (let ((msgpack-unpacker-next-result
-          (msgpack-unpacker-next
-            (binary-unpacker-msgpack-unpacker* binary-unpacker)
-            (binary-unpacker-msgpack-unpacked* binary-unpacker))))
-    (unless (>= msgpack-unpacker-next-result 0)
-      (abort
-        (format "failed to step msgpack-unpacker with error ~A"
-          msgpack-unpacker-next-result)))
-    (msgpack-unpacked-object
-      (binary-unpacker-msgpack-unpacked*
-        binary-unpacker))))
+;; adds an item to a binary packer
+(define (binary-packer-add binary-packer cbor-item-t*)
+  (unless (cbor-array-push (binary-packer-cbor-item-t* binary-packer) cbor-item-t*)
+    (abort "failed to cbor-array-push")))
+
+;; invokes a procedure with the next unpacked item
+(: with-binary-unpacker-next (forall (r) ((struct binary-unpacker) ((struct cbor-item-t*) -> r) -> r)))
+(define (with-binary-unpacker-next binary-unpacker procedure)
+  (with-guaranteed-release
+    (lambda ()
+      (let ((cbor-item-t* (binary-unpacker-cbor-item-t* binary-unpacker))
+            (index (binary-unpacker-index binary-unpacker)))
+        (if (>= index (cbor-array-size cbor-item-t*))
+          (abort
+            (format "failed to unpack index ~A is out of bounds"
+              index)))
+        (let ((cbor-item-t* (cbor-array-get cbor-item-t* index)))
+          (unless cbor-item-t*
+            (abort (format "failed to unpack index ~A"
+              index)))
+          (binary-unpacker-index-set!
+            binary-unpacker
+            (+ index 1))
+          cbor-item-t*)))
+    procedure
+    cbor-intermediate-decref))

@@ -65,8 +65,8 @@ The packed binary data.
 __procedure__  
 A procedure invoked with the binary unpacker.
 
-binary-unpacker-boolean
------------------------
+binary-unpacker-get-boolean
+---------------------------
 Returns an unpacked boolean.
 
 __binary-unpacker__  
@@ -75,8 +75,8 @@ A binary unpacker.
 __result__  
 The unpacked boolean.
 
-binary-unpacker-integer
------------------------
+binary-unpacker-get-integer
+---------------------------
 Returns an unpacked integer.
 
 __binary-unpacker__  
@@ -85,8 +85,8 @@ A binary unpacker.
 __result__  
 The unpacked integer.
 
-binary-unpacker-double
-----------------------
+binary-unpacker-get-double
+--------------------------
 Returns an unpacked double.
 
 __binary-unpacker__  
@@ -95,8 +95,8 @@ A binary unpacker.
 __result__  
 The unpacked double.
 
-binary-unpacker-string
-----------------------
+binary-unpacker-get-string
+--------------------------
 Returns an unpacked string.
 
 __binary-unpacker__  
@@ -111,28 +111,34 @@ Place the following code in sources/main.scm.
 
     (declare (uses binary))
 
-    (let ((packed-binary-data
+    (let ((binary-data
             (with-binary-packer
               (lambda (binary-packer)
                 (binary-packer-add-boolean binary-packer #t)
-                (binary-packer-add-int binary-packer 123)
+                (binary-packer-add-boolean binary-packer #f)
+                (binary-packer-add-integer binary-packer 123)
+                (binary-packer-add-integer binary-packer -456)
                 (binary-packer-add-double binary-packer 123.45)
-                (binary-packer-add-string binary-packer "You hungry?")
+                (binary-packer-add-string binary-packer "ABC")
                 (binary-packer-data binary-packer)))))
 
-      (display packed-binary-data)
+      (display binary-data)
       (newline)
 
       (with-binary-unpacker
-        packed-binary-data
+        binary-data
         (lambda (binary-unpacker)
-          (display (binary-unpacker-boolean binary-unpacker))
+          (display (binary-unpacker-get-boolean binary-unpacker))
           (newline)
-          (display (binary-unpacker-int binary-unpacker))
+          (display (binary-unpacker-get-boolean binary-unpacker))
           (newline)
-          (display (binary-unpacker-double binary-unpacker))
+          (display (binary-unpacker-get-integer binary-unpacker))
           (newline)
-          (display (binary-unpacker-string binary-unpacker))
+          (display (binary-unpacker-get-integer binary-unpacker))
+          (newline)
+          (display (binary-unpacker-get-double binary-unpacker))
+          (newline)
+          (display (binary-unpacker-get-string binary-unpacker))
           (newline))))
 
 Run the following commands.
@@ -140,12 +146,14 @@ Run the following commands.
     $ make
     $ ./main
 
-    #u8(195 123 203 64 94 220 204 204 204 204 205 171 89 111 117 32 104 117 110 103 114 121 63)
+    #u8(159 245 244 26 0 0 0 123 58 0 0 1 200 251 64 94 220 204 204 204 204 205 67 65 66 67 255)
     #t
+    #f
     123
+    -456
     123.45
-    You hungry?
+    ABC
 
 powered by
 ----------
-The great msgpack-c.
+The great libcbor.
