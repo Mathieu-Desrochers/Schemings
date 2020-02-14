@@ -6,8 +6,10 @@ Run the following commands.
     $ sudo apt install gcc
     $ sudo apt install libb64-dev
     $ sudo apt install libc6-dev
+    $ sudo apt install libcbor-dev
     $ sudo apt install libconfig-dev
     $ sudo apt install libcurl4-openssl-dev
+    $ sudo apt install libczmq-dev
     $ sudo apt install libetpan-dev
     $ sudo apt install libfcgi-dev
     $ sudo apt install libicu-dev
