@@ -32,36 +32,48 @@
 ;; adds a boolean value to a binary packer
 (: binary-packer-add-boolean ((struct binary-packer) boolean -> noreturn))
 (define (binary-packer-add-boolean binary-packer value)
-  (let ((cbor-item-t* (cbor-build-bool value)))
-    (unless cbor-item-t*
-      (abort "failed to cbor-build-bool"))
-    (binary-packer-add binary-packer cbor-item-t*)))
+  (binary-packer-add
+    binary-packer
+    (lambda ()
+      (let ((cbor-item-t* (cbor-build-bool value)))
+        (unless cbor-item-t*
+          (abort "failed to cbor-build-bool"))
+        cbor-item-t*))))
 
 ;; adds an integer value to a binary packer
 (: binary-packer-add-integer ((struct binary-packer) fixnum -> noreturn))
 (define (binary-packer-add-integer binary-packer value)
-  (let ((cbor-item-t* (cbor-build-uint32 (abs value))))
-    (unless cbor-item-t*
-      (abort "failed to cbor-build-uint32"))
-    (if (< value 0)
-      (cbor-mark-negint cbor-item-t*))
-    (binary-packer-add binary-packer cbor-item-t*)))
+  (binary-packer-add
+    binary-packer
+    (lambda ()
+      (let ((cbor-item-t* (cbor-build-uint32 (abs value))))
+        (unless cbor-item-t*
+          (abort "failed to cbor-build-uint32"))
+        (if (< value 0)
+          (cbor-mark-negint cbor-item-t*))
+        cbor-item-t*))))
 
 ;; adds a double value to a binary packer
 (: binary-packer-add-double ((struct binary-packer) float -> noreturn))
 (define (binary-packer-add-double binary-packer value)
-  (let ((cbor-item-t* (cbor-build-float8 value)))
-    (unless cbor-item-t*
-      (abort "failed to cbor-build-float8"))
-    (binary-packer-add binary-packer cbor-item-t*)))
+  (binary-packer-add
+    binary-packer
+    (lambda ()
+      (let ((cbor-item-t* (cbor-build-float8 value)))
+        (unless cbor-item-t*
+          (abort "failed to cbor-build-float8"))
+        cbor-item-t*))))
 
 ;; adds a string value to a binary packer
 (: binary-packer-add-string ((struct binary-packer) string -> noreturn))
 (define (binary-packer-add-string binary-packer value)
-  (let ((cbor-item-t* (cbor-build-bytestring value (string-length value))))
-    (unless cbor-item-t*
-      (abort "failed to cbor-build-bytestring"))
-    (binary-packer-add binary-packer cbor-item-t*)))
+  (binary-packer-add
+    binary-packer
+    (lambda ()
+      (let ((cbor-item-t* (cbor-build-bytestring value (string-length value))))
+        (unless cbor-item-t*
+          (abort "failed to cbor-build-bytestring"))
+        cbor-item-t*))))
 
 ;; returns data from a binary packer
 (: binary-packer-data ((struct binary-packer) -> u8vector))

@@ -53,6 +53,7 @@ void cbor_serialize_data_copy(struct cbor_serialize_data* data, char* u8vector)
 void cbor_serialize_data_free(struct cbor_serialize_data* data)
 {
   free(data->buffer);
+  free(data);
 }
 
 // deserializes an item

@@ -9,9 +9,14 @@
 (declare (uses exceptions))
 
 ;; adds an item to a binary packer
-(define (binary-packer-add binary-packer cbor-item-t*)
-  (unless (cbor-array-push (binary-packer-cbor-item-t* binary-packer) cbor-item-t*)
-    (abort "failed to cbor-array-push")))
+(: binary-packer-add (forall (r) ((struct binary-packer) (-> r) -> r)))
+(define (binary-packer-add binary-packer procedure)
+  (with-guaranteed-release
+    procedure
+    (lambda (cbor-item-t*)
+      (unless (cbor-array-push (binary-packer-cbor-item-t* binary-packer) cbor-item-t*)
+        (abort "failed to cbor-array-push")))
+    cbor-intermediate-decref))
 
 ;; invokes a procedure with the next unpacked item
 (: with-binary-unpacker-next (forall (r) ((struct binary-unpacker) ((struct cbor-item-t*) -> r) -> r)))
