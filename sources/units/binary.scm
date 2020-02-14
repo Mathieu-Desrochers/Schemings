@@ -6,7 +6,7 @@
 
 (declare (unit binary))
 
-(declare (uses binary-inner))
+(declare (uses binary-intern))
 (declare (uses cbor))
 (declare (uses exceptions))
 

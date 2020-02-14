@@ -3,7 +3,7 @@
 (import (chicken condition))
 (import (chicken format))
 
-(declare (unit binary-inner))
+(declare (unit binary-intern))
 
 (declare (uses cbor))
 (declare (uses exceptions))
