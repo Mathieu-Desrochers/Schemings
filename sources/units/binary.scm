@@ -70,7 +70,7 @@
   (binary-packer-add
     binary-packer
     (lambda ()
-      (let ((cbor-item-t* (cbor-build-bytestring value (string-length value))))
+      (let ((cbor-item-t* (cbor-build-bytestring value (+ (string-length value) 1))))
         (unless cbor-item-t*
           (abort "failed to cbor-build-bytestring"))
         cbor-item-t*))))

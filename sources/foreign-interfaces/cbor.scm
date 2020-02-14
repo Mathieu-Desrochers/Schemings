@@ -98,7 +98,7 @@ struct cbor_item_t* cbor_load_wrapped(char* data, int size)
 
 ;; strings
 (define cbor-build-bytestring (foreign-lambda cbor-item-t* "cbor_build_bytestring" c-string int))
-(define cbor-bytestring-handle (foreign-lambda c-string* "cbor_bytestring_handle" cbor-item-t*))
+(define cbor-bytestring-handle (foreign-lambda c-string "cbor_bytestring_handle" cbor-item-t*))
 
 ;; arrays
 (define cbor-new-indefinite-array (foreign-lambda cbor-item-t* "cbor_new_indefinite_array"))
