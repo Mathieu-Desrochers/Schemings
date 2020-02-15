@@ -9,16 +9,16 @@
 (declare (uses exceptions))
 
 ;; adds an item to a binary packer
-(: binary-packer-add (forall (r) (* (struct binary-packer) (-> r) -> r)))
-(define (binary-packer-add binary-packer value procedure)
+(: binary-packer-add (forall (r) (boolean (struct binary-packer) (-> r) -> r)))
+(define (binary-packer-add binary-packer null-value? procedure)
   (with-guaranteed-release
     (lambda ()
-      (if value
-        (procedure)
+      (if null-value?
         (let ((cbor-item-t* (cbor-new-null)))
           (unless cbor-item-t*
             (abort "failed to cbor-new-null"))
-          cbor-item-t*)))
+          cbor-item-t*)
+        (procedure)))
     (lambda (cbor-item-t*)
       (unless (cbor-array-push (binary-packer-cbor-item-t* binary-packer) cbor-item-t*)
         (abort "failed to cbor-array-push")))
@@ -44,7 +44,7 @@
             (+ index 1))
           cbor-item-t*)))
     (lambda (cbor-item-t*)
-      (if (cbor-is-null cbor-item-t*)
-        #f
-        (procedure cbor-item-t*)))
+      (if (not (cbor-is-null cbor-item-t*))
+        (procedure cbor-item-t*)
+        #f))
     cbor-intermediate-decref))
