@@ -84,8 +84,9 @@ struct cbor_item_t* cbor_load_wrapped(char* data, int size)
 
 ;; booleans and null
 (define cbor-build-bool (foreign-lambda cbor-item-t* "cbor_build_bool" bool))
-(define cbor-build-ctrl (foreign-lambda cbor-item-t* "cbor_build_ctrl" int))
 (define cbor-ctrl-is-bool (foreign-lambda bool "cbor_ctrl_is_bool" cbor-item-t*))
+(define cbor-new-null (foreign-lambda cbor-item-t* "cbor_new_null"))
+(define cbor-is-null (foreign-lambda bool "cbor_is_null" cbor-item-t*))
 
 ;; integers
 (define cbor-build-uint32 (foreign-lambda cbor-item-t* "cbor_build_uint32" int))

@@ -32,8 +32,7 @@
 ;; adds a boolean value to a binary packer
 (: binary-packer-add-boolean ((struct binary-packer) boolean -> noreturn))
 (define (binary-packer-add-boolean binary-packer value)
-  (binary-packer-add
-    binary-packer
+  (binary-packer-add binary-packer value
     (lambda ()
       (let ((cbor-item-t* (cbor-build-bool value)))
         (unless cbor-item-t*
@@ -41,10 +40,9 @@
         cbor-item-t*))))
 
 ;; adds an integer value to a binary packer
-(: binary-packer-add-integer ((struct binary-packer) fixnum -> noreturn))
+(: binary-packer-add-integer ((struct binary-packer) (or fixnum false) -> noreturn))
 (define (binary-packer-add-integer binary-packer value)
-  (binary-packer-add
-    binary-packer
+  (binary-packer-add binary-packer value
     (lambda ()
       (let ((cbor-item-t* (cbor-build-uint32 (abs value))))
         (unless cbor-item-t*
@@ -54,10 +52,9 @@
         cbor-item-t*))))
 
 ;; adds a double value to a binary packer
-(: binary-packer-add-double ((struct binary-packer) float -> noreturn))
+(: binary-packer-add-double ((struct binary-packer) (or float false) -> noreturn))
 (define (binary-packer-add-double binary-packer value)
-  (binary-packer-add
-    binary-packer
+  (binary-packer-add binary-packer value
     (lambda ()
       (let ((cbor-item-t* (cbor-build-float8 value)))
         (unless cbor-item-t*
@@ -65,10 +62,9 @@
         cbor-item-t*))))
 
 ;; adds a string value to a binary packer
-(: binary-packer-add-string ((struct binary-packer) string -> noreturn))
+(: binary-packer-add-string ((struct binary-packer) (or string false) -> noreturn))
 (define (binary-packer-add-string binary-packer value)
-  (binary-packer-add
-    binary-packer
+  (binary-packer-add binary-packer value
     (lambda ()
       (let ((cbor-item-t* (cbor-build-bytestring value (+ (string-length value) 1))))
         (unless cbor-item-t*
@@ -120,8 +116,7 @@
 ;; returns an unpacked boolean
 (: binary-unpacker-get-boolean ((struct binary-unpacker) -> boolean))
 (define (binary-unpacker-get-boolean binary-unpacker)
-  (with-binary-unpacker-next
-    binary-unpacker
+  (with-binary-unpacker-next binary-unpacker
     (lambda (cbor-item-t*)
       (let ((cbor-type (cbor-typeof cbor-item-t*)))
         (unless (eq? cbor-type cbor-type-decimals-and-ctrl)
@@ -133,8 +128,7 @@
 ;; returns an unpacked integer
 (: binary-unpacker-get-integer ((struct binary-unpacker) -> fixnum))
 (define (binary-unpacker-get-integer binary-unpacker)
-  (with-binary-unpacker-next
-    binary-unpacker
+  (with-binary-unpacker-next binary-unpacker
     (lambda (cbor-item-t*)
       (let ((cbor-type (cbor-typeof cbor-item-t*)))
         (cond ((eq? cbor-type cbor-type-positive-integer)
@@ -149,8 +143,7 @@
 ;; returns an unpacked double
 (: binary-unpacker-get-double ((struct binary-unpacker) -> number))
 (define (binary-unpacker-get-double binary-unpacker)
-  (with-binary-unpacker-next
-    binary-unpacker
+  (with-binary-unpacker-next binary-unpacker
     (lambda (cbor-item-t*)
       (let ((cbor-type (cbor-typeof cbor-item-t*)))
         (unless (eq? cbor-type cbor-type-decimals-and-ctrl)
@@ -162,8 +155,7 @@
 ;; returns an unpacked string
 (: binary-unpacker-get-string ((struct binary-unpacker) -> string))
 (define (binary-unpacker-get-string binary-unpacker)
-  (with-binary-unpacker-next
-    binary-unpacker
+  (with-binary-unpacker-next binary-unpacker
     (lambda (cbor-item-t*)
       (let ((cbor-type (cbor-typeof cbor-item-t*)))
         (unless (eq? cbor-type cbor-type-byte-string)
