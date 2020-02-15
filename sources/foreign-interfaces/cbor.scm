@@ -84,8 +84,10 @@ struct cbor_item_t* cbor_load_wrapped(char* data, int size)
 
 ;; booleans and null
 (define cbor-build-bool (foreign-lambda cbor-item-t* "cbor_build_bool" bool))
-(define cbor-ctrl-is-bool (foreign-lambda bool "cbor_ctrl_is_bool" cbor-item-t*))
 (define cbor-new-null (foreign-lambda cbor-item-t* "cbor_new_null"))
+(define cbor-isa-float-ctrl (foreign-lambda bool "cbor_isa_float_ctrl" cbor-item-t*))
+(define cbor-float-ctrl-is-ctrl (foreign-lambda bool "cbor_float_ctrl_is_ctrl" cbor-item-t*))
+(define cbor-ctrl-is-bool (foreign-lambda bool "cbor_ctrl_is_bool" cbor-item-t*))
 (define cbor-is-null (foreign-lambda bool "cbor_is_null" cbor-item-t*))
 
 ;; integers
@@ -95,7 +97,7 @@ struct cbor_item_t* cbor_load_wrapped(char* data, int size)
 
 ;; floats
 (define cbor-build-float8 (foreign-lambda cbor-item-t* "cbor_build_float8" double))
-(define cbor-float-get-float (foreign-lambda double "cbor_float_get_float" cbor-item-t*))
+(define cbor-float-get-float8 (foreign-lambda double "cbor_float_get_float8" cbor-item-t*))
 
 ;; strings
 (define cbor-build-bytestring (foreign-lambda cbor-item-t* "cbor_build_bytestring" c-string int))

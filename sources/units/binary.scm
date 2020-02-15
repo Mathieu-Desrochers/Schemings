@@ -150,7 +150,7 @@
           (abort
             (format "failed to unpack double got ~A instead"
               cbor-type))))
-      (cbor-float-get-float cbor-item-t*))))
+      (cbor-float-get-float8 cbor-item-t*))))
 
 ;; returns an unpacked string
 (: binary-unpacker-get-string ((struct binary-unpacker) -> string))
