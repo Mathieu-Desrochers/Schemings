@@ -63,6 +63,12 @@ struct cbor_item_t* cbor_load_wrapped(char* data, int size)
   return cbor_load(data, size, &result);
 }
 
+// copies deserialized bytes
+void cbor_bytestring_handle_wrapped(cbor_item_t* item, char* u8vector)
+{
+  memcpy(u8vector, cbor_bytestring_handle(item), cbor_bytestring_length(item));
+}
+
 ")
 
 ;; cbor-item pointers definitions
@@ -100,8 +106,9 @@ struct cbor_item_t* cbor_load_wrapped(char* data, int size)
 (define cbor-float-get-float8 (foreign-lambda double "cbor_float_get_float8" cbor-item-t*))
 
 ;; strings
-(define cbor-build-bytestring (foreign-lambda cbor-item-t* "cbor_build_bytestring" c-string int))
-(define cbor-bytestring-handle (foreign-lambda c-string "cbor_bytestring_handle" cbor-item-t*))
+(define cbor-build-bytestring (foreign-lambda cbor-item-t* "cbor_build_bytestring" u8vector int))
+(define cbor-bytestring-length (foreign-lambda int "cbor_bytestring_length" cbor-item-t*))
+(define cbor-bytestring-handle (foreign-lambda void "cbor_bytestring_handle_wrapped" cbor-item-t* u8vector))
 
 ;; arrays
 (define cbor-new-indefinite-array (foreign-lambda cbor-item-t* "cbor_new_indefinite_array"))

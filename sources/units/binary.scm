@@ -66,7 +66,18 @@
 (define (binary-packer-add-string binary-packer value)
   (binary-packer-add binary-packer (not value)
     (lambda ()
-      (let ((cbor-item-t* (cbor-build-bytestring value (+ (string-length value) 1))))
+      (let* ((bytes (blob->u8vector (string->blob value)))
+             (cbor-item-t* (cbor-build-bytestring bytes (u8vector-length bytes))))
+        (unless cbor-item-t*
+          (abort "failed to cbor-build-bytestring"))
+        cbor-item-t*))))
+
+;; adds bytes to a binary packer
+(: binary-packer-add-bytes ((struct binary-packer) (or u8vector false) -> noreturn))
+(define (binary-packer-add-bytes binary-packer value)
+  (binary-packer-add binary-packer (not value)
+    (lambda ()
+      (let ((cbor-item-t* (cbor-build-bytestring value (u8vector-length value))))
         (unless cbor-item-t*
           (abort "failed to cbor-build-bytestring"))
         cbor-item-t*))))
@@ -126,7 +137,7 @@
       (cbor-ctrl-is-bool cbor-item-t*))))
 
 ;; returns an unpacked integer
-(: binary-unpacker-get-integer ((struct binary-unpacker) -> fixnum))
+(: binary-unpacker-get-integer ((struct binary-unpacker) -> (or fixnum false)))
 (define (binary-unpacker-get-integer binary-unpacker)
   (with-binary-unpacker-next binary-unpacker
     (lambda (cbor-item-t*)
@@ -141,7 +152,7 @@
                     cbor-type))))))))
 
 ;; returns an unpacked double
-(: binary-unpacker-get-double ((struct binary-unpacker) -> number))
+(: binary-unpacker-get-double ((struct binary-unpacker) -> (or number false)))
 (define (binary-unpacker-get-double binary-unpacker)
   (with-binary-unpacker-next binary-unpacker
     (lambda (cbor-item-t*)
@@ -153,7 +164,7 @@
       (cbor-float-get-float8 cbor-item-t*))))
 
 ;; returns an unpacked string
-(: binary-unpacker-get-string ((struct binary-unpacker) -> string))
+(: binary-unpacker-get-string ((struct binary-unpacker) -> (or string false)))
 (define (binary-unpacker-get-string binary-unpacker)
   (with-binary-unpacker-next binary-unpacker
     (lambda (cbor-item-t*)
@@ -162,4 +173,20 @@
           (abort
             (format "failed to unpack string got ~A instead"
               cbor-type))))
-      (cbor-bytestring-handle cbor-item-t*))))
+      (let ((bytes (make-u8vector (cbor-bytestring-length cbor-item-t*) 0)))
+        (cbor-bytestring-handle cbor-item-t* bytes)
+        (blob->string (u8vector->blob bytes))))))
+
+;; returns unpacked bytes
+(: binary-unpacker-get-bytes ((struct binary-unpacker) -> (or u8vector false)))
+(define (binary-unpacker-get-bytes binary-unpacker)
+  (with-binary-unpacker-next binary-unpacker
+    (lambda (cbor-item-t*)
+      (let ((cbor-type (cbor-typeof cbor-item-t*)))
+        (unless (eq? cbor-type cbor-type-byte-string)
+          (abort
+            (format "failed to unpack bytes got ~A instead"
+              cbor-type))))
+      (let ((bytes (make-u8vector (cbor-bytestring-length cbor-item-t*) 0)))
+        (cbor-bytestring-handle cbor-item-t* bytes)
+        bytes))))
