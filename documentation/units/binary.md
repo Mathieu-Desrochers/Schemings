@@ -45,6 +45,16 @@ A binary packer.
 __value__  
 A string value.
 
+binary-packer-add-bytes
+-----------------------
+Adds bytes to a binary packer.
+
+__binary-packer__  
+A binary packer.
+
+__value__  
+A u8vector value.
+
 binary-packer-data
 ------------------
 Returns the data from a binary packer.
@@ -105,9 +115,21 @@ A binary unpacker.
 __result__  
 The unpacked string.
 
+binary-unpacker-get-bytes
+-------------------------
+Returns unpacked bytes.
+
+__binary-unpacker__  
+A binary unpacker.
+
+__result__  
+The unpacked u8vector.
+
 try it
 ------
 Place the following code in sources/main.scm.
+
+    (import srfi-4)
 
     (declare (uses binary))
 
@@ -115,11 +137,10 @@ Place the following code in sources/main.scm.
             (with-binary-packer
               (lambda (binary-packer)
                 (binary-packer-add-boolean binary-packer #t)
-                (binary-packer-add-boolean binary-packer #f)
                 (binary-packer-add-integer binary-packer 123)
-                (binary-packer-add-integer binary-packer -456)
                 (binary-packer-add-double binary-packer 123.45)
                 (binary-packer-add-string binary-packer "ABC")
+                (binary-packer-add-bytes binary-packer (make-u8vector 3 0))
                 (binary-packer-data binary-packer)))))
 
       (display binary-data)
@@ -130,15 +151,13 @@ Place the following code in sources/main.scm.
         (lambda (binary-unpacker)
           (display (binary-unpacker-get-boolean binary-unpacker))
           (newline)
-          (display (binary-unpacker-get-boolean binary-unpacker))
-          (newline)
-          (display (binary-unpacker-get-integer binary-unpacker))
-          (newline)
           (display (binary-unpacker-get-integer binary-unpacker))
           (newline)
           (display (binary-unpacker-get-double binary-unpacker))
           (newline)
           (display (binary-unpacker-get-string binary-unpacker))
+          (newline)
+          (display (binary-unpacker-get-bytes binary-unpacker))
           (newline))))
 
 Run the following commands.
@@ -146,13 +165,12 @@ Run the following commands.
     $ make
     $ ./main
 
-    #u8(159 245 244 26 0 0 0 123 58 0 0 1 200 251 64 94 220 204 204 204 204 205 67 65 66 67 255)
+    #u8(159 245 26 0 0 0 123 251 64 94 220 204 204 204 204 205 67 65 66 67 67 0 0 0 255)
     #t
-    #f
     123
-    -456
     123.45
     ABC
+    #u8(0 0 0)
 
 powered by
 ----------
