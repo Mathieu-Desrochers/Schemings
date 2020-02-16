@@ -158,6 +158,7 @@
               (map
                 (lambda (index)
                   (let ((value (json-array-get-value json-array-node index)))
+                    ;; LOUCHE...
                     (json-value->field-value value ',field-type)))
                 (iota (json-array-length json-array-node)))
               #f))))
@@ -199,42 +200,102 @@
 
       ;; parses a value field from a binary unpacker
       (define (binary-parse-value-field request-symbol field)
-        (let ((field-symbol (car field))
-              (field-type (cadr field)))
-          (cond ((eq? field-type 'boolean)
-                  `(binary-unpacker-boolean binary-unpacker))
-                ((eq? field-type 'integer)
-                  `(binary-unpacker-integer binary-unpacker))
-                ((eq? field-type 'number)
-                  `(binary-unpacker-double binary-unpacker))
-                ((eq? field-type 'string)
-                  `(binary-unpacker-string binary-unpacker))
-                ((eq? field-type 'date)
-                  `(binary-unpacker-string (string->date binary-unpacker)))
-                ((eq? field-type 'date-time)
-                  `(binary-unpacker-string (string->date-time binary-unpacker)))
-                ((eq? field-type 'time)
-                  `(binary-unpacker-string (string->time binary-unpacker))))))
+        (let ((field-type (cadr field)))
+          `(binary-unpacker-get-field binary-unpacker ',field-type)))
+
+      ;; parses a value list field from a binary unpacker
+      (define (binary-parse-value-list-field request-symbol field)
+        (let ((field-element-type (list-ref field 5)))
+          `(let ((value-list (binary-unpacker-get-boolean binary-unpacker)))
+            (if value-list
+              (let ((value-list-length (binary-unpacker-get-integer binary-unpacker)))
+                (map
+                  (lambda (index)
+                    (binary-unpacker-get-field binary-unpacker ',field-element-type))
+                  (iota value-list-length)))
+              #f))))
+
+      ;; parses a subrequest field from a binary unpacker
+      (define (binary-parse-subrequest-field request-symbol field)
+        (let ((field-type (cadr field)))
+          `(let ((subrequest (binary-unpacker-get-boolean binary-unpacker)))
+            (if subrequest
+              (,(symbol-append 'binary-parse- field-type)
+                binary-unpacker)
+              #f))))
+
+      ;; parses a subrequest list field from a binary unpacker
+      (define (binary-parse-subrequest-list-field request-symbol field)
+        (let* ((field-symbol (list-ref field 0))
+               (field-element-type (list-ref field 5)))
+          `(let ((subrequest-list (binary-unpacker-get-boolean binary-unpacker)))
+            (if subrequest-list
+              (let ((subrequest-list-length (binary-unpacker-get-integer binary-unpacker)))
+                (map
+                  (lambda (index)
+                    (let ((subrequest (binary-unpacker-get-boolean binary-unpacker)))
+                      (if subrequest
+                        (,(symbol-append 'binary-parse- field-element-type)
+                          binary-unpacker)
+                        #f)))
+                  (iota subrequest-list-length)))
+              #f))))
 
       ;; formats a value field to a binary packer
       (define (binary-format-value-field request-symbol field)
         (let ((field-symbol (car field))
               (field-type (cadr field)))
           `(let ((value (,(symbol-append request-symbol '- field-symbol) ,request-symbol)))
-             ,(cond ((eq? field-type 'boolean)
-                      `(binary-packer-add-boolean binary-packer value))
-                    ((eq? field-type 'integer)
-                      `(binary-packer-add-integer binary-packer value))
-                    ((eq? field-type 'number)
-                      `(binary-packer-add-double binary-packer value))
-                    ((eq? field-type 'string)
-                      `(binary-packer-add-string binary-packer value))
-                    ((eq? field-type 'date)
-                      `(binary-packer-add-string binary-packer (date->string value)))
-                    ((eq? field-type 'date-time)
-                      `(binary-packer-add-string binary-packer (date-time->string value)))
-                    ((eq? field-type 'time)
-                      `(binary-packer-add-string binary-packer (time->string value)))))))
+             (binary-packer-add-field binary-packer value ',field-type))))
+
+      ;; formats a value list field to a binary packer
+      (define (binary-format-value-list-field request-symbol field)
+        (let ((field-symbol (car field))
+              (field-element-type (list-ref field 5)))
+          `(let ((value-list (,(symbol-append request-symbol '- field-symbol) ,request-symbol)))
+            (if value-list
+              (begin
+                (binary-packer-add-boolean binary-packer #t)
+                (binary-packer-add-integer binary-packer (length value-list))
+                (for-each
+                  (lambda (value)
+                    (binary-packer-add-field binary-packer value ',field-element-type))
+                  value-list))
+              (binary-packer-add-boolean binary-packer #f)))))
+
+      ;; formats a subrequest field to a binary packer
+      (define (binary-format-subrequest-field request-symbol field)
+        (let ((field-symbol (car field))
+              (field-type (cadr field)))
+          `(let ((subrequest (,(symbol-append request-symbol '- field-symbol) ,request-symbol)))
+            (if subrequest
+              (begin
+                (binary-packer-add-boolean binary-packer #t)
+                (,(symbol-append 'binary-format- field-type)
+                  subrequest
+                  binary-packer))
+              (binary-packer-add-boolean binary-packer #f)))))
+
+      ;; formats a subrequest list field to a binary packer
+      (define (binary-format-subrequest-list-field request-symbol field)
+        (let* ((field-symbol (list-ref field 0))
+               (field-element-type (list-ref field 5)))
+          `(let ((subrequest-list (,(symbol-append request-symbol '- field-symbol) ,request-symbol)))
+            (if subrequest-list
+              (begin
+                (binary-packer-add-boolean binary-packer #t)
+                (binary-packer-add-integer binary-packer (length subrequest-list))
+                (for-each
+                  (lambda (subrequest)
+                    (if subrequest
+                      (begin
+                        (binary-packer-add-boolean binary-packer #t)
+                        (,(symbol-append 'binary-format- field-element-type)
+                          subrequest
+                          binary-packer))
+                      (binary-packer-add-boolean binary-packer #f)))
+                  subrequest-list))
+              (binary-packer-add-boolean binary-packer #f)))))
 
       ;; parses the expression
       (let* ((request-symbol (cadr exp))
@@ -245,6 +306,8 @@
           (import srfi-1)
 
           (declare (uses binary))
+          (declare (uses binary-intern))
+          (declare (uses cbor))
           (declare (uses date-time))
           (declare (uses validation))
 
@@ -334,7 +397,12 @@
               ,@(map
                 (lambda (field)
                   (let ((field-type (cadr field)))
-                    (cond
+                    (cond ((eq? field-type 'list)
+                            (if (string-contains (symbol->string (list-ref field 5)) "subrequest")
+                              (binary-parse-subrequest-list-field request-symbol field)
+                              (binary-parse-value-list-field request-symbol field)))
+                          ((string-contains (symbol->string field-type) "subrequest")
+                            (binary-parse-subrequest-field request-symbol field))
                           (else
                             (binary-parse-value-field request-symbol field)))))
                 fields)))
@@ -355,7 +423,14 @@
               ,@(map
                 (lambda (field)
                   (let ((field-type (cadr field)))
-                    (cond
+                    (cond ((and
+                              (eq? field-type 'list)
+                              (string-contains (symbol->string (list-ref field 5)) "subrequest"))
+                            (binary-format-subrequest-list-field request-symbol field))
+                          ((string-contains (symbol->string field-type) "subrequest")
+                            (binary-format-subrequest-field request-symbol field))
+                          ((eq? field-type 'list)
+                            (binary-format-value-list-field request-symbol field))
                           (else
                             (binary-format-value-field request-symbol field)))))
                 fields)))
@@ -367,8 +442,4 @@
             (with-binary-packer
               (lambda (binary-packer)
                 (,(symbol-append 'binary-format- request-symbol) ,request-symbol binary-packer)
-                (binary-packer-data binary-packer))))
-
-
-
-          )))))
+                (binary-packer-data binary-packer)))))))))

@@ -51,3 +51,51 @@
         (procedure cbor-item-t*)
         #f))
     cbor-intermediate-decref))
+
+;; adds a field value to a binary packer
+(: binary-packer-add-field ((struct binary-packer) * symbol -> noreturn))
+(define (binary-packer-add-field binary-packer value field-type)
+  (cond ((eq? field-type 'blob)
+          (binary-packer-add-bytes binary-packer value))
+        ((eq? field-type 'boolean)
+          (binary-packer-add-boolean binary-packer value))
+        ((eq? field-type 'integer)
+          (binary-packer-add-integer binary-packer value))
+        ((eq? field-type 'number)
+          (binary-packer-add-double binary-packer value))
+        ((eq? field-type 'string)
+          (binary-packer-add-string binary-packer value))
+        ((eq? field-type 'date)
+          (binary-packer-add-string binary-packer (date->string value)))
+        ((eq? field-type 'date-time)
+          (binary-packer-add-string binary-packer (date-time->string value)))
+        ((eq? field-type 'time)
+          (binary-packer-add-string binary-packer (time->string value)))
+        (else
+          (abort
+            (format "failed to binary pack field of type ~A"
+              field-type)))))
+
+;; returns an unpacked field
+(: binary-packer-get-field ((struct binary-unpacker) symbol -> *))
+(define (binary-unpacker-get-field binary-unpacker field-type)
+  (cond ((eq? field-type 'blob)
+          (binary-unpacker-get-bytes binary-unpacker))
+        ((eq? field-type 'boolean)
+          (binary-unpacker-get-boolean binary-unpacker))
+        ((eq? field-type 'integer)
+          (binary-unpacker-get-integer binary-unpacker))
+        ((eq? field-type 'number)
+          (binary-unpacker-get-double binary-unpacker))
+        ((eq? field-type 'string)
+          (binary-unpacker-get-string binary-unpacker))
+        ((eq? field-type 'date)
+          (string->date (binary-unpacker-get-string binary-unpacker)))
+        ((eq? field-type 'date-time)
+          (string->date-time (binary-unpacker-get-string binary-unpacker)))
+        ((eq? field-type 'time)
+          (string->time (binary-unpacker-get-string binary-unpacker)))
+        (else
+          (abort
+            (format "failed to binary unpack field of type ~A"
+              field-type)))))
