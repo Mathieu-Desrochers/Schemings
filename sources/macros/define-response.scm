@@ -32,8 +32,8 @@
 
       ;; formats a value list field to a json node
       (define (json-format-value-list-field response-symbol field)
-        (let ((field-symbol (car field))
-              (field-type (cadr field)))
+        (let ((field-symbol (list-ref field 0))
+              (field-element-type (list-ref field 2)))
           `(let ((value-list (,(symbol-append response-symbol '- field-symbol) ,response-symbol)))
             (if value-list
               (let ((json-array-node
@@ -44,7 +44,7 @@
                   (lambda (value)
                     (json-array-add-value
                       json-array-node
-                      (field-value->json-value value ',field-type)))
+                      (field-value->json-value value ',field-element-type)))
                   value-list))
               (json-object-add-value
                 json-node
@@ -71,8 +71,8 @@
 
       ;; formats a subresponse list field to a json node
       (define (json-format-subresponse-list-field response-symbol field)
-        (let* ((field-symbol (car field))
-               (field-type (caddr field)))
+        (let* ((field-symbol (list-ref field 0))
+               (field-element-type (list-ref field 2)))
           `(let ((subresponse-list (,(symbol-append response-symbol '- field-symbol) ,response-symbol)))
             (if subresponse-list
               (let ((json-array-node
@@ -85,7 +85,7 @@
                       (let ((json-object-node
                               (json-array-add-object
                                 json-array-node)))
-                        (,(symbol-append 'json-format- field-type)
+                        (,(symbol-append 'json-format- field-element-type)
                           subresponse
                           json-object-node))
                       (json-array-add-value

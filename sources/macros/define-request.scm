@@ -150,7 +150,7 @@
       ;; parses a value list field from a json node
       (define (json-parse-value-list-field request-symbol field)
         (let ((field-symbol (car field))
-              (field-type (cadr field)))
+              (field-element-type (list-ref field 5)))
           `(let ((json-array-node
                   (json-object-get-array
                     json-node
@@ -159,8 +159,7 @@
               (map
                 (lambda (index)
                   (let ((value (json-array-get-value json-array-node index)))
-                    ;; LOUCHE...
-                    (json-value->field-value value ',field-type)))
+                    (json-value->field-value value ',field-element-type)))
                 (iota (json-array-length json-array-node)))
               #f))))
 
