@@ -59,6 +59,9 @@ Must return any attached authentication.
 __sql-connection__  
 A sql-connection of false.
 
+__jobs-queue-connection__  
+A jobs-queue-connection of false.
+
 __configuration__  
 Any configuration to be passed to the services procedure.
 

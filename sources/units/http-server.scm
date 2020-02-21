@@ -24,12 +24,15 @@
 
 ;; starts serving http requests
 (: http-server-start (
-  (list-of (struct http-binding)) (or (struct sql-connection) false)
+  (list-of (struct http-binding))
+  (or (struct sql-connection) false)
+  (or (struct jobs-queue-connection) false)
   (or ((struct fastcgi-request) -> *) false) * ->
   noreturn))
 (define (http-server-start
           http-bindings
           sql-connection
+          jobs-queue-connection
           get-authentication-procedure
           configuration)
 
@@ -93,10 +96,12 @@
                                         (lambda ()
                                           (within-sql-transaction sql-connection
                                             (lambda ()
-                                              (service-procedure
-                                                request sql-connection authentication configuration)))))
-                                      (service-procedure
-                                        request sql-connection authentication configuration))))
+                                              (service-procedure request
+                                                sql-connection jobs-queue-connection
+                                                authentication configuration)))))
+                                      (service-procedure request
+                                        sql-connection jobs-queue-connection
+                                        authentication configuration))))
 
                               ;; format and write the response
                               (if response-content-type
