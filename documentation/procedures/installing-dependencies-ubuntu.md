@@ -23,8 +23,7 @@ Run the following commands.
     $ sudo apt install sqlite3
     $ sudo apt install texlive-full
 
-    $ wget http://www2.informatik.uni-freiburg.de/~stachnis/misc/libhungarian-v0.1.3.tgz
-    $ tar -xf libhungarian-v0.1.3.tgz
+    $ tar -xf libraries/libhungarian-v0.1.3.tgz
     $ cd libhungarian
     $ make
     $ sudo cp hungarian.h /usr/local/include
