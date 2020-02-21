@@ -61,6 +61,19 @@ Returns the parsed request.
     (define (try-json-string->new-secret-base-request json-string)
       ...)
 
+binary parsing and formatting procedures
+----------------------------------------
+Expands to binary parsing and formatting procedures.  
+Returns the parsed request.
+
+    (define (binary->new-secret-base-request u8vector)
+      ...)
+
+Returns the formatted request.
+
+    (define (new-secret-base-request->binary new-secret-base-request)
+      ...)
+
 typed getters
 -------------
 Every field getter is defined with a * suffixed twin.  
@@ -105,16 +118,14 @@ Place the following code in sources/main.scm.
                 "    \"address\": \"David's backyard\""
                 "  }"
                 "}"))))
-      (display
-        (new-secret-base-request-name new-secret-base-request))
+      (display (new-secret-base-request-name new-secret-base-request))
       (newline)
-      (display
-        (new-secret-base-request-secret-numbers new-secret-base-request))
+      (display (new-secret-base-request-secret-numbers new-secret-base-request))
       (newline)
-      (display
-        (new-secret-base-location-subrequest-address
-          (new-secret-base-request-location new-secret-base-request)))
-      (newline))
+      (newline)
+
+      (display (new-secret-base-request->binary new-secret-base-request))
+      (newline)))
 
 Run the following commands.
 
@@ -127,4 +138,7 @@ Run the following commands.
 
     Fort Donuts
     (1 35 4 8)
-    David's backyard
+
+    #u8(159 75 70 111 114 116 32 68 111 110 117 116 115 245 26 0 0 0 4
+      26 0 0 0 1 26 0 0 0 35 26 0 0 0 4 26 0 0 0 8 245 80 68 97 118 105
+      100 39 115 32 98 97 99 107 121 97 114 100 246 244 255)
