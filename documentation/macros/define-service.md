@@ -720,12 +720,13 @@ Place the following code in sources/main.scm.
 
     (: update-cookie-service (
       (struct update-cookie-request)
-      (struct sql-connection) * * ->
+      (struct sql-connection) (struct jobs-queue-connection) * * ->
       (struct update-cookie-response)))
 
     (define (update-cookie-service
               update-cookie-request
               sql-connection
+              jobs-queue-connection
               authentication-token
               configuration)
 
