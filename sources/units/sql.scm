@@ -34,9 +34,6 @@
               database-name
               sqlite3-open-result)))
         (let ((sql-connection (make-sql-connection (resolve-sqlite3* sqlite3**))))
-          (sql-read sql-connection "PRAGMA journal_mode = WAL;" (list))
-          (sql-execute sql-connection "PRAGMA synchronous = NORMAL;" (list))
-          (sql-read sql-connection "PRAGMA busy_timeout = 500;" (list))
           (procedure sql-connection))))
     (lambda (sqlite3**)
       (sqlite3-close-v2 (resolve-sqlite3* sqlite3**))
