@@ -116,14 +116,14 @@
     (/
       (-
         (seconds-since-epoch
-          (- (date-year date-to) 1970)
+          (- (date-year date-to) 1900)
           (- (date-month date-to) 1)
           (date-day date-to)
           0
           0
           0)
         (seconds-since-epoch
-          (- (date-year date-from) 1970)
+          (- (date-year date-from) 1900)
           (- (date-month date-from) 1)
           (date-day date-from)
           0
@@ -137,14 +137,14 @@
   (inexact->exact
     (-
       (seconds-since-epoch
-        (- (date-time-year date-time-to) 1970)
+        (- (date-time-year date-time-to) 1900)
         (- (date-time-month date-time-to) 1)
         (date-time-day date-time-to)
         (date-time-hour date-time-to)
         (date-time-minute date-time-to)
         (date-time-second date-time-to))
       (seconds-since-epoch
-        (- (date-time-year date-time-from) 1970)
+        (- (date-time-year date-time-from) 1900)
         (- (date-time-month date-time-from) 1)
         (date-time-day date-time-from)
         (date-time-hour date-time-from)
@@ -157,14 +157,14 @@
   (inexact->exact
     (-
       (seconds-since-epoch
-        70
+        0
         0
         1
         (time-hour time-to)
         (time-minute time-to)
         (time-second time-to))
       (seconds-since-epoch
-        70
+        0
         0
         1
         (time-hour time-from)
@@ -240,7 +240,7 @@
 (define (time->string* time)
   (format-date-time
     (make-date-time
-      1970
+      1900
       1
       1
       (time-hour time)
