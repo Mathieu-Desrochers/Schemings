@@ -92,6 +92,17 @@ Returns whether an exception was caused by a deadlock.
 __exception__  
 An exception.
 
+without-sql-transaction
+-----------------------
+Executes a procedure outside of the current transaction.  
+The transaction is committed then restarted.
+
+__sql-connection__  
+A sql connection.
+
+__procedure__  
+A procedure invoked without the transaction.
+
 try it
 ------
 Run the following commands.

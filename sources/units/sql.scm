@@ -125,3 +125,15 @@
 (define (sql-deadlock-exception? exception)
   ((condition-predicate 'sql-deadlock)
     exception))
+
+;; executes a procedure outside of the current transaction
+;; the transaction is committed then restarted
+(: without-sql-transaction (forall (r) ((struct sql-connection) (-> r) -> r)))
+(define (without-sql-transaction sql-connection procedure)
+  (with-guaranteed-release
+    (lambda ()
+      (sql-execute sql-connection "COMMIT TRANSACTION;" (list)))
+    (lambda (_)
+      (procedure))
+    (lambda (_)
+      (sql-execute sql-connection "BEGIN IMMEDIATE TRANSACTION;" (list)))))
