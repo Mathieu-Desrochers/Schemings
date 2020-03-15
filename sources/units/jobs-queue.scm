@@ -65,7 +65,7 @@
     zmq-dontwait))
 
 ;; invokes a procedure with jobs received from a queue
-(: jobs-queue-receive (forall (r) (string (u8vector fixnum -> r) -> r)))
+(: jobs-queue-receive (forall (r) (string (u8vector -> r) -> r)))
 (define (jobs-queue-receive worker-endpoint procedure)
   (with-zmq-socket* zmq-pull
     (lambda (zmq-socket*)
@@ -74,9 +74,12 @@
           (abort
             (format "failed to connect socket to endpoint ~A"
               worker-endpoint)))
-        (letrec (
+        (letrec* (
+            (procedure-wrapper
+              (lambda (u8vector length)
+                (procedure (subu8vector u8vector 0 length))))
             (loop-inner
               (lambda ()
-                (receive-on-zmq-socket* zmq-socket* procedure)
+                (receive-on-zmq-socket* zmq-socket* procedure-wrapper)
                 (loop-inner))))
           (loop-inner))))))

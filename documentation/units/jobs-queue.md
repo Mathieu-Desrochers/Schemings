@@ -92,7 +92,7 @@ Place the following code in sources/main.scm.
 
     (jobs-queue-receive
       "ipc:///tmp/jobs-worker.ipc"
-      (lambda (u8vector length)
+      (lambda (u8vector)
         (debug-print "working...")
         (thread-sleep! 5)
         (debug-print "done")))
