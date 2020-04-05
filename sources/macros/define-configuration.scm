@@ -14,6 +14,9 @@
                   ((eq? setting-type 'integer) `fixnum)
                   ((eq? setting-type 'number) `number)
                   ((eq? setting-type 'string) `string)
+                  ((eq? setting-type 'date) `(struct date))
+                  ((eq? setting-type 'date-time) `(struct date-time))
+                  ((eq? setting-type 'time) `(struct time))
                   ((eq? setting-type 'list)
                     `(list-of ,(setting-type->scheme-type (drop setting-type-info 4))))
                   ((string-contains (symbol->string setting-type) "subconfiguration")
@@ -21,6 +24,9 @@
             (cond ((eq? setting-type 'integer) `(or fixnum false))
                   ((eq? setting-type 'number) `(or number false))
                   ((eq? setting-type 'string) `(or string false))
+                  ((eq? setting-type 'date) `(or (struct date) false))
+                  ((eq? setting-type 'date-time) `(or (struct date-time) false))
+                  ((eq? setting-type 'time) `(or (struct time) false))
                   ((eq? setting-type 'list)
                     `(or (list-of ,(setting-type->scheme-type (drop setting-type-info 4))) false))
                   ((string-contains (symbol->string setting-type) "subconfiguration")
@@ -143,19 +149,23 @@
       ;; parses a value setting from a configuration node
       (define (configuration-node-value-setting configuration-symbol setting)
         (let ((setting-symbol (car setting))
+              (setting-type (cadr setting))
               (setting-default-value
                 (if (any (lambda (symbol) (eq? symbol 'default)) (cdr setting))
                   (last setting)
                   #f)))
-          `(or
-            (configuration-section-get-value
-              configuration-node
-              ,(symbol->string setting-symbol))
-            ,setting-default-value)))
+          `(config-value->setting-value
+            (or
+              (configuration-section-get-value
+                configuration-node
+                ,(symbol->string setting-symbol))
+              ,setting-default-value)
+            ',setting-type)))
 
       ;; parses a value list setting from a configuration node
       (define (configuration-node-value-list-setting configuration-symbol setting)
-        (let ((setting-symbol (car setting)))
+        (let ((setting-symbol (car setting))
+              (setting-type (list-ref setting 5)))
           `(let ((configuration-list-node
                   (configuration-section-get-list
                     configuration-node
@@ -163,9 +173,11 @@
             (if configuration-list-node
               (map
                 (lambda (index)
-                  (configuration-list-get-value
-                    configuration-list-node
-                    index))
+                  (config-value->setting-value
+                    (configuration-list-get-value
+                      configuration-list-node
+                      index)
+                    ',setting-type))
                 (iota (configuration-list-length configuration-list-node)))
               #f))))
 
@@ -212,6 +224,7 @@
           (import srfi-1)
 
           (declare (uses configuration))
+          (declare (uses date-time))
           (declare (uses validation))
 
           ;; encapsulates a configuration

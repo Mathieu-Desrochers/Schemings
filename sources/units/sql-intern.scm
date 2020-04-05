@@ -5,6 +5,7 @@
 
 (declare (unit sql-intern))
 
+(declare (uses date-time))
 (declare (uses exceptions))
 (declare (uses sqlite3))
 
@@ -103,7 +104,7 @@
     (let ((rows (accumulate-rows '())))
       (reverse rows))))
 
-;; downgrades a table value to a database supported format
+;; downgrades a value to a database supported format
 (: table-value->sql-value (* symbol -> *))
 (define (table-value->sql-value value value-type)
   (cond ((eq? value-type 'boolean) (if value 1 0))
@@ -113,7 +114,7 @@
         ((eq? value-type 'time) (time->string* value))
         (else value)))
 
-;; upgrades a table value from a database supported format
+;; upgrades a value from a database supported format
 (: sql-value->table-value (* symbol -> *))
 (define (sql-value->table-value value value-type)
   (cond ((eq? value-type 'boolean) (eq? value 1))

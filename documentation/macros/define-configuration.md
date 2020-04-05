@@ -20,6 +20,9 @@ Supported field types (validation flags):
 - integer (required? min-value max-value)
 - number (required? min-value max-value)
 - string (required? min-length max-length)
+- date (required?)
+- date-time (required?)
+- time (required?)
 - list (required? min-length max-length)
 - subconfiguration (required?)
 
@@ -29,6 +32,9 @@ A default value can be specified for the following types:
 - integer
 - number
 - string
+- date
+- date-time
+- time
 
 record definitions
 ------------------
