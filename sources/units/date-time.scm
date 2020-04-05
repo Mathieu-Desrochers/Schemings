@@ -1,3 +1,5 @@
+(import srfi-1)
+
 (declare (unit date-time))
 
 (declare (uses date-time-intern))
@@ -58,6 +60,19 @@
         (tm-min tm*)
         (tm-sec tm*)))))
 
+;; returns the weekday of a date
+(: date-week-day ((struct date) -> fixnum))
+(define (date-week-day date)
+  (with-tm*
+    (- (date-year date) 1900)
+    (- (date-month date) 1)
+    (date-day date)
+    0
+    0
+    0
+    (lambda (tm*)
+      (tm-wday tm*))))
+
 ;; adds days to a date
 (: date-add ((struct date) fixnum -> (struct date)))
 (define (date-add date days)
@@ -73,6 +88,30 @@
         (+ (tm-year tm*) 1900)
         (+ (tm-mon tm*) 1)
         (tm-mday tm*)))))
+
+;; adds business days to a date
+(: date-add-business-days ((struct date) fixnum (list-of (struct date)) -> (struct date)))
+(define (date-add-business-days date days holiday-dates)
+  (letrec (
+      (date-add-business-days-inner
+        (lambda (date days)
+          (let ((is-business-day
+                  (not
+                    (or
+                      (eq? (date-week-day date) 0)
+                      (eq? (date-week-day date) 6)
+                      (any
+                        (lambda (holiday-date)
+                          (eq? (date-diff date holiday-date) 0))
+                        holiday-dates)))))
+            (if is-business-day
+              (if (eq? days 1)
+                date
+                (date-add-business-days-inner (date-add date 1) (- days 1)))
+              (date-add-business-days-inner (date-add date 1) days))))))
+    (if (eq? days 0)
+      date
+      (date-add-business-days-inner date days))))
 
 ;; adds seconds to a date time
 (: date-time-add ((struct date-time) fixnum -> (struct date-time)))

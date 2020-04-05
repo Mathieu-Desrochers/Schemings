@@ -27,6 +27,7 @@ int tm_sec(struct tm* tm) { return tm->tm_sec; }
 int tm_min(struct tm* tm) { return tm->tm_min; }
 int tm_hour(struct tm* tm) { return tm->tm_hour; }
 int tm_mday(struct tm* tm) { return tm->tm_mday; }
+int tm_wday(struct tm* tm) { return tm->tm_wday; }
 int tm_mon(struct tm* tm) { return tm->tm_mon; }
 int tm_year(struct tm* tm) { return tm->tm_year; }
 
@@ -86,6 +87,7 @@ char* strftime_wrapped(const char* format, const struct tm* tm)
 (define tm-min (foreign-lambda int "tm_min" tm*))
 (define tm-hour (foreign-lambda int "tm_hour" tm*))
 (define tm-mday (foreign-lambda int "tm_mday" tm*))
+(define tm-wday (foreign-lambda int "tm_wday" tm*))
 (define tm-mon (foreign-lambda int "tm_mon" tm*))
 (define tm-year (foreign-lambda int "tm_year" tm*))
 

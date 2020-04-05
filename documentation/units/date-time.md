@@ -37,6 +37,16 @@ time-now
 --------
 Returns the current UTC time.
 
+date-week-day
+-------------
+Returns the weekday of a date.
+
+__date__  
+A date.
+
+__result__  
+The weekday.
+
 date-add
 --------
 Adds days to a date.
@@ -46,6 +56,22 @@ A date.
 
 __days__  
 A number of days.
+
+__result__  
+The new date.
+
+date-add-business-days
+----------------------
+Adds business days to a date.
+
+__date__  
+A date.
+
+__days__  
+A number of days.
+
+__holiday-dates__  
+A list of holiday dates.
 
 __result__  
 The new date.
