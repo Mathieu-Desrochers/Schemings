@@ -3,7 +3,7 @@
 (import (chicken condition))
 (import (chicken format))
 
-(declare (unit jobs-intern))
+(declare (unit jobs-queue-intern))
 
 (declare (uses exceptions))
 

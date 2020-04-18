@@ -6,7 +6,7 @@
 (declare (unit jobs-queue))
 
 (declare (uses exceptions))
-(declare (uses jobs-intern))
+(declare (uses jobs-queue-intern))
 (declare (uses zeromq))
 
 ;; encapsulates a jobs queue connection
