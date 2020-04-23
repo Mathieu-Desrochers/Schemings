@@ -5,7 +5,8 @@ A record with the following fields.
 - from
 - to
 - subject
-- body
+- body-text
+- body-html
 - attachments
 
 email-attachment
@@ -41,6 +42,7 @@ Place the following code in sources/main.scm.
           "bob@hotmail.com"
           "ALERT: Candies in the kitchen"
           "No kidding.\nFirst come first served.\n\nAlice"
+          "<html><body>We have <b>candies</b> in the kitchen.</body></html>"
           (list
             (make-email-attachment
               "application/pdf"
@@ -53,30 +55,43 @@ Run the following commands.
     $ make
     $ ./main
 
-    Date: Mon, 20 May 2019 16:16:53 -0400
+    Date: Wed, 22 Apr 2020 20:30:02 -0400
     From: alice@hotmail.com
     To: bob@hotmail.com
-    Message-ID: <etPan.5ce30b35.53fb867b.1571@laptop>
+    Message-ID: <etPan.5ea0e18a.53fb867b.e224@laptop>
     Subject: ALERT: Candies in the kitchen
     MIME-Version: 1.0
-    Content-Type: multipart/mixed; boundary="KNXiREDvvJDJvJJ2zU9uuPt9"
+    Content-Type: multipart/mixed; boundary="/6KhbH9zeCAQcoMtYZeKqGja"
 
-    --KNXiREDvvJDJvJJ2zU9uuPt9
+    --/6KhbH9zeCAQcoMtYZeKqGja
+    Content-Type: multipart/alternative; boundary="sAHdHfp525SKo0MEISMqsoR5"
+
+    --sAHdHfp525SKo0MEISMqsoR5
     Content-Type: text/plain; charset="utf-8"
     Content-Transfer-Encoding: base64
     Content-Disposition: inline
 
     Tm8ga2lkZGluZy4KRmlyc3QgY29tZSBmaXJzdCBzZXJ2ZWQuCgpBbGljZQ==
 
-    --KNXiREDvvJDJvJJ2zU9uuPt9
+    --sAHdHfp525SKo0MEISMqsoR5
+    Content-Type: text/html; charset="utf-8"
+    Content-Transfer-Encoding: base64
+    Content-Disposition: inline
+
+    PGh0bWw+PGJvZHk+V2UgaGF2ZSA8Yj5jYW5kaWVzPC9iPiBpbiB0aGUga2l0Y2hlbi48L2JvZHk+
+    PC9odG1sPg==
+
+    --sAHdHfp525SKo0MEISMqsoR5--
+
+    --/6KhbH9zeCAQcoMtYZeKqGja
     Content-Type: application/pdf
     Content-Transfer-Encoding: base64
     Content-Disposition: attachment; filename="best-candies-ever.pdf"
 
-    gPYiAAAAAAAAxvL//38AAG/0IgAAAAAAKMby//9/AAAAUCsACAAAAFDG8v//fwAAwMby//9/AAAC
-    AAAAAAAAAMDG8v//fwAAQMby//9/AAAUOSQAAAAAAAIAAAAAAAAkMDkkAA==
+    QGX6//9/AABAY/r//38AAIhk+v//fwAAAGX6//9/AAApAAAAAAAAALAAAAAAAAAAeGf6//9/AAAA
+    Zfr//38AAEBl+v//fwAA0GT6//9/AABLAy4BCAAAAAIAAAAAAAADKwAAAA==
 
-    --KNXiREDvvJDJvJJ2zU9uuPt9--
+    --/6KhbH9zeCAQcoMtYZeKqGja--
 
 powered by
 ----------

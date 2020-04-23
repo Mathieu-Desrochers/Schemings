@@ -16,6 +16,32 @@
     procedure
     mailmime-free))
 
+;; sets the email fields of a mailmime*
+(: mailmime*-set-email-fields ((struct email) pointer -> noreturn))
+(define (mailmime*-set-email-fields email mailmime*)
+  (let ((from* (mailimf-mailbox-list-new-empty)))
+    (unless from*
+      (abort "failed to create mailimf-mailbox-list"))
+    (let ((add-parse-result (mailimf-mailbox-list-add-parse from* (email-from email))))
+      (unless (eq? add-parse-result 0)
+        (abort "failed to add parse mailimf-mailbox-list"))
+      (let ((to* (mailimf-address-list-new-empty)))
+        (unless to*
+          (abort "failed to create mailimf-mailbox-list"))
+        (let ((add-parse-result (mailimf-address-list-add-parse to* (email-to email))))
+          (unless (eq? add-parse-result 0)
+            (abort "failed to add parse mailimf-address-list"))
+          (let ((mailimf-fields*
+                  (mailimf-fields-new-with-data
+                    from*
+                    #f #f
+                    to*
+                    #f #f #f #f
+                    (mailmime-strdup (email-subject email)))))
+            (unless mailimf-fields*
+              (abort "failed to create mailimf-fields"))
+            (mailmime-set-imf-fields mailmime* mailimf-fields*)))))))
+
 ;; makes a mailmime* of type single
 (: make-single-mailmime* (
    string (or string false) (or string false) fixnum (or string false) blob fixnum ->
@@ -71,12 +97,12 @@
 
 ;; adds a mailmime* of type text
 ;; to a parent mailmime*
-(: add-text-mailmime* (pointer string -> noreturn))
-(define (add-text-mailmime* parent-mailmime* text)
+(: add-text-mailmime* (pointer string string -> noreturn))
+(define (add-text-mailmime* parent-mailmime* content-type text)
   (let* ((content (string->blob text))
          (mailmime*
             (make-single-mailmime*
-              "text/plain"
+              content-type
               "charset"
               "utf-8"
               mailmime-disposition-type-inline
@@ -104,14 +130,14 @@
 
 ;; adds a mailmime* of type multiple
 ;; to a parent mailmime*
-(: add-multiple-mailmime* (pointer string -> pointer))
-(define (add-multiple-mailmime* parent-mailmime* boundary)
+(: add-multiple-mailmime* (pointer string string -> pointer))
+(define (add-multiple-mailmime* parent-mailmime* multipart-type boundary)
   (let ((mailmime-fields*
           (mailmime-fields-new-empty)))
     (unless mailmime-fields*
       (abort "failed to create mailmime-fields"))
     (let ((mailmime-content*
-            (mailmime-content-new-with-str "multipart/mixed")))
+            (mailmime-content-new-with-str multipart-type)))
       (unless mailmime-content*
         (abort "failed to create mailmime-content"))
       (let ((mailmime-parameter*
@@ -135,29 +161,3 @@
             (unless (eq? (mailmime-add-part parent-mailmime* mailmime*) 0)
               (abort "failed to add mailmime part"))
             mailmime*))))))
-
-;; sets the email fields of a mailmime*
-(: mailmime*-set-email-fields ((struct email) pointer -> noreturn))
-(define (mailmime*-set-email-fields email mailmime*)
-  (let ((from* (mailimf-mailbox-list-new-empty)))
-    (unless from*
-      (abort "failed to create mailimf-mailbox-list"))
-    (let ((add-parse-result (mailimf-mailbox-list-add-parse from* (email-from email))))
-      (unless (eq? add-parse-result 0)
-        (abort "failed to add parse mailimf-mailbox-list"))
-      (let ((to* (mailimf-address-list-new-empty)))
-        (unless to*
-          (abort "failed to create mailimf-mailbox-list"))
-        (let ((add-parse-result (mailimf-address-list-add-parse to* (email-to email))))
-          (unless (eq? add-parse-result 0)
-            (abort "failed to add parse mailimf-address-list"))
-          (let ((mailimf-fields*
-                  (mailimf-fields-new-with-data
-                    from*
-                    #f #f
-                    to*
-                    #f #f #f #f
-                    (mailmime-strdup (email-subject email)))))
-            (unless mailimf-fields*
-              (abort "failed to create mailimf-fields"))
-            (mailmime-set-imf-fields mailmime* mailimf-fields*)))))))
