@@ -37,6 +37,7 @@
       (curl-easy-escape curl* string 0))))
 
 ;; performs an http client request
+(: http-client-perform ((struct http-client-request) -> (struct http-client-response)))
 (define (http-client-perform http-client-request)
   (with-curl*
     (lambda (curl*)
