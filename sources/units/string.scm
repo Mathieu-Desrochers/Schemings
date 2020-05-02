@@ -15,15 +15,21 @@
 ;; finds and replaces within a string
 (: string-find-replace (string string string -> string))
 (define (string-find-replace string find replace)
-  (letrec ((string-find-replace-inner
-             (lambda (string)
-                (let ((find-index (string-contains string find)))
-                  (if find-index
-                    (string-find-replace-inner
-                      (string-replace
-                        string
-                        replace
-                        find-index (+ find-index (string-length find))
-                        0 (string-length replace)))
-                    string)))))
-    (string-find-replace-inner string)))
+  (letrec* (
+      (string-length-find (string-length find))
+      (string-length-replace (string-length replace))
+      (string-find-replace-inner
+        (lambda (string accumulated-index)
+          (let ((index (string-contains string find accumulated-index)))
+            (if index
+              (string-find-replace-inner
+                (string-replace
+                  string
+                  replace
+                  index
+                  (+ index string-length-find))
+                (+ index string-length-replace))
+              string)))))
+    (if (> string-length-find 0)
+      (string-find-replace-inner string 0)
+      string)))
