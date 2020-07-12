@@ -93,7 +93,7 @@ void cbor_bytestring_handle_wrapped(cbor_item_t* item, char* u8vector)
 (define cbor-new-null (foreign-lambda cbor-item-t* "cbor_new_null"))
 (define cbor-isa-float-ctrl (foreign-lambda bool "cbor_isa_float_ctrl" cbor-item-t*))
 (define cbor-float-ctrl-is-ctrl (foreign-lambda bool "cbor_float_ctrl_is_ctrl" cbor-item-t*))
-(define cbor-ctrl-is-bool (foreign-lambda bool "cbor_ctrl_is_bool" cbor-item-t*))
+(define cbor-is-bool (foreign-lambda bool "cbor_is_bool" cbor-item-t*))
 (define cbor-is-null (foreign-lambda bool "cbor_is_null" cbor-item-t*))
 
 ;; integers

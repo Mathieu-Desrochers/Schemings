@@ -2,7 +2,7 @@
 
 (foreign-declare "
 
-#include <wand/MagickWand.h>
+#include <MagickWand/MagickWand.h>
 
 ")
 
@@ -29,4 +29,4 @@
 (define magick-get-image-width (foreign-lambda int "MagickGetImageWidth" magick-wand*))
 
 ;; scales the current active image to the desired dimensions
-(define magick-resize-image (foreign-lambda bool "MagickResizeImage" magick-wand* int int int float))
+(define magick-resize-image (foreign-lambda bool "MagickResizeImage" magick-wand* int int int))

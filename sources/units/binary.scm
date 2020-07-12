@@ -134,7 +134,7 @@
           (abort
             (format "failed to unpack boolean got ~A instead"
               cbor-type))))
-      (cbor-ctrl-is-bool cbor-item-t*))))
+      (cbor-is-bool cbor-item-t*))))
 
 ;; returns an unpacked integer
 (: binary-unpacker-get-integer ((struct binary-unpacker) -> (or fixnum false)))
