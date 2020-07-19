@@ -5,7 +5,7 @@ Run the following commands.
     $ sudo pkg install chicken5
     $ sudo pkg install fcgi-devkit
     $ sudo pkg install icu
-    $ sudo pkg install ImageMagick6
+    $ sudo pkg install ImageMagick7
     $ sudo pkg install jansson
     $ sudo pkg install libb64
     $ sudo pkg install libcbor
