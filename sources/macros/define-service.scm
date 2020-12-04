@@ -78,8 +78,8 @@
 
       ;; parses the expression
       (let* ((table-select-expression (list-ref exp 1))
-             (table-select-by-symbol (list-ref rows-expression 0))
-             (table-select-by-parameter-symbols (drop rows-expression 1))
+             (table-select-by-symbol (list-ref table-select-expression 0))
+             (table-select-by-parameter-symbols (drop table-select-expression 1))
              (hash-table-expression (list-ref exp 2))
              (hash-table-key-symbol (list-ref hash-table-expression 0)))
 
@@ -109,8 +109,8 @@
 
       ;; parses the expression
       (let* ((table-select-expression (list-ref exp 1))
-             (table-select-by-symbol (list-ref rows-expression 0))
-             (table-select-by-parameter-symbols (drop rows-expression 1))
+             (table-select-by-symbol (list-ref table-select-expression 0))
+             (table-select-by-parameter-symbols (drop table-select-expression 1))
              (hash-table-expression (list-ref exp 2))
              (hash-table-key-symbol (list-ref hash-table-expression 0)))
 
