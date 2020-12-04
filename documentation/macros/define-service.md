@@ -12,66 +12,52 @@ select-one
 Selects one row.
 
     (select-one
-      ([row-symbol]
-        [select-procedure]
+      ([select-procedure]
         [select-parameter-1]
         [select-parameter-2]
-        ...)
+        ...))
 
-      [body])
-
-Invokes a select procedure and defines a symbol for the matching row.  
-Sets it to false if no rows were returned.
+Invokes a select procedure and returns the matching row.  
+Returns false if no row was returned.
 
 select-one-and-validate
 -----------------------
 Selects one row and validates it exists.
 
     (select-one-and-validate
-      ([row-symbol]
-        [select-procedure]
+      ([select-procedure]
         [select-parameter-1]
         [select-parameter-2]
         ...)
-      ([validation-error-symbol])
+      ([validation-error-symbol]))
 
-      [body])
-
-Invokes a select procedure and defines a symbol for the matching row.  
-Raises a validation errors exception if no rows were returned.
+Invokes a select procedure and returns the matching row.  
+Raises a validation errors exception if no row was returned.
 
 select-many
 -----------
 Selects many rows.
 
     (select-many
-      ([rows-symbol]
-        [select-procedure]
+      ([select-procedure]
         [select-parameter-1]
         [select-parameter-2]
-        ...)
+        ...))
 
-      [body])
-
-Invokes a select procedure and defines a symbol for the matching rows.
+Invokes a select procedure and returns the matching rows.
 
 select-many-and-hash-by-unique-key
 ----------------------------------
 Selects many rows and hashes them by a unique key.
 
     (select-many-and-hash-by-unique-key
-      ([rows-symbol]
-        [select-procedure]
+      ([select-procedure]
         [select-parameter-1]
         [select-parameter-2]
         ...)
-      ([rows-ref-symbol]
-        [row-value-get-procedure])
+      ([row-value-get-procedure]))
 
-      [body])
-
-Invokes a select procedure and defines a symbol for the matching rows.  
-Hashes the rows and defines a reference procedure to access them by key.  
+Returns a procedure to access the matching rows by key.  
 This procedure returns a single element or false.
 
 select-many-and-hash-by-shared-key
@@ -79,18 +65,13 @@ select-many-and-hash-by-shared-key
 Selects many rows and hashes them by a shared key.
 
     (select-many-and-hash-by-shared-key
-      ([rows-symbol]
-        [select-procedure]
+      ([select-procedure]
         [select-parameter-1]
         [select-parameter-2]
         ...)
-      ([rows-ref-symbol]
-        [row-value-get-procedure])
+      ([row-value-get-procedure]))
 
-      [body])
-
-Invokes a select procedure and defines a symbol for the matching rows.  
-Hashes the rows and defines a reference procedure to access them by key.  
+Returns a procedure to access the matching rows by key.  
 This procedure returns a list of elements.
 
 validate-duplicates
@@ -402,7 +383,9 @@ Place the following code in sources/main.scm.
               configuration)
 
       ;; validate the request
-      (validate-request update-cookie-request validate-update-cookie-request)
+      (validate-request
+        update-cookie-request
+        validate-update-cookie-request)
 
       ;; validate there are no ingredient-id duplicates
       (validate-duplicates
@@ -412,132 +395,138 @@ Place the following code in sources/main.scm.
         (cookie-ingredients
           ingredient-id-duplicate))
 
-      ;; select and validate the cookie-row
-      (select-one-and-validate
-        (cookie-row
-          cookies-table-select-by-cookie-id
-          (update-cookie-request-cookie-id* update-cookie-request))
-        (unknown-cookie-id)
+      (let (
 
-        ;; select the cookie-ingredient-rows
-        (select-many
+          ;; select and validate the cookie-row
+          (cookie-row
+            (select-one-and-validate
+              (cookies-table-select-by-cookie-id
+                (update-cookie-request-cookie-id*
+                  update-cookie-request))
+              (unknown-cookie-id)))
+
+          ;; select the cookie-ingredient-rows
           (cookie-ingredient-rows
-            cookie-ingredients-table-select-by-cookie-id
-            (update-cookie-request-cookie-id* update-cookie-request))
+            (select-many
+              (cookie-ingredients-table-select-by-cookie-id
+                (update-cookie-request-cookie-id*
+                  update-cookie-request)))))
 
-          ;; validate the referred cookie-ingredient-ids
+        ;; validate the referred cookie-ingredient-ids
+        (validate-references
+          (update-cookie-request-cookie-ingredients*
+            update-cookie-request
+            update-cookie-cookie-ingredient-subrequest-cookie-ingredient-id*)
+          (cookie-ingredient-rows
+            cookie-ingredient-row-cookie-ingredient-id)
+          (cookie-cookie-ingredients
+            cookie-ingredient-id-unknown))
+
+        (let (
+
+            ;; select the ingredient-rows
+            (ingredient-rows
+              (select-many
+                (ingredients-table-select-all))))
+
+          ;; validate the referred ingredient-ids
           (validate-references
+            (update-cookie-request-cookie-ingredients*
+              update-cookie-request
+              update-cookie-cookie-ingredient-subrequest-ingredient-id*)
+            (ingredient-rows
+              ingredient-row-ingredient-id)
+            (cookie-ingredients
+              ingredient-id-unknown)))
+
+          ;; validate the inserted cookie-ingredient-rows
+          (validate-inserted-rows
+            (update-cookie-request-cookie-ingredients*
+              update-cookie-request
+              update-cookie-cookie-ingredient-subrequest-cookie-ingredient-id*)
+            (cookie-ingredients
+              quantity-too-low)
+
+            ;; use plenty of stuff
+            (lambda (update-cookie-cookie-ingredient-subrequest)
+              (>=
+                (update-cookie-cookie-ingredient-subrequest-quantity
+                  update-cookie-cookie-ingredient-subrequest)
+                10)))
+
+          ;; validate the updated cookie-ingredients-rows
+          (validate-updated-rows
             (update-cookie-request-cookie-ingredients*
               update-cookie-request
               update-cookie-cookie-ingredient-subrequest-cookie-ingredient-id*)
             (cookie-ingredient-rows
               cookie-ingredient-row-cookie-ingredient-id)
-            (cookie-cookie-ingredients
-              cookie-ingredient-id-unknown))
+            (cookie-ingredients
+              cannot-reduce-quantity)
 
-          ;; select the ingredient-rows
-          (select-many
-            (ingredient-rows
-              ingredients-table-select-all)
+            ;; keep all the stuff
+            (lambda (update-cookie-cookie-ingredient-subrequest cookie-ingredient-row)
+              (>=
+                (update-cookie-cookie-ingredient-subrequest-quantity
+                  update-cookie-cookie-ingredient-subrequest)
+                (cookie-ingredient-row-quantity
+                  cookie-ingredient-row))))
 
-            ;; validate the referred ingredient-ids
-            (validate-references
-              (update-cookie-request-cookie-ingredients*
-                update-cookie-request
-                update-cookie-cookie-ingredient-subrequest-ingredient-id*)
-              (ingredient-rows
-                ingredient-row-ingredient-id)
-              (cookie-ingredients
-                ingredient-id-unknown))
+          ;; validate the deleted cookie-ingredient-rows
+          (validate-deleted-rows
+            (update-cookie-request-cookie-ingredients*
+              update-cookie-request
+              update-cookie-cookie-ingredient-subrequest-cookie-ingredient-id*)
+            (cookie-ingredient-rows
+              cookie-ingredient-row-cookie-ingredient-id)
+            (cookie-ingredients-cannot-be-removed)
 
-            ;; validate the inserted cookie-ingredient-rows
-            (validate-inserted-rows
-              (update-cookie-request-cookie-ingredients*
-                update-cookie-request
-                update-cookie-cookie-ingredient-subrequest-cookie-ingredient-id*)
-              (cookie-ingredients
-                quantity-too-low)
+            ;; do not remove stuff
+            (lambda (cookie-ingredient-row)
+              #f))
 
-              ;; make sure to use plenty of stuff
-              (lambda (update-cookie-cookie-ingredient-subrequest)
-                (>=
-                  (update-cookie-cookie-ingredient-subrequest-quantity
-                    update-cookie-cookie-ingredient-subrequest)
-                  10)))
+          ;; update the cookie-row
+          (cookies-table-update
+            sql-connection
+            (make-cookie-row
+              (update-cookie-request-cookie-id* update-cookie-request)
+              (update-cookie-request-name* update-cookie-request)))
 
-            ;; validate the updated cookie-ingredients-rows
-            (validate-updated-rows
-              (update-cookie-request-cookie-ingredients*
-                update-cookie-request
-                update-cookie-cookie-ingredient-subrequest-cookie-ingredient-id*)
-              (cookie-ingredient-rows
-                cookie-ingredient-row-cookie-ingredient-id)
-              (cookie-ingredients
-                cannot-reduce-quantity)
+          ;; update the modified cookie-ingredient-rows
+          (update-modified-rows
+            (update-cookie-request-cookie-ingredients*
+              update-cookie-request
+              update-cookie-cookie-ingredient-subrequest-cookie-ingredient-id*
+              update-cookie-cookie-ingredient-subrequest-ingredient-id*
+              update-cookie-cookie-ingredient-subrequest-quantity*)
+            (cookie-ingredient-rows
+              cookie-ingredient-row-cookie-ingredient-id
+              cookie-ingredient-row-ingredient-id
+              cookie-ingredient-row-quantity)
+            (cookie-ingredients-table)
 
-              ;; make sure to keep all the stuff
-              (lambda (update-cookie-cookie-ingredient-subrequest cookie-ingredient-row)
-                (>=
-                  (update-cookie-cookie-ingredient-subrequest-quantity
-                    update-cookie-cookie-ingredient-subrequest)
-                  (cookie-ingredient-row-quantity
-                    cookie-ingredient-row))))
+            ;; makes a new cookie-ingredient-row
+            (lambda (cookie-ingredient-subrequest)
+              (make-cookie-ingredient-row
+                #f
+                (update-cookie-request-cookie-id*
+                  update-cookie-request)
+                (update-cookie-cookie-ingredient-subrequest-ingredient-id*
+                  cookie-ingredient-subrequest)
+                (update-cookie-cookie-ingredient-subrequest-quantity*
+                  cookie-ingredient-subrequest)))
 
-            ;; validate the deleted cookie-ingredient-rows
-            (validate-deleted-rows
-              (update-cookie-request-cookie-ingredients*
-                update-cookie-request
-                update-cookie-cookie-ingredient-subrequest-cookie-ingredient-id*)
-              (cookie-ingredient-rows
-                cookie-ingredient-row-cookie-ingredient-id)
-              (cookie-ingredients-cannot-be-removed)
-
-              ;; make sure not to remove anything
-              (lambda (cookie-ingredient-row)
-                #f))
-
-            ;; update the cookie-row
-            (cookies-table-update
-              sql-connection
-              (make-cookie-row
-                (update-cookie-request-cookie-id* update-cookie-request)
-                (update-cookie-request-name* update-cookie-request)))
-
-            ;; update the modified cookie-ingredient-rows
-            (update-modified-rows
-              (update-cookie-request-cookie-ingredients*
-                update-cookie-request
-                update-cookie-cookie-ingredient-subrequest-cookie-ingredient-id*
-                update-cookie-cookie-ingredient-subrequest-ingredient-id*
-                update-cookie-cookie-ingredient-subrequest-quantity*)
-              (cookie-ingredient-rows
-                cookie-ingredient-row-cookie-ingredient-id
-                cookie-ingredient-row-ingredient-id
-                cookie-ingredient-row-quantity)
-              (cookie-ingredients-table)
-
-              ;; makes a new cookie-ingredient-row
-              (lambda (cookie-ingredient-subrequest)
-                (make-cookie-ingredient-row
-                  #f
-                  (update-cookie-request-cookie-id*
-                    update-cookie-request)
-                  (update-cookie-cookie-ingredient-subrequest-ingredient-id*
-                    cookie-ingredient-subrequest)
-                  (update-cookie-cookie-ingredient-subrequest-quantity*
-                    cookie-ingredient-subrequest)))
-
-              ;; makes an updated cookie-ingredient-row
-              (lambda (cookie-ingredient-row cookie-ingredient-subrequest)
-                (make-cookie-ingredient-row
-                  (cookie-ingredient-row-cookie-ingredient-id
-                    cookie-ingredient-row)
-                  (cookie-ingredient-row-cookie-id
-                    cookie-ingredient-row)
-                  (update-cookie-cookie-ingredient-subrequest-ingredient-id*
-                    cookie-ingredient-subrequest)
-                  (update-cookie-cookie-ingredient-subrequest-quantity*
-                    cookie-ingredient-subrequest)))))))
+            ;; makes an updated cookie-ingredient-row
+            (lambda (cookie-ingredient-row cookie-ingredient-subrequest)
+              (make-cookie-ingredient-row
+                (cookie-ingredient-row-cookie-ingredient-id
+                  cookie-ingredient-row)
+                (cookie-ingredient-row-cookie-id
+                  cookie-ingredient-row)
+                (update-cookie-cookie-ingredient-subrequest-ingredient-id*
+                  cookie-ingredient-subrequest)
+                (update-cookie-cookie-ingredient-subrequest-quantity*
+                  cookie-ingredient-subrequest)))))
 
       ;; make the update-cookie-response
       (make-update-cookie-response))

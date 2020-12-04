@@ -1,3 +1,5 @@
+(import-for-syntax srfi-1)
+
 (define-syntax validate-request
   (er-macro-transformer
     (lambda (exp rename compare)
@@ -16,11 +18,9 @@
     (lambda (exp rename compare)
 
       ;; parses the expression
-      (let* ((row-expression (list-ref exp 1))
-             (row-symbol (list-ref row-expression 0))
-             (table-select-by-symbol (list-ref row-expression 1))
-             (table-select-by-parameter-symbols (drop row-expression 2))
-             (body (drop exp 2)))
+      (let* ((table-select-expression (list-ref exp 1))
+             (table-select-by-symbol (list-ref table-select-expression 0))
+             (table-select-by-parameter-symbols (drop table-select-expression 1)))
 
         ;; select the rows
         `(let ((,(rename 'rows)
@@ -28,29 +28,21 @@
                   sql-connection
                   ,@table-select-by-parameter-symbols)))
 
-          ;; bring the selected row into scope
-          (let ((,row-symbol
-                  (if (not (null? ,(rename 'rows)))
-                    (car ,(rename 'rows))
-                    #f)))
-
-            ;; execute the body
-            ,(if (not (null? body))
-              `(begin ,@body)
-              #f)))))))
+          ;; return the first row
+          (if (not (null? ,(rename 'rows)))
+            (car ,(rename 'rows))
+            #f))))))
 
 (define-syntax select-one-and-validate
   (er-macro-transformer
     (lambda (exp rename compare)
 
       ;; parses the expression
-      (let* ((row-expression (list-ref exp 1))
-             (row-symbol (list-ref row-expression 0))
-             (table-select-by-symbol (list-ref row-expression 1))
-             (table-select-by-parameter-symbols (drop row-expression 2))
+      (let* ((table-select-expression (list-ref exp 1))
+             (table-select-by-symbol (list-ref table-select-expression 0))
+             (table-select-by-parameter-symbols (drop table-select-expression 1))
              (validation-error-expression (list-ref exp 2))
-             (validation-error-symbol (list-ref validation-error-expression 0))
-             (body (drop exp 3)))
+             (validation-error-symbol (list-ref validation-error-expression 0)))
 
         ;; select the rows
         `(let ((,(rename 'rows)
@@ -58,59 +50,41 @@
                   sql-connection
                   ,@table-select-by-parameter-symbols)))
 
-          ;; validate a row was selected
+          ;; validate rows were selected
           (when (null? ,(rename 'rows))
             (raise-validation-errors-exception
               (list (quote ,validation-error-symbol))))
 
-          ;; bring the selected row into scope
-          (let ((,row-symbol (car ,(rename 'rows))))
-
-            ;; execute the body
-            ,(if (not (null? body))
-              `(begin ,@body)
-              #f)))))))
+          ;; return the first row
+          (car ,(rename 'rows)))))))
 
 (define-syntax select-many
   (er-macro-transformer
     (lambda (exp rename compare)
 
       ;; parses the expression
-      (let* ((rows-expression (list-ref exp 1))
-             (rows-symbol (list-ref rows-expression 0))
-             (table-select-by-symbol (list-ref rows-expression 1))
-             (table-select-by-parameter-symbols (drop rows-expression 2))
-             (body (drop exp 2)))
+      (let* ((table-select-expression (list-ref exp 1))
+             (table-select-by-symbol (list-ref table-select-expression 0))
+             (table-select-by-parameter-symbols (drop table-select-expression 1)))
 
-        ;; select the rows and
-        ;; bring them into scope
-        `(let ((,rows-symbol
-                (,table-select-by-symbol
-                  sql-connection
-                  ,@table-select-by-parameter-symbols)))
-
-          ;; execute the body
-          ,(if (not (null? body))
-            `(begin ,@body)
-            #f))))))
+        ;; select the rows
+        `(,table-select-by-symbol
+          sql-connection
+          ,@table-select-by-parameter-symbols)))))
 
 (define-syntax select-many-and-hash-by-unique-key
   (er-macro-transformer
     (lambda (exp rename compare)
 
       ;; parses the expression
-      (let* ((rows-expression (list-ref exp 1))
-             (rows-symbol (list-ref rows-expression 0))
-             (table-select-by-symbol (list-ref rows-expression 1))
-             (table-select-by-parameter-symbols (drop rows-expression 2))
+      (let* ((table-select-expression (list-ref exp 1))
+             (table-select-by-symbol (list-ref rows-expression 0))
+             (table-select-by-parameter-symbols (drop rows-expression 1))
              (hash-table-expression (list-ref exp 2))
-             (hash-table-ref-symbol (list-ref hash-table-expression 0))
-             (hash-table-key-symbol (list-ref hash-table-expression 1))
-             (body (drop exp 3)))
+             (hash-table-key-symbol (list-ref hash-table-expression 0)))
 
-        ;; select the rows and
-        ;; bring them into scope
-        `(let ((,rows-symbol
+        ;; select the rows
+        `(let ((,(rename 'rows)
                 (,table-select-by-symbol
                   sql-connection
                   ,@table-select-by-parameter-symbols)))
@@ -118,22 +92,15 @@
           ;; make the hash table
           (let ((,(rename 'hash-table)
                  (hash-by-unique-key
-                   ,rows-symbol
+                   ,(rename 'rows)
                    ,hash-table-key-symbol
                    identity)))
 
-            ;; define the ref procedure and
-            ;; bring it into scope
-            (let ((,hash-table-ref-symbol
-                    (lambda (key)
-                      (hash-table-ref/default
-                        ,(rename 'hash-table)
-                        key
-                        #f))))
-
-              ;; execute the body
-              ,(if (not (null? body))
-                `(begin ,@body)
+            ;; return the ref procedure
+            (lambda (key)
+              (hash-table-ref/default
+                ,(rename 'hash-table)
+                key
                 #f))))))))
 
 (define-syntax select-many-and-hash-by-shared-key
@@ -141,18 +108,14 @@
     (lambda (exp rename compare)
 
       ;; parses the expression
-      (let* ((rows-expression (list-ref exp 1))
-             (rows-symbol (list-ref rows-expression 0))
-             (table-select-by-symbol (list-ref rows-expression 1))
-             (table-select-by-parameter-symbols (drop rows-expression 2))
+      (let* ((table-select-expression (list-ref exp 1))
+             (table-select-by-symbol (list-ref rows-expression 0))
+             (table-select-by-parameter-symbols (drop rows-expression 1))
              (hash-table-expression (list-ref exp 2))
-             (hash-table-ref-symbol (list-ref hash-table-expression 0))
-             (hash-table-key-symbol (list-ref hash-table-expression 1))
-             (body (drop exp 3)))
+             (hash-table-key-symbol (list-ref hash-table-expression 0)))
 
-        ;; select the rows and
-        ;; bring them into scope
-        `(let ((,rows-symbol
+        ;; select the rows
+        `(let ((,(rename 'rows)
                 (,table-select-by-symbol
                   sql-connection
                   ,@table-select-by-parameter-symbols)))
@@ -160,23 +123,16 @@
           ;; make the hash table
           (let ((,(rename 'hash-table)
                  (hash-by-shared-key
-                   ,rows-symbol
+                   ,(rename 'rows)
                    ,hash-table-key-symbol
                    identity)))
 
-            ;; define the ref procedure and
-            ;; bring it into scope
-            (let ((,hash-table-ref-symbol
-                    (lambda (key)
-                      (hash-table-ref/default
-                        ,(rename 'hash-table)
-                        key
-                        (list)))))
-
-              ;; execute the body
-              ,(if (not (null? body))
-                `(begin ,@body)
-                #f))))))))
+            ;; return the ref procedure
+            (lambda (key)
+              (hash-table-ref/default
+                ,(rename 'hash-table)
+                key
+                (list)))))))))
 
 (define-syntax validate-duplicates
   (er-macro-transformer
