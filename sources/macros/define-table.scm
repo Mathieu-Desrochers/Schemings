@@ -98,21 +98,11 @@
           (declare (uses sql))
 
           ;; encapsulates a row
-          (define-record ,row-symbol ,@(map column-symbol columns))
-
-          ;; declare the row types
-          (: ,(symbol-append 'make- row-symbol) (
-            ,@(map column-scheme-type columns) -> (struct ,row-symbol)))
-          ,@(map
-            (lambda (column)
-              `(: ,(symbol-append row-symbol '- (column-symbol column)) (
-                (struct ,row-symbol) -> ,(column-scheme-type column))))
-            columns)
-          ,@(map
-            (lambda (column)
-              `(: ,(symbol-append row-symbol '- (column-symbol column) '-set!) (
-                (struct ,row-symbol) ,(column-scheme-type column) -> noreturn)))
-            columns)
+          (define-typed-record ,row-symbol
+            ,@(map
+                (lambda (column)
+                  `(,(column-symbol column) ,(column-scheme-type column)))
+                columns))
 
           ;; inserts a row
           (: ,(symbol-append table-symbol '-insert) (
