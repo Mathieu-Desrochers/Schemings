@@ -2,11 +2,10 @@ define-typed-record
 -------------------
 Defines a typed record.
 
-    (define-typed-record pasta-recipe
+    (define-typed-record doughnut
       (name string)
       (calories fixnum)
-      (ingredients (list-of string))
-      (tasty boolean))
+      (ingredients (list-of string)))
 
 Supported field types:  
 See http://wiki.call-cc.org/man/4/Types
@@ -15,23 +14,29 @@ record definitions
 ------------------
 Expands to this record definition.
 
-    (: make-pasta-recipe string fixnum (list-of string) boolean -> (struct pasta-recipe))
+    (: make-doughnut string fixnum (list-of string) -> (struct doughnut))
 
-    (: pasta-recipe-name ((struct pasta-recipe) -> string))
-    (: pasta-recipe-calories ((struct pasta-recipe) -> fixnum))
-    (: pasta-recipe-ingredients ((struct pasta-recipe) -> (list-of string)))
-    (: pasta-recipe-tasty ((struct pasta-recipe) -> boolean))
+    (: doughnut-name ((struct doughnut) -> string))
+    (: doughnut-calories ((struct doughnut) -> fixnum))
+    (: doughnut-ingredients ((struct doughnut) -> (list-of string)))
 
-    (: pasta-recipe-name-set! ((struct pasta-recipe) string -> noreturn))
-    (: pasta-recipe-calories-set! ((struct pasta-recipe) fixnum -> noreturn))
-    (: pasta-recipe-ingredients-set! ((struct pasta-recipe) (list-of string) -> noreturn))
-    (: pasta-recipe-tasty-set! ((struct pasta-recipe) boolean -> noreturn))
+    (: doughnut-name-set! ((struct doughnut) string -> noreturn))
+    (: doughnut-calories-set! ((struct doughnut) fixnum -> noreturn))
+    (: doughnut-ingredients-set! ((struct doughnut) (list-of string) -> noreturn))
 
-    (define-record pasta-recipe
+    (define-record doughnut
       name
       calories
-      ingredients
-      tasty)
+      ingredients)
+
+make-record-copy
+----------------
+Makes a modified copy of a record.
+
+    (make-record-copy
+      (doughnut doughnut)
+      (name "Double Double Chocolate")
+      (calories 2000))
 
 try it
 ------
@@ -40,13 +45,23 @@ Place the following code in sources/main.scm.
     ;; as above
     (define-typed-record ...)
 
-    (make-pasta-recipe "Eazy Noodles" 300 (list "pasta" 2 "milk") #t)
+    (let ((nice-doughnut (make-doughnut "Double Chocolate" 1000 (list "chocolate" "chocolate"))))
+      (display (doughnut-name nice-doughnut))
+      (newline)
+
+      (let ((dream-doughnut
+              (make-record-copy
+                (doughnut nice-doughnut)
+                (name "Double Double Chocolate")
+                (calories 2000))))
+
+        (display (doughnut-name dream-doughnut))
+        (newline)))
 
 Run the following commands.
 
     $ make
+    $ ./main
 
-    Warning: at toplevel:
-      (sources/main.scm:7) in procedure call to `make-pasta-recipe',
-      expected argument #3 of type `(list-of string)' but was given an
-      argument of type `(list string fixnum string)'
+    Double Chocolate
+    Double Double Chocolate
