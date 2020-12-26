@@ -1,3 +1,5 @@
+(import (chicken time))
+
 (declare (unit monitoring))
 
 (declare (uses exceptions))
@@ -31,3 +33,11 @@
 (: monitoring-timing ((struct monitor) string fixnum -> noreturn))
 (define (monitoring-timing monitor operation-name duration)
   (statsd-timing (monitor-statsd-link* monitor) operation-name duration))
+
+;; invokes a procedure and reports its timing
+(: with-monitoring-timing (forall (r) ((struct monitor) string (-> r) -> r)))
+(define (with-monitoring-timing monitor procedure-name procedure)
+  (let ((start (current-milliseconds)))
+    (procedure)
+    (monitoring-timing monitor procedure-name
+      (- (current-milliseconds) start))))
