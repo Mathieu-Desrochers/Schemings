@@ -95,6 +95,7 @@
 
           (import srfi-1)
 
+          (declare (uses monitoring))
           (declare (uses sql))
 
           ;; encapsulates a row
