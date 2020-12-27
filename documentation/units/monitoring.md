@@ -1,6 +1,9 @@
-with-monitoring
----------------
-Invokes a procedure with monitoring.
+monitoring-initialize
+---------------------
+Initializes the monitoring.
+
+Simply point to a statsd server and automatically  
+gain timings on all the services and table operations.
 
 __ip-address__  
 A statsd server ip address.
@@ -8,15 +11,9 @@ A statsd server ip address.
 __port-number__  
 A statsd server port number.
 
-__procedure__  
-A procedure invoked with a monitor.
-
 monitoring-signal
 -----------------
 Signals an event.
-
-__monitor__  
-A monitor.
 
 __event-name__  
 An event name.
@@ -24,9 +21,6 @@ An event name.
 monitoring-set-value
 --------------------
 Sets a monitored value.
-
-__monitor__  
-A monitor.
 
 __name__  
 A value name.
@@ -38,9 +32,6 @@ monitoring-timing
 -----------------
 Reports a timed operation.
 
-__monitor__  
-A monitor.
-
 __operation-name__  
 An operation name.
 
@@ -50,9 +41,6 @@ A duration.
 with-monitoring-timing
 ----------------------
 Invokes a procedure and reports its timing.
-
-__monitor__  
-A monitor.
 
 __procedure-name__  
 An procedure name.
@@ -66,16 +54,15 @@ Place the following code in sources/main.scm.
 
     (declare (uses monitoring))
 
-    (with-monitoring "127.0.0.1" 8125
-      (lambda (monitor)
+    (monitoring-initialize "127.0.0.1" 8125)
 
-        (monitoring-signal monitor
-          "main-started")
+    (monitoring-signal
+      "main-started")
 
-        (with-monitoring-timing monitor
-          "main-procedure"
-          (lambda ()
-            (sleep 2)))))
+    (with-monitoring-timing
+      "main-procedure"
+      (lambda ()
+        (sleep 2)))
 
 Run the following commands.
 

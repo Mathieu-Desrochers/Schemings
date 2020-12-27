@@ -108,19 +108,22 @@
           (: ,(symbol-append table-symbol '-insert) (
             (struct sql-connection) (struct ,row-symbol) -> fixnum))
           (define (,(symbol-append table-symbol '-insert) sql-connection ,row-symbol)
-            (sql-execute
-              sql-connection
-              ,(string-append
-                "INSERT INTO \"" table-name "\" (" (join-columns-name value-columns) ") "
-                "VALUES (" (join-columns-variable value-columns) ");")
-              (list
-                ,@(map
-                  (lambda (column)
-                    `(table-value->sql-value
-                      (,(symbol-append row-symbol '- (column-symbol column)) ,row-symbol)
-                      ',(column-type column)))
-                  value-columns)))
-            (sql-last-generated-id sql-connection))
+            (with-monitoring-timing
+              ,(string-append (symbol->string table-symbol) "-insert,tables")
+              (lambda ()
+                (sql-execute
+                  sql-connection
+                  ,(string-append
+                    "INSERT INTO \"" table-name "\" (" (join-columns-name value-columns) ") "
+                    "VALUES (" (join-columns-variable value-columns) ");")
+                  (list
+                    ,@(map
+                      (lambda (column)
+                        `(table-value->sql-value
+                          (,(symbol-append row-symbol '- (column-symbol column)) ,row-symbol)
+                          ',(column-type column)))
+                      value-columns)))
+                (sql-last-generated-id sql-connection))))
 
           ;; selects a row by id
           (: ,(symbol-append table-symbol '-select-by- (column-symbol id-column)) (
@@ -128,72 +131,86 @@
             (list-of (struct ,row-symbol))))
           (define (,(symbol-append table-symbol '-select-by- (column-symbol id-column))
                     sql-connection ,(column-symbol id-column))
-            (map
-              (lambda (row)
-                (apply
-                  ,(symbol-append 'make- row-symbol)
-                  (map
-                    (lambda (zipped-value)
-                      (sql-value->table-value (car zipped-value) (cadr zipped-value)))
-                    (zip row (list ,@(map (lambda (column) `',(column-type column)) columns))))))
-              (sql-read
-                sql-connection
-                ,(string-append
-                  "SELECT * "
-                  "FROM \"" table-name "\" "
-                  "WHERE \"" (column-name id-column) "\" = ?1;")
-                (list
-                  ,(column-symbol id-column)))))
+            (with-monitoring-timing
+              ,(string-append
+                 (symbol->string table-symbol) "-select-by-"
+                 (symbol->string (column-symbol id-column)) ",tables")
+              (lambda ()
+                (map
+                  (lambda (row)
+                    (apply
+                      ,(symbol-append 'make- row-symbol)
+                      (map
+                        (lambda (zipped-value)
+                          (sql-value->table-value (car zipped-value) (cadr zipped-value)))
+                        (zip row (list ,@(map (lambda (column) `',(column-type column)) columns))))))
+                  (sql-read
+                    sql-connection
+                    ,(string-append
+                      "SELECT * "
+                      "FROM \"" table-name "\" "
+                      "WHERE \"" (column-name id-column) "\" = ?1;")
+                    (list
+                      ,(column-symbol id-column)))))))
 
           ;; selects all the rows
           (: ,(symbol-append table-symbol '-select-all) (
             (struct sql-connection) -> (list-of (struct ,row-symbol))))
           (define (,(symbol-append table-symbol '-select-all) sql-connection)
-            (map
-              (lambda (row)
-                (apply
-                  ,(symbol-append 'make- row-symbol)
-                  (map
-                    (lambda (zipped-value)
-                      (sql-value->table-value (car zipped-value) (cadr zipped-value)))
-                    (zip row (list ,@(map (lambda (column) `',(column-type column)) columns))))))
-              (sql-read
-                sql-connection
-                ,(string-append
-                  "SELECT * "
-                  "FROM \"" table-name "\";")
-                (list))))
+            (with-monitoring-timing
+              ,(string-append (symbol->string table-symbol) "-select-all,tables")
+              (lambda ()
+                (map
+                  (lambda (row)
+                    (apply
+                      ,(symbol-append 'make- row-symbol)
+                      (map
+                        (lambda (zipped-value)
+                          (sql-value->table-value (car zipped-value) (cadr zipped-value)))
+                        (zip row (list ,@(map (lambda (column) `',(column-type column)) columns))))))
+                  (sql-read
+                    sql-connection
+                    ,(string-append
+                      "SELECT * "
+                      "FROM \"" table-name "\";")
+                    (list))))))
 
           ;; updates a row
           (: ,(symbol-append table-symbol '-update) (
             (struct sql-connection) (struct ,row-symbol) -> noreturn))
           (define (,(symbol-append table-symbol '-update) sql-connection ,row-symbol)
-            (sql-execute
-              sql-connection
-              ,(string-append
-                "UPDATE \"" table-name "\" "
-                "SET " (join-columns-assignation value-columns 2)
-                "WHERE \"" (column-name id-column) "\" = ?1;")
-              (list
-                ,@(map
-                  (lambda (column)
-                    `(table-value->sql-value
-                      (,(symbol-append row-symbol '- (column-symbol column)) ,row-symbol)
-                      ',(column-type column)))
-                  columns))))
+            (with-monitoring-timing
+              ,(string-append (symbol->string table-symbol) "-update,tables")
+              (lambda ()
+                (sql-execute
+                  sql-connection
+                  ,(string-append
+                    "UPDATE \"" table-name "\" "
+                    "SET " (join-columns-assignation value-columns 2)
+                    "WHERE \"" (column-name id-column) "\" = ?1;")
+                  (list
+                    ,@(map
+                      (lambda (column)
+                        `(table-value->sql-value
+                          (,(symbol-append row-symbol '- (column-symbol column)) ,row-symbol)
+                          ',(column-type column)))
+                      columns))))))
 
           ;; deletes a row
           (: ,(symbol-append table-symbol '-delete) (
             (struct sql-connection) (struct ,row-symbol) -> noreturn))
           (define (,(symbol-append table-symbol '-delete) sql-connection ,row-symbol)
-            (sql-execute
-              sql-connection
-              ,(string-append
-                "DELETE "
-                "FROM \"" table-name "\" "
-                "WHERE \"" (column-name id-column) "\" = ?1;")
-              (list
-                (,(symbol-append row-symbol '- (column-symbol id-column)) ,row-symbol))))
+            (with-monitoring-timing
+              ,(string-append (symbol->string table-symbol) "-delete,tables")
+              (lambda ()
+                (sql-execute
+                  sql-connection
+                  ,(string-append
+                    "DELETE "
+                    "FROM \"" table-name "\" "
+                    "WHERE \"" (column-name id-column) "\" = ?1;")
+                  (list
+                    (,(symbol-append row-symbol '- (column-symbol id-column)) ,row-symbol))))))
 
           ;; select procedures
           ,@(concatenate
@@ -209,24 +226,27 @@
                       (list-of (struct ,row-symbol))))
                     `(define (,select-procedure-symbol sql-connection
                                ,@(map parameter-symbol select-procedure-parameters))
-                      (map
-                        (lambda (row)
-                          (apply
-                            ,(symbol-append 'make- row-symbol)
-                            (map
-                              (lambda (zipped-value)
-                                (sql-value->table-value (car zipped-value) (cadr zipped-value)))
-                              (zip row (list ,@(map (lambda (column) `',(column-type column)) columns))))))
-                        (sql-read
-                          sql-connection
-                          ,select-procedure-sql
-                          (list
-                            ,@(map
-                              (lambda (parameter)
-                                `(table-value->sql-value
-                                  ,(parameter-symbol parameter)
-                                  ',(parameter-type parameter)))
-                              select-procedure-parameters))))))))
+                      (with-monitoring-timing
+                        ,(string-append (symbol->string select-procedure-symbol) ",tables")
+                        (lambda ()
+                          (map
+                            (lambda (row)
+                              (apply
+                                ,(symbol-append 'make- row-symbol)
+                                (map
+                                  (lambda (zipped-value)
+                                    (sql-value->table-value (car zipped-value) (cadr zipped-value)))
+                                  (zip row (list ,@(map (lambda (column) `',(column-type column)) columns))))))
+                            (sql-read
+                              sql-connection
+                              ,select-procedure-sql
+                              (list
+                                ,@(map
+                                  (lambda (parameter)
+                                    `(table-value->sql-value
+                                      ,(parameter-symbol parameter)
+                                      ',(parameter-type parameter)))
+                                  select-procedure-parameters))))))))))
               select-procedures))
 
           ;; execute procedures
@@ -243,14 +263,17 @@
                       noreturn))
                     `(define (,execute-procedure-symbol sql-connection
                                ,@(map parameter-symbol execute-procedure-parameters))
-                      (sql-execute
-                        sql-connection
-                        ,execute-procedure-sql
-                        (list
-                          ,@(map
-                            (lambda (parameter)
-                              `(table-value->sql-value
-                                ,(parameter-symbol parameter)
-                                ',(parameter-type parameter)))
-                            execute-procedure-parameters)))))))
+                      (with-monitoring-timing
+                        ,(string-append (symbol->string execute-procedure-symbol) ",tables")
+                        (lambda ()
+                          (sql-execute
+                            sql-connection
+                            ,execute-procedure-sql
+                            (list
+                              ,@(map
+                                (lambda (parameter)
+                                  `(table-value->sql-value
+                                    ,(parameter-symbol parameter)
+                                    ',(parameter-type parameter)))
+                                execute-procedure-parameters)))))))))
               execute-procedures)))))))
