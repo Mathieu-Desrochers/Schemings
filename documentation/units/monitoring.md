@@ -1,5 +1,5 @@
-monitoring-initialize
----------------------
+monitoring-init
+---------------
 Initializes the monitoring.
 
 Simply point to a statsd server and automatically  
@@ -48,13 +48,17 @@ An procedure name.
 __procedure__  
 A procedure.
 
+monitoring-release
+------------------
+Releases the monitoring.
+
 try it
 ------
 Place the following code in sources/main.scm.
 
     (declare (uses monitoring))
 
-    (monitoring-initialize "127.0.0.1" 8125)
+    (monitoring-init "127.0.0.1" 8125)
 
     (monitoring-signal
       "main-started")
@@ -63,6 +67,8 @@ Place the following code in sources/main.scm.
       "main-procedure"
       (lambda ()
         (sleep 2)))
+
+    (monitoring-release)
 
 Run the following commands.
 

@@ -7,8 +7,8 @@
 (define monitoring-global-statsd-link* #f)
 
 ;; initializes the monitoring
-(: monitoring-initialize (string fixnum -> noreturn))
-(define (monitoring-initialize ip-address port-number)
+(: monitoring-init (string fixnum -> noreturn))
+(define (monitoring-init ip-address port-number)
   (set! monitoring-global-statsd-link* (statsd-init ip-address port-number)))
 
 ;; signals an event
@@ -33,8 +33,16 @@
 (: with-monitoring-timing (forall (r) (string (-> r) -> r)))
 (define (with-monitoring-timing procedure-name procedure)
   (if monitoring-global-statsd-link*
-    (let ((start (current-milliseconds)))
-      (procedure)
-      (monitoring-timing
-        procedure-name
-        (- (current-milliseconds) start)))))
+    (let* ((start (current-milliseconds))
+           (procedure-result (procedure))
+           (duration (- (current-milliseconds) start)))
+      (monitoring-timing procedure-name duration)
+      procedure-result)
+    (procedure)))
+
+;; releases the monitoring
+(: monitoring-release (-> noreturn))
+(define (monitoring-release)
+  (if monitoring-global-statsd-link*
+    (statsd-finalize monitoring-global-statsd-link*))
+  (set! monitoring-global-statsd-link* #f))
