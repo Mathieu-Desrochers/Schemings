@@ -1,5 +1,5 @@
-http-server-binding
--------------------
+http-binding
+------------
 A record with the following fields.
 
 - method
@@ -29,6 +29,7 @@ Must accept the following parameters.
 
 - request
 - sql-connection
+- jobs-queue-connection
 - authentication
 - configuration
 

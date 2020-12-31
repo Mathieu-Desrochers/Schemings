@@ -9,6 +9,7 @@
 (declare (uses curl))
 (declare (uses fastcgi))
 (declare (uses http-server-intern))
+(declare (uses jobs-queue))
 (declare (uses sql))
 
 ;; encapsulates an http binding
@@ -29,6 +30,7 @@
   (or (struct jobs-queue-connection) false)
   (or ((struct fastcgi-request) -> *) false) * ->
   noreturn))
+
 (define (http-server-start
           http-bindings
           sql-connection

@@ -110,7 +110,9 @@
             (struct sql-connection) (struct ,row-symbol) -> fixnum))
           (define (,(symbol-append table-symbol '-insert) sql-connection ,row-symbol)
             (with-monitoring-timing
-              ,(string-append (symbol->string table-symbol) "-insert,tables")
+              ,(string-append
+                 "tables,name=" (symbol->string table-symbol) ","
+                 "procedure=" (symbol->string table-symbol) "-insert")
               (lambda ()
                 (sql-execute
                   sql-connection
@@ -134,8 +136,9 @@
                     sql-connection ,(column-symbol id-column))
             (with-monitoring-timing
               ,(string-append
-                 (symbol->string table-symbol) "-select-by-"
-                 (symbol->string (column-symbol id-column)) ",tables")
+                 "tables,name=" (symbol->string table-symbol) ","
+                 "procedure=" (symbol->string table-symbol) "-select-by-"
+                 (symbol->string (column-symbol id-column)))
               (lambda ()
                 (map
                   (lambda (row)
@@ -159,7 +162,9 @@
             (struct sql-connection) -> (list-of (struct ,row-symbol))))
           (define (,(symbol-append table-symbol '-select-all) sql-connection)
             (with-monitoring-timing
-              ,(string-append (symbol->string table-symbol) "-select-all,tables")
+              ,(string-append
+                 "tables,name=" (symbol->string table-symbol) ","
+                 "procedure=" (symbol->string table-symbol) "-select-all")
               (lambda ()
                 (map
                   (lambda (row)
@@ -181,7 +186,9 @@
             (struct sql-connection) (struct ,row-symbol) -> noreturn))
           (define (,(symbol-append table-symbol '-update) sql-connection ,row-symbol)
             (with-monitoring-timing
-              ,(string-append (symbol->string table-symbol) "-update,tables")
+              ,(string-append
+                 "tables,name=" (symbol->string table-symbol) ","
+                 "procedure=" (symbol->string table-symbol) "-update")
               (lambda ()
                 (sql-execute
                   sql-connection
@@ -202,7 +209,9 @@
             (struct sql-connection) (struct ,row-symbol) -> noreturn))
           (define (,(symbol-append table-symbol '-delete) sql-connection ,row-symbol)
             (with-monitoring-timing
-              ,(string-append (symbol->string table-symbol) "-delete,tables")
+              ,(string-append
+                 "tables,name=" (symbol->string table-symbol) ","
+                 "procedure=" (symbol->string table-symbol) "-delete")
               (lambda ()
                 (sql-execute
                   sql-connection
@@ -228,7 +237,9 @@
                     `(define (,select-procedure-symbol sql-connection
                                ,@(map parameter-symbol select-procedure-parameters))
                       (with-monitoring-timing
-                        ,(string-append (symbol->string select-procedure-symbol) ",tables")
+                        ,(string-append
+                           "tables,name=" (symbol->string table-symbol) ","
+                           "procedure=" (symbol->string select-procedure-symbol))
                         (lambda ()
                           (map
                             (lambda (row)
@@ -265,7 +276,9 @@
                     `(define (,execute-procedure-symbol sql-connection
                                ,@(map parameter-symbol execute-procedure-parameters))
                       (with-monitoring-timing
-                        ,(string-append (symbol->string execute-procedure-symbol) ",tables")
+                        ,(string-append
+                           "tables,name=" (symbol->string table-symbol) ","
+                           "procedure=" (symbol->string execute-procedure-symbol))
                         (lambda ()
                           (sql-execute
                             sql-connection

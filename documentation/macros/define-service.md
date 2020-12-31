@@ -1,3 +1,13 @@
+define-service
+--------------
+A service can be any procedure.
+
+Using this macro provides free features,  
+such as monitoring of execution time.
+
+    (define-service ([service-name] ...)
+      ...)
+
 validate-request
 ----------------
 Validates a request.
@@ -376,11 +386,12 @@ Place the following code in sources/main.scm.
       (struct sql-connection) * * ->
       (struct update-cookie-response)))
 
-    (define (update-cookie-service
-              update-cookie-request
-              sql-connection
-              authentication-token
-              configuration)
+    (define-service
+      (update-cookie-service
+        update-cookie-request
+        sql-connection
+        authentication-token
+        configuration)
 
       ;; validate the request
       (validate-request
@@ -437,7 +448,7 @@ Place the following code in sources/main.scm.
             (ingredient-rows
               ingredient-row-ingredient-id)
             (cookie-ingredients
-              ingredient-id-unknown)))
+              ingredient-id-unknown))
 
           ;; validate the inserted cookie-ingredient-rows
           (validate-inserted-rows
@@ -487,15 +498,14 @@ Place the following code in sources/main.scm.
 
             ;; makes an updated cookie-ingredient-row
             (lambda (cookie-ingredient-row cookie-ingredient-subrequest)
-              (make-cookie-ingredient-row
-                (cookie-ingredient-row-cookie-ingredient-id
-                  cookie-ingredient-row)
-                (cookie-ingredient-row-cookie-id
-                  cookie-ingredient-row)
-                (update-cookie-cookie-ingredient-subrequest-ingredient-id*
-                  cookie-ingredient-subrequest)
-                (update-cookie-cookie-ingredient-subrequest-quantity*
-                  cookie-ingredient-subrequest)))))
+              (make-record-copy
+                (cookie-ingredient-row cookie-ingredient-row)
+                (ingredient-id
+                  (update-cookie-cookie-ingredient-subrequest-ingredient-id*
+                    cookie-ingredient-subrequest))
+                (quantity
+                  (update-cookie-cookie-ingredient-subrequest-quantity*
+                    cookie-ingredient-subrequest)))))))
 
       ;; make the update-cookie-response
       (make-update-cookie-response))
