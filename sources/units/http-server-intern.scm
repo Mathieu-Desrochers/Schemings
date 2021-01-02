@@ -29,31 +29,29 @@
           (regex-free http-binding-regex))
         http-binding-regexes))))
 
-;; searches for a http binding matching a fastcgi request
+;; searches for a http binding matching a request
 (: find-http-binding-match (
-  (struct fastcgi-request) (list-of (struct http-binding)) (list-of (struct regex)) ->
+  (list-of (struct http-binding)) (list-of (struct regex)) string string ->
   (or (pair (struct http-binding) (list-of string)) false)))
-(define (find-http-binding-match fastcgi-request http-bindings http-binding-regexes)
-  (let ((fastcgi-request-method (fastcgi-request-method fastcgi-request))
-        (fastcgi-request-uri (fastcgi-request-uri fastcgi-request)))
-    (letrec* ((find-http-binding-match-iter
-                (lambda (zipped)
-                  (if (not (null? zipped))
-                    (let* ((http-binding (caar zipped))
-                           (http-binding-method (http-binding-method http-binding))
-                           (http-binding-regex (cadar zipped)))
-                      (if (equal? http-binding-method fastcgi-request-method)
-                        (let ((regex-captures
-                                (regex-execute-compiled
-                                  http-binding-regex
-                                  fastcgi-request-uri)))
-                          (if (not (null? regex-captures))
-                            (cons http-binding regex-captures)
-                            (find-http-binding-match-iter (cdr zipped))))
-                        (find-http-binding-match-iter (cdr zipped))))
-                    #f))))
-      (find-http-binding-match-iter
-        (zip http-bindings http-binding-regexes)))))
+(define (find-http-binding-match http-bindings http-binding-regexes method uri)
+  (letrec* ((find-http-binding-match-iter
+              (lambda (zipped)
+                (if (not (null? zipped))
+                  (let* ((http-binding (caar zipped))
+                         (http-binding-method (http-binding-method http-binding))
+                         (http-binding-regex (cadar zipped)))
+                    (if (equal? http-binding-method method)
+                      (let ((regex-captures
+                              (regex-execute-compiled
+                                http-binding-regex
+                                uri)))
+                        (if (not (null? regex-captures))
+                          (cons http-binding regex-captures)
+                          (find-http-binding-match-iter (cdr zipped))))
+                      (find-http-binding-match-iter (cdr zipped))))
+                  #f))))
+    (find-http-binding-match-iter
+      (zip http-bindings http-binding-regexes))))
 
 ;; invokes a procedure with validation errors exception handling
 (: http-with-validation-errors-exception-handling

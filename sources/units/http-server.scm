@@ -23,6 +23,15 @@
   (format-response-procedure (* -> (or string blob false)))
   (requires-authentication boolean))
 
+;; encapsulates a served http request
+(define-typed-record http-server-request
+  (method string)
+  (uri string)
+  (body (or string blob false)))
+
+;; keeps track of the currently served http request
+(define http-server-request-current #f)
+
 ;; starts serving http requests
 (: http-server-start (
   (list-of (struct http-binding))
@@ -47,11 +56,14 @@
         (lambda (fastcgi-request)
 
           ;; match the request against a http binding
-          (let ((http-binding-match
-                  (find-http-binding-match
-                    fastcgi-request
-                    http-bindings
-                    http-binding-regexes)))
+          (let* ((fastcgi-request-method (fastcgi-request-method fastcgi-request))
+                 (fastcgi-request-uri (fastcgi-request-uri fastcgi-request))
+                 (http-binding-match
+                    (find-http-binding-match
+                      http-bindings
+                      http-binding-regexes
+                      fastcgi-request-method
+                      fastcgi-request-uri)))
 
             ;; parse the http binding
             (if http-binding-match
@@ -66,8 +78,7 @@
 
                 ;; check the authentication
                 ;; if required by the http binding
-                (let ((authentication
-                        (and requires-authentication (get-authentication-procedure fastcgi-request))))
+                (let ((authentication (and requires-authentication (get-authentication-procedure fastcgi-request))))
                   (if (and requires-authentication (not authentication))
                     (begin
                       (fastcgi-write-response-line fastcgi-request "Status: 401 Unauthorized")
@@ -85,56 +96,65 @@
                                   (abort
                                     (format "unsupported request-content-type ~A"
                                       request-content-type)))))
-                           (request
-                             (parse-request-procedure route-captures fastcgi-request-body)))
+                           (request (parse-request-procedure route-captures fastcgi-request-body)))
+
+                      ;; keep track of the current request
                       (if request
+                        (begin
+                          (set! http-server-request-current
+                            (make-http-server-request
+                              fastcgi-request-method
+                              fastcgi-request-uri
+                              fastcgi-request-body))
 
-                        ;; invoke the service within a database transaction
-                        (http-with-validation-errors-exception-handling
-                          (lambda ()
-                            (let ((response
-                                    (if sql-connection
-                                      (with-sql-deadlock-retries 3
-                                        (lambda ()
-                                          (within-sql-transaction sql-connection
-                                            (lambda ()
-                                              (service-procedure request
-                                                sql-connection jobs-queue-connection
-                                                authentication configuration)))))
-                                      (service-procedure request
-                                        sql-connection jobs-queue-connection
-                                        authentication configuration))))
+                          ;; handle validation error exceptions
+                          (http-with-validation-errors-exception-handling
+                            (lambda ()
 
-                              ;; format and write the response
-                              (if response-content-type
-                                (let ((fastcgi-response-body (format-response-procedure response)))
+                              ;; invoke the service within a database transaction
+                              (let ((response
+                                      (if sql-connection
+                                        (with-sql-deadlock-retries 3
+                                          (lambda ()
+                                            (within-sql-transaction sql-connection
+                                              (lambda ()
+                                                (service-procedure request
+                                                  sql-connection jobs-queue-connection
+                                                  authentication configuration)))))
+                                        (service-procedure request
+                                          sql-connection jobs-queue-connection
+                                          authentication configuration))))
+
+                                ;; format and write the response
+                                (if response-content-type
+                                  (let ((fastcgi-response-body (format-response-procedure response)))
+                                    (begin
+                                      (fastcgi-write-response-line fastcgi-request "Status: 200 OK")
+                                      (fastcgi-write-response-line fastcgi-request
+                                        (string-append "Content-Type: " response-content-type))
+                                      (fastcgi-write-response-line fastcgi-request "")
+                                      (cond
+                                        ((equal? response-content-type "application/json; charset=utf-8")
+                                          (fastcgi-write-response-line fastcgi-request fastcgi-response-body))
+                                        ((or (equal? response-content-type "application/octet-stream")
+                                             (equal? response-content-type "application/pdf"))
+                                          (fastcgi-write-response-blob fastcgi-request fastcgi-response-body))
+                                        (else
+                                          (abort
+                                            (format "unsupported response-content-type ~A"
+                                              response-content-type))))))
                                   (begin
-                                    (fastcgi-write-response-line fastcgi-request "Status: 200 OK")
-                                    (fastcgi-write-response-line fastcgi-request
-                                      (string-append "Content-Type: " response-content-type))
-                                    (fastcgi-write-response-line fastcgi-request "")
-                                    (cond
-                                      ((equal? response-content-type "application/json; charset=utf-8")
-                                        (fastcgi-write-response-line fastcgi-request fastcgi-response-body))
-                                      ((or (equal? response-content-type "application/octet-stream")
-                                           (equal? response-content-type "application/pdf"))
-                                        (fastcgi-write-response-blob fastcgi-request fastcgi-response-body))
-                                      (else
-                                        (abort
-                                          (format "unsupported response-content-type ~A"
-                                            response-content-type))))))
-                                (begin
-                                  (fastcgi-write-response-line fastcgi-request "Status: 204 No Content")
-                                  (fastcgi-write-response-line fastcgi-request "")))))
+                                    (fastcgi-write-response-line fastcgi-request "Status: 204 No Content")
+                                    (fastcgi-write-response-line fastcgi-request "")))))
 
-                          ;; the request validation failed
-                          (lambda (validation-errors)
-                            (fastcgi-write-response-line fastcgi-request "Status: 422 Unprocessable Entity")
-                            (fastcgi-write-response-line fastcgi-request
-                              (string-append "Content-Type: application/json; charset=utf-8"))
-                            (fastcgi-write-response-line fastcgi-request "")
-                            (fastcgi-write-response-line fastcgi-request
-                              (http-format-validation-errors validation-errors))))
+                            ;; the request validation failed
+                            (lambda (validation-errors)
+                              (fastcgi-write-response-line fastcgi-request "Status: 422 Unprocessable Entity")
+                              (fastcgi-write-response-line fastcgi-request
+                                (string-append "Content-Type: application/json; charset=utf-8"))
+                              (fastcgi-write-response-line fastcgi-request "")
+                              (fastcgi-write-response-line fastcgi-request
+                                (http-format-validation-errors validation-errors)))))
 
                         ;; the request could not be parsed
                         (begin
