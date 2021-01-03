@@ -2,9 +2,6 @@ monitoring-init
 ---------------
 Initializes the monitoring.
 
-Simply point to a statsd server and automatically  
-gain timings on all the services and table operations.
-
 __ip-address__  
 A statsd server ip address.
 

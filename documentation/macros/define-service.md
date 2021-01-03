@@ -1,12 +1,13 @@
 define-service
 --------------
-A service can be any procedure.
-
-Using this macro provides free features,  
-such as monitoring of execution time.
+A service can be any procedure, but  
+using this macro provides free features.
 
     (define-service ([service-name] ...)
       ...)
+
+If the monitoring unit is initialized, the execution  
+time of the service procedure will be tracked.
 
 validate-request
 ----------------
@@ -176,7 +177,7 @@ update-modified-rows
 --------------------
 Matches the subrequests and rows on the first specified values.
 
-Subrequests that have not match are passed to the first procedure.  
+Subrequests that have not matched are passed to the first procedure.  
 Matching pairs are compared on the other specified values.  
 If anything has changed they are passed to the second procedure.  
 Rows that have no match are deleted.
@@ -383,15 +384,13 @@ Place the following code in sources/main.scm.
 
     (: update-cookie-service (
       (struct update-cookie-request)
-      (struct sql-connection) * * ->
+      (struct sql-connection) ->
       (struct update-cookie-response)))
 
     (define-service
       (update-cookie-service
         update-cookie-request
-        sql-connection
-        authentication-token
-        configuration)
+        sql-connection)
 
       ;; validate the request
       (validate-request
@@ -538,9 +537,7 @@ Place the following code in sources/main.scm.
                 (make-update-cookie-cookie-ingredient-subrequest 3 3 1)
                 (make-update-cookie-cookie-ingredient-subrequest #f 4 12)))
 
-          sql-connection
-          #f
-          #f))))
+          sql-connection))))
 
 Run the following commands.
 

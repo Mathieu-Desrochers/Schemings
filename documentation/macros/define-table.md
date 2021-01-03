@@ -80,6 +80,11 @@ Each execute-procedure expands to a procedure such as below.
     (define (employees-table-delete-by-name sql-connection name)
       ...)
 
+monitoring
+----------
+If the monitoring unit is initialized, the execution  
+time of the table procedures will be tracked.
+
 try it
 ------
 Run the following commands.
