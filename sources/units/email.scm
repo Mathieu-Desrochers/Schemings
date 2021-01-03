@@ -8,6 +8,7 @@
 ;; encapsulates an email
 (define-typed-record email
   (from string)
+  (reply-to (or string false))
   (to string)
   (subject string)
   (body-text (or string false))

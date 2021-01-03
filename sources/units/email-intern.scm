@@ -19,28 +19,30 @@
 ;; sets the email fields of a mailmime*
 (: mailmime*-set-email-fields ((struct email) pointer -> noreturn))
 (define (mailmime*-set-email-fields email mailmime*)
-  (let ((from* (mailimf-mailbox-list-new-empty)))
-    (unless from*
-      (abort "failed to create mailimf-mailbox-list"))
-    (let ((add-parse-result (mailimf-mailbox-list-add-parse from* (email-from email))))
-      (unless (eq? add-parse-result 0)
-        (abort "failed to add parse mailimf-mailbox-list"))
-      (let ((to* (mailimf-address-list-new-empty)))
-        (unless to*
-          (abort "failed to create mailimf-mailbox-list"))
-        (let ((add-parse-result (mailimf-address-list-add-parse to* (email-to email))))
-          (unless (eq? add-parse-result 0)
-            (abort "failed to add parse mailimf-address-list"))
-          (let ((mailimf-fields*
-                  (mailimf-fields-new-with-data
-                    from*
-                    #f #f
-                    to*
-                    #f #f #f #f
-                    (mailmime-strdup (email-subject email)))))
-            (unless mailimf-fields*
-              (abort "failed to create mailimf-fields"))
-            (mailmime-set-imf-fields mailmime* mailimf-fields*)))))))
+  (let ((from* (mailimf-mailbox-list-new-empty))
+        (reply-to* (if (email-reply-to email) (mailimf-address-list-new-empty) #f))
+        (to* (mailimf-address-list-new-empty)))
+    (unless from* (abort "failed to create mailimf-mailbox-list"))
+    (if (email-reply-to email) (unless reply-to* (abort "failed to create mailimf-mailbox-list")))
+    (unless to* (abort "failed to create mailimf-mailbox-list"))
+    (unless (eq? (mailimf-mailbox-list-add-parse from* (email-from email)) 0)
+      (abort "failed to add parse mailimf-mailbox-list"))
+    (if (email-reply-to email)
+      (unless (eq? (mailimf-address-list-add-parse reply-to* (email-reply-to email)) 0)
+        (abort "failed to add parse mailimf-address-list")))
+    (unless (eq? (mailimf-address-list-add-parse to* (email-to email)) 0)
+      (abort "failed to add parse mailimf-address-list"))
+    (let ((mailimf-fields*
+            (mailimf-fields-new-with-data
+              from*
+              #f
+              reply-to*
+              to*
+              #f #f #f #f
+              (mailmime-strdup (email-subject email)))))
+      (unless mailimf-fields*
+        (abort "failed to create mailimf-fields"))
+      (mailmime-set-imf-fields mailmime* mailimf-fields*))))
 
 ;; makes a mailmime* of type single
 (: make-single-mailmime* (
