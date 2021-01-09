@@ -1,6 +1,7 @@
-http-server-binding
--------------------
-A record with the following fields.
+http-binding
+------------
+A record with the following fields.  
+Used to register a service to the http server.
 
 - method
 - route-regex
@@ -29,6 +30,7 @@ Must accept the following parameters.
 
 - request
 - sql-connection
+- jobs-queue-connection
 - authentication
 - configuration
 
@@ -43,6 +45,19 @@ Must return the response body in one of these formats.
 
 - string
 - blob
+
+http-server-request
+-------------------
+A record with the following fields.
+
+- method
+- uri
+- body
+
+The server keeps track of the current request in the following global variable.  
+Useful when included in crash logs.
+
+    http-server-request-current
 
 http-server-start
 -----------------

@@ -99,29 +99,17 @@
 
       ;; parses the expression
       (let* ((response-symbol (cadr exp))
-             (fields (cddr exp))
-             (fields-symbol (map car fields)))
+             (fields (cddr exp)))
         `(begin
 
           (import srfi-1)
 
           ;; encapsulates a response
-          (define-record ,response-symbol ,@fields-symbol)
-
-          ;; declare the response types
-          (: ,(symbol-append 'make- response-symbol) (
-            ,@(map (lambda (field) (field-type->scheme-type (drop field 1))) fields) ->
-            (struct ,response-symbol)))
-          ,@(map
-            (lambda (field)
-              `(: ,(symbol-append response-symbol '- (car field)) (
-                (struct ,response-symbol) -> ,(field-type->scheme-type (drop field 1)))))
-            fields)
-          ,@(map
-            (lambda (field)
-              `(: ,(symbol-append response-symbol '- (car field) '-set!) (
-                (struct ,response-symbol) ,(field-type->scheme-type (drop field 1)) -> noreturn)))
-            fields)
+          (define-typed-record ,response-symbol
+            ,@(map
+                (lambda (field)
+                  `(,(car field) ,(field-type->scheme-type (drop field 1))))
+                fields))
 
           ;; formats a response to a json node
           (: ,(symbol-append 'json-format- response-symbol) (

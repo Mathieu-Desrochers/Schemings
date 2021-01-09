@@ -40,9 +40,11 @@ Place the following code in sources/main.scm.
           smtp-connection
           (make-email
             "alice@hotmail.com"
+            "complaints-department@hotmail.com"
             "bob@hotmail.com"
             "ALERT: Candies in the kitchen"
             "No kidding.\nFirst come first served.\n\nAlice"
+            "<html><body>We have <b>candies</b> in the kitchen.</body></html>"
             (list)))))
 
 Run the following commands.

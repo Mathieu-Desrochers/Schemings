@@ -29,6 +29,11 @@ Run the following commands.
     $ sudo cp hungarian.h /usr/local/include
     $ sudo cp libhungarian.a /usr/local/lib
 
+    $ unzip libraries/statsd-c-client-master.zip
+    $ cd statsd-c-client-master
+    $ make
+    $ sudo make install
+
     $ sudo chicken-install srfi-1
     $ sudo chicken-install srfi-4
     $ sudo chicken-install srfi-13

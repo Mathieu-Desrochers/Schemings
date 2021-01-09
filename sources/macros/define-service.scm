@@ -1,6 +1,20 @@
 (import-for-syntax srfi-1)
 (import-for-syntax srfi-13)
 
+(define-syntax define-service
+  (er-macro-transformer
+    (lambda (exp rename compare)
+      `(begin
+
+        (declare (uses monitoring))
+
+        ;; provide monitoring timing
+        (define (,@(cadr exp))
+          (with-monitoring-timing
+            ,(string-append "services,name=" (symbol->string (caadr exp)))
+            (lambda ()
+              ,@(cddr exp))))))))
+
 (define-syntax validate-request
   (er-macro-transformer
     (lambda (exp rename compare)

@@ -31,11 +31,12 @@ Every library we needed is included here. That covers a broad base.
 - crypto
 - emails
 - fastcgi integration
-- http handling
+- http server and client
 - image processing
 - json parsing and formatting
 - pdf reports
 - regular expressions
+- statsd monitoring
 - sqlite
 - unicode
 

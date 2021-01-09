@@ -22,17 +22,22 @@ Run the following commands.
     $ sudo apt install sqlite3
     $ sudo apt install texlive-full
 
-    $ wget https://code.call-cc.org/releases/5.0.0/chicken-5.0.0.tar.gz
-    $ tar -xf chicken-5.0.0.tar.gz
-    $ cd chicken-5.0.0
-    $ make PLATFORM=linux
-    $ sudo make PLATFORM=linux install
-
     $ tar -xf libraries/libhungarian-v0.1.3.tgz
     $ cd libhungarian
     $ make
     $ sudo cp hungarian.h /usr/local/include
     $ sudo cp libhungarian.a /usr/local/lib
+
+    $ unzip libraries/statsd-c-client-master.zip
+    $ cd statsd-c-client-master
+    $ make
+    $ sudo make install
+
+    $ wget https://code.call-cc.org/releases/5.0.0/chicken-5.0.0.tar.gz
+    $ tar -xf chicken-5.0.0.tar.gz
+    $ cd chicken-5.0.0
+    $ make PLATFORM=linux
+    $ sudo make PLATFORM=linux install
 
     $ sudo chicken-install srfi-1
     $ sudo chicken-install srfi-4
