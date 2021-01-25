@@ -41,7 +41,7 @@ build/types : $(OBJECTS)
 
 main : build/macros.scm build/object.o build/types sources/main.scm
 	csc5 -L '-lb64 -lcbor -lconfig -lcurl -letpan -lfcgi -lhungarian -licuuc' \
-	-L '-licui18n -ljansson -lpcre -lsodium -lsqlite3 -lstatsdclient -lzmq' \
+	-L '-licui18n -ljansson -lpcre -lpq -lsodium -lsqlite3 -lstatsdclient -lzmq' \
 	-L '`pkg-config --libs MagickWand`' \
 	-extend build/macros.scm -types build/types build/object.o \
 	sources/main.scm -o main

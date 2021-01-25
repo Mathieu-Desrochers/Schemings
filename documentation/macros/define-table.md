@@ -24,15 +24,35 @@ Defines a table.
             "WHERE \"name\" = ?1;")
           ("?1" string))))
 
-Supported column types (sqlite3 type):
+Supported column types:
 
-- boolean (INTEGER)
-- integer (INTEGER)
-- number (REAL)
-- string (TEXT)
-- date (TEXT)
-- date-time (TEXT)
-- time (TEXT)
+- boolean
+- integer
+- number
+- string
+- date
+- date-time
+- time
+
+Postgresql data types:
+
+- boolean: boolean
+- integer: integer
+- number: double precision
+- string: varchar(n)
+- date: date
+- date-time: timestamp
+- time: time
+
+Sqlite3 data types:
+
+- boolean: INTEGER
+- integer: INTEGER
+- number: REAL
+- string: TEXT
+- date: TEXT
+- date-time: TEXT
+- time: TEXT
 
 Assumes the first column is declared like so.
 
