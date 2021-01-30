@@ -84,12 +84,16 @@
 (define (latex-headers-legal)
   (string-append
     "\\documentclass{article}\n"
-    "\\usepackage{array}\n"
+    "\\usepackage{array,multirow}\n"
     "\\usepackage{fancyhdr}\n"
     "\\usepackage[legalpaper,portrait,margin=0.4in]{geometry}\n"
+    "\\usepackage{graphicx}\n"
+    "\\usepackage{grfext}\n"
     "\\usepackage[utf8]{inputenc}\n"
     "\\usepackage{ltablex}\n"
     "\\usepackage{nicefrac}\n"
+    "\\usepackage{textpos}\n"
+    "\\usepackage{tikz}\n"
     "\\usepackage[breakwords]{truncate}\n"
     "\\usepackage{utopia}\n"
     "\\keepXColumns\n"
@@ -100,7 +104,38 @@
     "\\setlength{\\headsep}{0.2in}\n"
     "\\setlength{\\LTleft}{0in}\n"
     "\\setlength{\\parindent}{0in}\n"
-    "\\setlength{\\textheight}{12.2in}\n"))
+    "\\setlength{\\textheight}{12.2in}\n"
+    "\\PrependGraphicsExtensions{}\n"
+    "\\DeclareGraphicsRule{*}{jpg}{*}{}\n"))
+
+;; returns latex headers that produce a nice landscape layout
+(: latex-headers-landscape (-> string))
+(define (latex-headers-landscape)
+  (string-append
+    "\\documentclass{article}\n"
+    "\\usepackage{array,multirow}\n"
+    "\\usepackage{fancyhdr}\n"
+    "\\usepackage[letterpaper,landscape,margin=0.4in]{geometry}\n"
+    "\\usepackage{graphicx}\n"
+    "\\usepackage{grfext}\n"
+    "\\usepackage[utf8]{inputenc}\n"
+    "\\usepackage{ltablex}\n"
+    "\\usepackage{nicefrac}\n"
+    "\\usepackage{textpos}\n"
+    "\\usepackage{tikz}\n"
+    "\\usepackage[breakwords]{truncate}\n"
+    "\\usepackage{utopia}\n"
+    "\\keepXColumns\n"
+    "\\pagestyle{fancyplain}\n"
+    "\\renewcommand{\\arraystretch}{1.4}\n"
+    "\\renewcommand{\\headrulewidth}{0in}\n"
+    "\\setlength{\\headheight}{0.9in}\n"
+    "\\setlength{\\headsep}{0.2in}\n"
+    "\\setlength{\\LTleft}{0in}\n"
+    "\\setlength{\\parindent}{0in}\n"
+    "\\setlength{\\textheight}{6.7in}\n"
+    "\\PrependGraphicsExtensions{}\n"
+    "\\DeclareGraphicsRule{*}{jpg}{*}{}\n"))
 
 ;; returns latex headers that produce
 ;; an absolute positioning friendly layout

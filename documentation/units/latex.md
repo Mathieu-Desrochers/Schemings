@@ -32,6 +32,13 @@ Returns latex headers that produce a nice legal layout.
 __result__  
 The latex headers.
 
+latex-headers-landscape
+-----------------------
+Returns latex headers that produce a nice landscape layout.
+
+__result__  
+The latex headers.
+
 latex-headers-absolute-positioning
 ----------------------------------
 Returns latex headers that produce an absolute positioning friendly layout.
