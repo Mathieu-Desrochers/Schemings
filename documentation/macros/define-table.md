@@ -14,29 +14,29 @@ Defines a table.
           (string-append
             "SELECT * "
             "FROM \"employees\" "
-            "WHERE \"name\" = ?1;")
-          ("?1" string)))
+            "WHERE \"name\" = $1;")
+          ("$1" string)))
       (execute-procedures
         (employees-table-delete-by-name
           (string-append
             "DELETE "
             "FROM \"employees\" "
-            "WHERE \"name\" = ?1;")
-          ("?1" string))))
+            "WHERE \"name\" = $1;")
+          ("$1" string))))
 
-Supported column types (sqlite3 type):
+Supported column types (postgresql type):
 
-- boolean (INTEGER)
-- integer (INTEGER)
-- number (REAL)
-- string (TEXT)
-- date (TEXT)
-- date-time (TEXT)
-- time (TEXT)
+- boolean (boolean)
+- integer (integer)
+- number (double precision)
+- string (varchar(n))
+- date (date)
+- date-time (timestamp)
+- time (time)
 
 Assumes the first column is declared like so.
 
-- INTEGER PRIMARY KEY AUTOINCREMENT
+- SERIAL PRIMARY KEY
 
 record definition
 -----------------
@@ -89,15 +89,15 @@ try it
 ------
 Run the following commands.
 
-    $ sqlite3 example.db
+    $ psql
 
-    sqlite> CREATE TABLE "employees"
-       ...> (
-       ...>   "employee-id" INTEGER PRIMARY KEY AUTOINCREMENT,
-       ...>   "name" TEXT,
-       ...>   "hiring-date" TEXT
-       ...> );
-    sqlite> .exit
+    database=> CREATE TABLE "employees"
+    database-> (
+    database->   "employee-id" SERIAL PRIMARY KEY,
+    database->   "name" varchar(100),
+    database->   "hiring-date" date
+    database-> );
+    database=> \q
 
 Place the following code in sources/main.scm.
 
@@ -106,7 +106,7 @@ Place the following code in sources/main.scm.
     ;; as above
     (define-table ...)
 
-    (with-sql-connection "example.db"
+    (with-sql-connection "dbname=database"
       (lambda (sql-connection)
 
         (display

@@ -47,7 +47,7 @@
         (string-join
           (map
             (lambda (column-index)
-              (string-append "?" (number->string (+ column-index 1))))
+              (string-append "$" (number->string (+ column-index 1))))
             (iota (length columns)))
           ", "))
 
@@ -58,7 +58,7 @@
             (lambda (column-index)
               (string-append
                 "\"" (column-name (list-ref columns column-index)) "\" = "
-                "?" (number->string (+ column-index first-variable-number))))
+                "$" (number->string (+ column-index first-variable-number))))
             (iota (length columns)))
           ", "))
 
@@ -153,7 +153,7 @@
                     ,(string-append
                       "SELECT * "
                       "FROM \"" table-name "\" "
-                      "WHERE \"" (column-name id-column) "\" = ?1;")
+                      "WHERE \"" (column-name id-column) "\" = $1;")
                     (list
                       ,(column-symbol id-column)))))))
 
@@ -195,7 +195,7 @@
                   ,(string-append
                     "UPDATE \"" table-name "\" "
                     "SET " (join-columns-assignation value-columns 2)
-                    "WHERE \"" (column-name id-column) "\" = ?1;")
+                    "WHERE \"" (column-name id-column) "\" = $1;")
                   (list
                     ,@(map
                       (lambda (column)
@@ -218,7 +218,7 @@
                   ,(string-append
                     "DELETE "
                     "FROM \"" table-name "\" "
-                    "WHERE \"" (column-name id-column) "\" = ?1;")
+                    "WHERE \"" (column-name id-column) "\" = $1;")
                   (list
                     (,(symbol-append row-symbol '- (column-symbol id-column)) ,row-symbol))))))
 
