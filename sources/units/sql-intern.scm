@@ -104,6 +104,18 @@
     (let ((rows (accumulate-rows '())))
       (reverse rows))))
 
+;; raises a deadlock exception
+(: sql-raise-deadlock-exception (-> noreturn))
+(define (sql-raise-deadlock-exception)
+  (let ((condition (make-property-condition 'sql-deadlock)))
+    (abort condition)))
+
+;; returns whether an exception was caused by a deadlock
+(: sql-deadlock-exception? (condition -> boolean))
+(define (sql-deadlock-exception? exception)
+  ((condition-predicate 'sql-deadlock)
+    exception))
+
 ;; downgrades a value to a database supported format
 (: table-value->sql-value (* symbol -> *))
 (define (table-value->sql-value value value-type)

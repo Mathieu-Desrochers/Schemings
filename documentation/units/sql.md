@@ -59,17 +59,6 @@ A sql connection.
 __result__  
 The generated id.
 
-sql-searchable-string
----------------------
-Returns a string to be used for accent and case  
-insensitive searches using the LIKE value% construct.
-
-__string__  
-A string.
-
-__result__  
-The searchable string.
-
 with-sql-deadlock-retries
 -------------------------
 Executes a procedure until no deadlock occurs  
@@ -81,27 +70,16 @@ A maximum number of retries.
 __procedure__  
 A procedure to invoke.
 
-sql-raise-deadlock-exception
-----------------------------
-Raises a deadlock exception.
+sql-searchable-string
+---------------------
+Returns a string to be used for accent and case  
+insensitive searches using the LIKE value% construct.
 
-sql-deadlock-exception?
------------------------
-Returns whether an exception was caused by a deadlock.
+__string__  
+A string.
 
-__exception__  
-An exception.
-
-without-sql-transaction
------------------------
-Executes a procedure outside of the current transaction.  
-The transaction is committed then restarted.
-
-__sql-connection__  
-A sql connection.
-
-__procedure__  
-A procedure invoked without the transaction.
+__result__  
+The searchable string.
 
 try it
 ------

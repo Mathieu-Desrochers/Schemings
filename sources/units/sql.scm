@@ -83,16 +83,6 @@
 (define (sql-last-generated-id sql-connection)
   (caar (sql-read sql-connection "SELECT last_insert_rowid();" (list))))
 
-;; returns a string to be used for accent and case
-;; insensitive searches using the like value% construct
-(: sql-searchable-string (string -> string))
-(define (sql-searchable-string string)
-  (utf8-lower-case
-    (utf8-remove-accents
-      (string-delete
-        (string->char-set "%_")
-        string))))
-
 ;; executes a procedure until no deadlock occurs
 ;; or a maximum number of retries is reached
 (define (with-sql-deadlock-retries count procedure)
@@ -114,26 +104,12 @@
             (procedure)))))
     (with-sql-retry-on-deadlock-inner 1)))
 
-;; raises a deadlock exception
-(: sql-raise-deadlock-exception (-> noreturn))
-(define (sql-raise-deadlock-exception)
-  (let ((condition (make-property-condition 'sql-deadlock)))
-    (abort condition)))
-
-;; returns whether an exception was caused by a deadlock
-(: sql-deadlock-exception? (condition -> boolean))
-(define (sql-deadlock-exception? exception)
-  ((condition-predicate 'sql-deadlock)
-    exception))
-
-;; executes a procedure outside of the current transaction
-;; the transaction is committed then restarted
-(: without-sql-transaction (forall (r) ((struct sql-connection) (-> r) -> r)))
-(define (without-sql-transaction sql-connection procedure)
-  (with-guaranteed-release
-    (lambda ()
-      (sql-execute sql-connection "COMMIT TRANSACTION;" (list)))
-    (lambda (_)
-      (procedure))
-    (lambda (_)
-      (sql-execute sql-connection "BEGIN IMMEDIATE TRANSACTION;" (list)))))
+;; returns a string to be used for accent and case
+;; insensitive searches using the like value% construct
+(: sql-searchable-string (string -> string))
+(define (sql-searchable-string string)
+  (utf8-lower-case
+    (utf8-remove-accents
+      (string-delete
+        (string->char-set "%_")
+        string))))
