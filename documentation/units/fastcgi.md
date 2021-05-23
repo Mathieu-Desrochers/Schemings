@@ -88,35 +88,28 @@ Place the following code in sources/main.scm.
 Run the following commands.
 
     $ make
-    $ cp main /tmp
+    $ spawn-fcgi -p 9000 main
 
-Place the following configuration in lighttpd.conf.
+Place the following configuration in httpd.conf.
 
-    server.modules += ( "mod_fastcgi" )
+    server "default" {
+      listen on 0.0.0.0 port 80
+      fastcgi socket tcp 127.0.0.1 9000
+    }
 
-    fastcgi.server += (
-      "/main/" =>
-      ( "main" =>
-        (
-          "bin-path" => "/tmp/main",
-          "check-local" => "disable",
-          "socket" => "/tmp/main-socket"
-        )
-      )
-    )
+Start the httpd server and run the following command.
 
-Start the lighttpd server and run the following command.
-
-    $ curl -i 'http://localhost/main/pastas'
+    $ curl -i 'http://localhost/doughnuts'
 
     HTTP/1.1 200 OK
-    Content-Length: 54
-    Date: Sat, 18 May 2019 19:01:20 GMT
-    Server: lighttpd/1.4.53
-
-    Your request was GET /main/pastas.
+    Connection: keep-alive
+    Date: Sun, 23 May 2021 14:36:11 GMT
+    Server: OpenBSD httpd
+    Transfer-Encoding: chunked
+    
+    Your request was GET /doughnuts.
     Bee seeing you...
 
 powered by
 ----------
-The great libfcgi.
+The great fastcgi.

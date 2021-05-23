@@ -107,14 +107,15 @@ Place the following code in sources/main.scm.
     ;; would be part of your application code
     (define-record get-dog-request id)
     (define-record get-dog-response greeting)
-    (define (get-dog-service get-dog-request sql-connection authentication configuration)
+    (define
+      (get-dog-service get-dog-request sql-connection jobs-queue-connection authentication configuration)
       (make-get-dog-response "woof"))
 
     ;; make an http-binding for the service
     (let ((get-dog-http-binding
             (make-http-binding
               "GET"
-              "^/main/dogs/(\\d{1,6})$"
+              "^/dogs/(\\d{1,6})$"
               #f
               "application/json; charset=utf-8"
               get-dog-service
@@ -132,31 +133,24 @@ Place the following code in sources/main.scm.
           get-dog-http-binding)
         #f
         #f
+        #f
         #f))
 
 Run the following commands.
 
     $ make
-    $ cp main /tmp
+    $ spawn-fcgi -p 9000 main
 
-Place the following configuration in lighttpd.conf.
+Place the following configuration in httpd.conf.
 
-    server.modules += ( "mod_fastcgi" )
+    server "default" {
+      listen on 0.0.0.0 port 80
+      fastcgi socket tcp 127.0.0.1 9000
+    }
 
-    fastcgi.server += (
-      "/main/" =>
-      ( "main" =>
-        (
-          "bin-path" => "/tmp/main",
-          "check-local" => "disable",
-          "socket" => "/tmp/main-socket"
-        )
-      )
-    )
+Start the httpd server and run the following command.
 
-Start the lighttpd server and run the following command.
-
-    $ curl -i 'http://localhost/main/dogs/1'
+    $ curl -i 'http://localhost/dogs/1'
 
     HTTP/1.1 200 OK
     Content-Type: application/json; charset=utf-8
@@ -166,7 +160,7 @@ Start the lighttpd server and run the following command.
 
     woof
 
-    $ curl -i 'http://localhost/main/cats'
+    $ curl -i 'http://localhost/cats'
 
     HTTP/1.1 404 Not Found
     Content-Length: 0

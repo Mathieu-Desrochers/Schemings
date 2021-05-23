@@ -2,8 +2,8 @@
 
 (foreign-declare "
 
-#include <b64/cencode.h>
-#include <b64/cdecode.h>
+#include <cencode.h>
+#include <cdecode.h>
 
 // allocates a base64_encodestate
 base64_encodestate* malloc_base64_encodestate()

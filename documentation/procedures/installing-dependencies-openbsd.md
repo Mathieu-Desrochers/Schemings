@@ -11,6 +11,7 @@ Run the following commands.
     $ doas pkg_add libconfig
     $ doas pkg_add libsodium
     $ doas pkg_add libetpan
+    $ doas pkg_add spawn-fcgi
     $ doas pkg_add sqlite3
     $ doas pkg_add texlive_base
 
@@ -32,8 +33,9 @@ Run the following commands.
     $ gmake
     $ doas gmake install
 
-    $ sudo chicken-install5 srfi-1
-    $ sudo chicken-install5 srfi-4
-    $ sudo chicken-install5 srfi-13
-    $ sudo chicken-install5 srfi-14
-    $ sudo chicken-install5 srfi-69
+    $ doas chicken-install srfi-1
+    $ doas chicken-install srfi-4
+    $ doas chicken-install srfi-13
+    $ doas chicken-install srfi-14
+    $ doas chicken-install srfi-18
+    $ doas chicken-install srfi-69

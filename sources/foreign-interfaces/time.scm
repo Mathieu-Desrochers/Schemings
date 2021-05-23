@@ -46,7 +46,7 @@ void free_tm(struct tm* tm)
 }
 
 // wraps the gmtime_r function
-struct tm* gmtime_r_wrapped(long timer, struct tm* tm)
+struct tm* gmtime_r_wrapped(int64_t timer, struct tm* tm)
 {
   return gmtime_r(&timer, tm);
 }
@@ -77,10 +77,10 @@ char* strftime_wrapped(const char* format, const struct tm* tm)
 (define free-tm (foreign-lambda void "free_tm" tm*))
 
 ;; returns the number of seconds since the epoch
-(define time* (foreign-lambda long "time" (c-pointer long)))
+(define time* (foreign-lambda integer64 "time" (c-pointer integer64)))
 
 ;; breaks down the number of seconds since epoch
-(define gmtime-r (foreign-lambda tm* "gmtime_r_wrapped" long tm*))
+(define gmtime-r (foreign-lambda tm* "gmtime_r_wrapped" integer64 tm*))
 
 ;; gets the parts of a broken down time
 (define tm-sec (foreign-lambda int "tm_sec" tm*))
@@ -100,7 +100,7 @@ char* strftime_wrapped(const char* format, const struct tm* tm)
 (define tm-year-set! (foreign-lambda void "tm_year_set" tm* int))
 
 ;; recombines the number of seconds since epoch
-(define timegm (foreign-lambda long "timegm" tm*))
+(define timegm (foreign-lambda integer64 "timegm" tm*))
 
 ;; format a broken down time
 (define strftime (foreign-lambda c-string* "strftime_wrapped" (const c-string) (const tm*)))

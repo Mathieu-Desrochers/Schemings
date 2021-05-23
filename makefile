@@ -16,12 +16,12 @@ BUILD = build/macros.scm \
 all : $(BUILD) main tags
 
 %.o : %.scm build/macros.scm
-	csc5 -I/usr/include -I/usr/local/include \
+	chicken-csc -I/usr/include -I/usr/local/include \
 	-C -Wno-pointer-sign -C '`pkg-config --cflags MagickWand`' \
 	-extend build/macros.scm -emit-types-file $(subst .scm,.types,$<) -c $< -o $@
 
 %.types.check : %.scm build/types
-	csc5 -I/usr/include -I/usr/local/include \
+	chicken-csc -I/usr/include -I/usr/local/include \
 	-C -Wno-pointer-sign -C '`pkg-config --cflags MagickWand`' \
 	-types build/types -c $< -o $@
 
@@ -40,14 +40,14 @@ build/types : $(OBJECTS)
 	cat $(TYPES) > $@
 
 main : build/macros.scm build/object.o build/types sources/main.scm
-	csc5 -L '-lb64 -lcbor -lconfig -lcurl -letpan -lfcgi -lhungarian -licuuc' \
+	chicken-csc -L '-lb64 -lcbor -lconfig -lcurl -letpan -lfcgi -lhungarian -licuuc' \
 	-L '-licui18n -ljansson -lpcre -lsodium -lsqlite3 -lstatsdclient -lzmq' \
 	-L '`pkg-config --libs MagickWand`' \
 	-extend build/macros.scm -types build/types build/object.o \
 	sources/main.scm -o main
 
 tags : $(OBJECTS)
-	ctags -R --languages=scheme
+	uctags -R --language-force=scheme
 
 check-types : $(TYPES_CHECK)
 
