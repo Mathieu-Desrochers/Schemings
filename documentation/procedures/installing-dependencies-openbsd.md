@@ -20,7 +20,7 @@ Run the following commands.
     $ gmake
     $ doas cp include/b64/cdecode.h /usr/local/include
     $ doas cp include/b64/cencode.h /usr/local/include
-    $ doas cp scr/libb64.a /usr/local/lib
+    $ doas cp src/libb64.a /usr/local/lib
 
     $ tar -xzf libraries/libhungarian-v0.1.3.tgz
     $ cd libhungarian
