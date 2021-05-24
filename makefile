@@ -56,8 +56,8 @@ install :
 	cp build/* /usr/local/Schemings
 
 clean :
-	find . -name '*.o' | xargs /bin/rm -f
-	find . -name '*.types' | xargs /bin/rm -f
+	find . -name '*.o' | xargs -r /bin/rm -f
+	find . -name '*.types' | xargs -r /bin/rm -f
 	rm -rf build
 	rm -f tags
 	rm -f main
