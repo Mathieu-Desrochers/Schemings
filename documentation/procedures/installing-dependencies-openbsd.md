@@ -13,7 +13,7 @@ Run the following commands.
     $ doas pkg_add libetpan
     $ doas pkg_add spawn-fcgi
     $ doas pkg_add sqlite3
-    $ doas pkg_add texlive_base
+    $ doas pkg_add texlive_texmf-full
 
     $ unzip libraries/libb64-1.2.src.zip
     $ cd libb64-1.2
