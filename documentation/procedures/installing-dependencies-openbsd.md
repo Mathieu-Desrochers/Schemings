@@ -11,6 +11,7 @@ Run the following commands.
     $ doas pkg_add libconfig
     $ doas pkg_add libsodium
     $ doas pkg_add libetpan
+    $ doas pkg_add libev
     $ doas pkg_add spawn-fcgi
     $ doas pkg_add sqlite3
     $ doas pkg_add texlive_texmf-full
@@ -27,6 +28,12 @@ Run the following commands.
     $ gmake
     $ doas cp hungarian.h /usr/local/include
     $ doas cp libhungarian.a /usr/local/lib
+
+    $ tar -xzf multiwatch-1.0.0.tar.gz
+    $ cd multiwatch-1.0.0
+    $ ./configure CFLAGS="-I/usr/local/include -L/usr/local/lib"
+    $ gmake
+    $ doas gmake install
 
     $ unzip libraries/statsd-c-client-master.zip
     $ cd statsd-c-client-master
