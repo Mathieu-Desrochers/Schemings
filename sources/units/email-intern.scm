@@ -39,7 +39,11 @@
               reply-to*
               to*
               #f #f #f #f
-              (mailmime-strdup (email-subject email)))))
+              (mailmime-strdup
+                (string-append
+                  "=?utf-8?B?"
+                  (base64-encode (string->blob (email-subject email)))
+                  "?=")))))
       (unless mailimf-fields*
         (abort "failed to create mailimf-fields"))
       (mailmime-set-imf-fields mailmime* mailimf-fields*))))
