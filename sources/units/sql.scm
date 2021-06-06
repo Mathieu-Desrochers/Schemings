@@ -63,7 +63,7 @@
       (lambda (sqlite3-stmt*)
         (let ((sqlite3-step-result (sqlite3-step sqlite3-stmt*)))
           (if (= sqlite3-step-result sqlite3-result-busy)
-            (sql-raise-deadlock-exception))
+            (sql-raise-deadlock-exception statement))
           (if (not (= sqlite3-step-result sqlite3-result-done))
             (abort
               (format "failed to execute statement ~A with error code ~A"
@@ -96,9 +96,11 @@
                 (if (> inner-count count)
                   (begin
                     (debug-print (format "DEADLOCK could not be resolved after ~A retries" count))
+                    (debug-print ((condition-property-accessor 'sql-deadlock 'statement) exception))
                     (abort exception))
                   (begin
                     (debug-print (format "DEADLOCK occured on try ~A" inner-count))
+                    (debug-print ((condition-property-accessor 'sql-deadlock 'statement) exception))
                     (with-sql-retry-on-deadlock-inner (+ inner-count 1))))
                 (abort exception)))
             (procedure)))))
