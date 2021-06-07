@@ -7,6 +7,7 @@ Run the following commands.
     $ doas pkg_add fcgi
     $ doas pkg_add ImageMagick
     $ doas pkg_add icu4c
+    $ doas pkg_add incron
     $ doas pkg_add jansson
     $ doas pkg_add libconfig
     $ doas pkg_add libsodium
