@@ -34,10 +34,11 @@
                               (resolve-fcgx-paramarray fcgx-paramarray*)))
                           (fcgx-finish)
                           (fastcgi-accept-next-request))
-                        (abort
-                          (format
-                            "failed to accept fastcgi request with error ~A"
-                            fcgx-accept-result)))))))
+                        (unless (eq? fcgx-accept-result fcgx-accept-eintr)
+                          (abort
+                            (format
+                              "failed to accept fastcgi request with error ~A"
+                              fcgx-accept-result))))))))
         (fastcgi-accept-next-request)))))
 
 ;; returns the authorization header of a fastcgi request
