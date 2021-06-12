@@ -34,10 +34,11 @@
                               (resolve-fcgx-paramarray fcgx-paramarray*)))
                           (fcgx-finish)
                           (fastcgi-accept-next-request))
-                        (abort
-                          (format
-                            "failed to accept fastcgi request with error ~A"
-                            fcgx-accept-result)))))))
+                        (unless (eq? fcgx-accept-result fcgx-accept-eintr)
+                          (abort
+                            (format
+                              "failed to accept fastcgi request with error ~A"
+                              fcgx-accept-result))))))))
         (fastcgi-accept-next-request)))))
 
 ;; returns the authorization header of a fastcgi request
@@ -55,8 +56,10 @@
 ;; returns the uri of a fastcgi request
 (: fastcgi-request-uri ((struct fastcgi-request) -> string))
 (define (fastcgi-request-uri fastcgi-request)
-  (let ((fcgx-paramarray (fastcgi-request-fcgx-paramarray fastcgi-request)))
-    (fcgx-getparam "REQUEST_URI" fcgx-paramarray)))
+  (let* ((fcgx-paramarray (fastcgi-request-fcgx-paramarray fastcgi-request))
+         (request-uri (fcgx-getparam "REQUEST_URI" fcgx-paramarray))
+         (script-name (fcgx-getparam "SCRIPT_NAME" fcgx-paramarray)))
+    (string-drop request-uri (string-length script-name))))
 
 ;; reads the body of a fastcgi request
 (: fastcgi-read-request-body ((struct fastcgi-request) -> blob))

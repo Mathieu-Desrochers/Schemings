@@ -105,9 +105,9 @@
       (reverse rows))))
 
 ;; raises a deadlock exception
-(: sql-raise-deadlock-exception (-> noreturn))
-(define (sql-raise-deadlock-exception)
-  (let ((condition (make-property-condition 'sql-deadlock)))
+(: sql-raise-deadlock-exception (string -> noreturn))
+(define (sql-raise-deadlock-exception statement)
+  (let ((condition (make-property-condition 'sql-deadlock 'statement statement)))
     (abort condition)))
 
 ;; returns whether an exception was caused by a deadlock

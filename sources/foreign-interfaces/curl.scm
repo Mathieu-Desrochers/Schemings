@@ -31,7 +31,7 @@ size_t curl_easy_perform_write_callback(char* ptr, size_t size, size_t nmemb, vo
 }
 
 // wraps the curl_easy_perform function
-char* curl_easy_perform_wrapped(CURL* curl, long* result_code)
+char* curl_easy_perform_wrapped(CURL* curl, int* result_code)
 {
   struct curl_write_data* curl_write_data = malloc(sizeof(struct curl_write_data));
   curl_write_data->memory = calloc(1, 1);
@@ -133,4 +133,4 @@ long curl_easy_setopt_strings(CURL* curl, long option, struct curl_slist** curl_
 (define curl-easy-escape (foreign-lambda c-string* "curl_easy_escape" curl* (const c-string) int))
 
 ;; performs a blocking file transfer
-(define curl-easy-perform (foreign-lambda c-string* "curl_easy_perform_wrapped" curl* s64vector))
+(define curl-easy-perform (foreign-lambda c-string* "curl_easy_perform_wrapped" curl* s32vector))

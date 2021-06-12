@@ -42,7 +42,8 @@
               magick-wand*
               (inexact->exact (round (* original-width resize-ratio)))
               (inexact->exact (round (* original-height resize-ratio)))
-              magick-wand-lanczos-filter)
+              magick-wand-lanczos-filter
+              1.0)
             (abort
               (format "failed to resize image ~A"
                 original-file-name)))))

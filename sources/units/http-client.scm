@@ -106,9 +106,9 @@
                     0 256)))))
 
           ;; perform the request
-          (let* ((error-code-vector (make-s64vector 1 0))
+          (let* ((error-code-vector (make-s32vector 1 0))
                  (response-body (curl-easy-perform curl* error-code-vector))
-                 (error-code (s64vector-ref error-code-vector 0)))
+                 (error-code (s32vector-ref error-code-vector 0)))
             (unless (eq? error-code 0)
               (abort
                 (format "failed to perform http request ~A ~A with error code ~A"

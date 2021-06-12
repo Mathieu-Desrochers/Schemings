@@ -65,6 +65,7 @@ void free_fcgx_paramarray(FCGX_ParamArray* fcgx_paramarray)
 (define free-fcgx-paramarray (foreign-lambda void "free_fcgx_paramarray" fcgx-paramarray*))
 
 ;; accepts a new request from the http server
+(define fcgx-accept-eintr (foreign-value "-4" int))
 (define fcgx-accept
   (foreign-lambda int "FCGX_Accept"
     fcgx-stream** fcgx-stream** fcgx-stream** fcgx-paramarray*))
